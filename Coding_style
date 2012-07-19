@@ -1,0 +1,81 @@
+Comments on 'Coding style'
+-------------------------
+
+Primary objective of used coding style is code readability. For that spaces and
+tabulators are used. Tabulator length is 8 spaces, but is not replaced by
+spaces.
+
+Lines are broken at 80th column. Sometimes, less spaces are used to fit line
+within 80 columns. Variable and function names are not short. Instead their name
+should give basic description on their purpose. Little more description is
+placed before function code (in .c file).
+
+There is no enforced coding rule style: everything is formated for easy reading.
+Proposed style is best presented on examples.
+
+Clean code (using "strict" style) example:
+-------------------------------------------
+	if ( src_type == MSG_THREAD )
+	{
+		kthr = kthread_get_active ();
+		thrmsg = kthread_get_msgqs ( kthr );
+		kmsgq = &thrmsg->msgq;
+	}
+	else { /* src_type == MSG_QUEUE */
+		msgq = src;
+		kgmsgq = msgq->handle;
+		ASSERT_ERRNO_AND_EXIT ( kgmsgq && kgmsgq->id == msgq->id,
+					E_INVALID_HANDLE );
+		kmsgq = &kgmsgq->mq;
+	}
+
+Type definitions:
+------------------
+/*! message */
+typedef struct _kmsg_t_
+{
+	list_h list;
+	msg_t msg; /* message (variable length!) */
+}
+kmsg_t;
+
+Some argue that "kmsg_t" hide information, but I do not see any more
+information on "struct kmsg_t" (as they propose), so I use shorter type
+declaration.
+
+
+When breaking line on function call, I try to align next line with parameters,
+first with tabulator and last with spaces:
+
+	arch_create_thread_context ( &kthread->context, start_func, param,
+				     exit_func, stack, stack_size, proc );
+
+If that is not possible, various adaptations are used:
+
+example1:
+		new_kthr = kthread_create (
+			thrmsg->signal_handler,
+			K2U_GET_ADR ( cmsg, proc ), proc->pi->exit, 0,
+			kthread_get_prio ( kthr ) + 1, NULL, 0, 1, proc
+		);
+example2:
+				if ( first->thread )
+				{ /* alarm scheduled by thread */
+				proc = kthread_get_process ( first->thread );
+				kthread_create (
+					first->alarm.action,
+					first->alarm.param,
+					proc->pi->exit,
+					0,
+					kthread_get_prio ( first->thread ) + 1,
+					NULL, 0, 1,
+					proc
+				);
+				resched_thr++;
+				}
+				else { /* alarm scheduled by kernel */
+				first->alarm.action ( first->alarm.param );
+				}
+
+In example2 indentation in "if" is skipped so that code would not go to far
+right and that function calls would not be extremely broken across lines.

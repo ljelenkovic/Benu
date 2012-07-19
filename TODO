@@ -1,0 +1,57 @@
+ASSERT vs ASSERT_ERRNO_AND_EXIT
+-------------------------------
+Internal kernel functions should have ASSERT
+Syscall function should have ASSERT_ERRNO_AND_EXIT
+
+Parameters should be checked on both k* and sys__* functions,
+on k* with ASSERT and on sys__* with ASSERT_ERRNO_AND_EXIT.
+
+k* function can be called from sys__* (when same parameters are checked twice),
+but also from other k* functions (thats why k* functions must have ASSERT).
+
+---
+create kernel thread? priv. thread?
+=> NO privileged thread, just thread with give access to whole physical address
+   space, like idle thread (in "kernel_proc" process)
+---
+
+projects on:
+- security safe upgrade
+- error checking and returns on errors (such as "no memory" for even descriptor)
+- const, restrict keywords..., static
+
+
+Chapter 8:
+06 Dynamic processes
+05 Static processes
+04 Programs as process
+03 Programs as module
+02 User mode
+01 Syscall
+
+Chapter 7
+08 EDF
+07 RR
+06 Signals
+05 Messages
+04 Synchronization
+03 Extended context
+02 Threads
+01 User threads
+
+Chapter 6 OK
+
+Chapter 5
+03 Serial port
+02 Keyboard
+01 IO_Devices
+
+Chapter 4 OK
+
+
+IBOSfEaR incrementally built operating system for education and research
+OSIfEaR - operating system increments for education and research
+
+Bennu:
+Built for education, not (normal) usage
+Benu

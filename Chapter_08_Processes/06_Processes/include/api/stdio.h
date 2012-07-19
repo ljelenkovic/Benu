@@ -1,0 +1,17 @@
+/*! Printing on stdout, reading from stdin */
+#pragma once
+
+#include <types/io.h>
+
+int open ( char *pathname, int flags, mode_t mode );
+int close ( int fd );
+ssize_t read ( int fd, void *buf, size_t count );
+ssize_t write ( int fd, void *buf, size_t count );
+
+extern inline int get_char ();
+extern inline int clear_screen ();
+extern inline int goto_xy ( int x, int y );
+int printf ( char *format, ... );
+
+int change_stdin ( char *new_stdin );
+int change_stdout ( char *new_stdout );

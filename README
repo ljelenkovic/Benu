@@ -1,0 +1,22 @@
+Benu
+====
+
+Operating System Increments for Education and Research
+(_Built for _education, _not (normal) _usage)
+
+Simple operating system for demonstration only (academic)
+Build through several steps, each bringing something new.
+System is "work in progress", improved/extended with (almost) every year.
+
+Name Benu, besides acronym, represents an Egyptian bird...
+
+Previous version (https://github.com/l30nard0/os4ec/) is used in academic year
+2011/2012 i course Operating System for Embedded Computers.
+
+Full description (in Croatian) available in textbook at:
+	http://www.fer.unizg.hr/en/course/osfec
+	http://www.fer.unizg.hr/predmet/oszur
+
+This version changed interface (among many other things) to POSIX.
+
+Contact address: leonardo@zemris.fer.hr
