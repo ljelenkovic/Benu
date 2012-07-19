@@ -176,7 +176,7 @@
 #pragma once
 
 #ifdef MEM_TEST	/* standalone test, using standard libraries */
-#include "test/test.h"
+#include "../../lib/mm/test/test.h"
 #endif
 
 #include <types/basic.h>

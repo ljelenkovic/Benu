@@ -4,8 +4,8 @@
 #include <kernel/memory.h>
 
 /*! Kernel dynamic memory --------------------------------------------------- */
-#include <mm/ff_simple.h>
-#include <mm/gma.h>
+#include <lib/ff_simple.h>
+#include <lib/gma.h>
 
 #if MEM_ALLOCATOR_FOR_KERNEL == FIRST_FIT
 
@@ -58,23 +58,7 @@ struct _kprog_t_
 
 /*! Process ----------------------------------------------------------------- */
 
-/*! Object referenced in process (kernel object reference + additional info) */
-struct _kproc_object_t_
-{
-	void	*kobject;
-		 /* pointer to kernel object, e.g. device */
-	uint	 flags;
-		 /* various flags */
-	void	*ptr;
-		 /* pointer for extra per process info */
-
-	list_h	 spec;
-		 /* list for object purposes */
-
-	list_h	 list;
-};
-
-/*! Process (program loaded as modules) */
+/*! Process */
 struct _kprocess_t_
 {
 	kprog_t	     *prog;
@@ -90,6 +74,22 @@ struct _kprocess_t_
 		      /* kproc_object_t elements */
 
 	list_h	      list;
+};
+
+/*! Object referenced in process (kernel object reference + additional info) */
+struct _kproc_object_t_
+{
+	void	*kobject;
+		 /* pointer to kernel object, e.g. device */
+	uint	 flags;
+		 /* various flags */
+	void	*ptr;
+		 /* pointer for extra per process info */
+
+	list_h	 spec;
+		 /* list for object purposes */
+
+	list_h	 list;
 };
 
 /* -------------------------------------------------------------------------- */
