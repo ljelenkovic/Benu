@@ -250,7 +250,7 @@ int sys__open ( void *p )
 	descriptor_t *desc;
 
 	kdevice_t *kdev;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 	kprocess_t *proc;
 
 
@@ -274,7 +274,7 @@ int sys__open ( void *p )
 	if ( !kdev )
 		return EXIT_FAILURE;
 
-	kobj = kmalloc_proc_object ( proc, 0 );
+	kobj = kmalloc_kobject ( proc, 0 );
 	ASSERT_ERRNO_AND_EXIT ( kobj, ENOMEM );
 
 	kobj->kobject = kdev;
@@ -294,7 +294,7 @@ int sys__close ( void *p )
 	descriptor_t *desc;
 
 	kdevice_t *kdev;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 	kprocess_t *proc;
 
 	desc = *( (descriptor_t **) p );
@@ -313,7 +313,7 @@ int sys__close ( void *p )
 	ASSERT_ERRNO_AND_EXIT ( kdev && kdev->id == desc->id, EINVAL );
 
 	kobj->kobject = NULL;
-	kfree_proc_object ( proc, kobj );
+	kfree_kobject ( proc, kobj );
 
 	/* remove descriptor from device list */
 	list_remove ( &kdev->descriptors, 0, &kobj->spec );
@@ -341,7 +341,7 @@ static int read_write ( void *p, int op )
 	size_t count;
 
 	kdevice_t *kdev;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 	int retval;
 	kprocess_t *proc;
 

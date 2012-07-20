@@ -27,14 +27,16 @@
 
 #endif
 
-extern MEM_ALLOC_T *k_mpool; /* defined in *ff_simple.c, *gma.h, ... */
-
-
 /*! Kernel memory layout ---------------------------------------------------- */
 #include <types/basic.h>
 #include <lib/list.h>
 #include <api/prog_info.h>
 #include <arch/memory.h>
+
+
+extern MEM_ALLOC_T *k_mpool; /* defined in memory.c */
+extern kprog_t prog;
+extern list_t kobjects;
 
 void k_memory_init ();
 void k_memory_info ();
@@ -50,30 +52,13 @@ struct _kprog_t_
 
 	mseg_t	     *m;
 		      /* memory segment this program occupies */
-};
-
-/*! Process ----------------------------------------------------------------- */
-
-/*! Process */
-struct _kprocess_t_
-{
-	kprog_t	     *prog;
-	ffs_mpool_t  *stack_pool;
-
-	prog_info_t  *pi;
-		      /* process header */
-	mseg_t	      m;
-
-	int	      thread_count;
 
 	list_t	      kobjects;
-		      /* kproc_object_t elements */
-
-	list_h	      list;
+		      /* kobject_t elements */
 };
 
-/*! Object referenced in process (kernel object reference + additional info) */
-struct _kproc_object_t_
+/*! Object referenced in programs (kernel object reference + additional info) */
+struct _kobject_t_
 {
 	void	*kobject;
 		 /* pointer to kernel object, e.g. device */
@@ -94,9 +79,7 @@ struct _kproc_object_t_
 id_t k_new_id ();
 void k_free_id ( id_t id );
 
-int k_list_programs ( char *buffer, size_t buf_size );
-
 void k_memory_fault (); /* memory fault handler */
 
-void *kmalloc_proc_object ( kprocess_t *proc, size_t obj_size );
-void *kfree_proc_object ( kprocess_t *proc, kproc_object_t *kobj );
+void *kmalloc_kobject ( size_t obj_size );
+void *kfree_kobject ( kobject_t *kobj );

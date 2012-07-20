@@ -20,8 +20,6 @@ prog_info_t pi =
 	.prio =		THR_DEFAULT_PRIO,
 
 	.start_adr =	&user_code,
-	.heap =		&user_heap,
-	.stack =	&user_stack,
 	.end_adr =	&user_end,
 
 	.mpool =	NULL,
@@ -29,14 +27,14 @@ prog_info_t pi =
 
 int stdio_init (); /* implemented in stdio.c */
 
-/*! Initialize process environment */
+/*! Initialize user process environment */
 void prog_init ( void *args )
 {
 	/* open stdin & stdout */
 	stdio_init ();
 
 	/* initialize dynamic memory */
-	pi.mpool = mem_init ( pi.heap, (size_t) pi.stack - (size_t) pi.heap );
+	pi.mpool = mem_init ( pi.heap, pi.heap_size );
 
 	/* call starting function */
 	( (void (*) ( void * ) ) pi.entry ) ( args );

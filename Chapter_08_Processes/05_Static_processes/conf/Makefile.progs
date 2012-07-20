@@ -4,7 +4,7 @@
 # NOTE: This makefile requires already defined variables:
 #	AUTHOR, PROJECT, PLATFORM, BUILDDIR, CMACROS, LIBS, GMA, FIRST_FIT
 
-#if in command line given: debug=yes or/and optimize=yes add flags to CFLAFS...
+#if in command line given: debug=yes or/and optimize=yes add flags to CFLAGS...
 ifeq ($(debug),yes)
 	CFLAGS_U += -g
 	CMACROS_U += DEBUG
@@ -55,7 +55,7 @@ $(1)_MACROS := $(CMACROS_U) HEAP_SIZE=$$($(1)_HEAP_SIZE)	\
 
 $(1)_DIRS := $(wordlist 5,$(words $($(1))),$($(1))) $(DIRS_U)
 
-$(1)_FILES    := $$(foreach DIR,$$($(1)_DIRS),$$(wildcard $$(DIR)/*.c $$(DIR)/*.S))
+$(1)_FILES := $$(foreach DIR,$$($(1)_DIRS),$$(wildcard $$(DIR)/*.c $$(DIR)/*.S))
 $(1)_BUILDDIR := $(BUILD_U)/$(1)
 $(1)_BDIRS    := $$(addprefix $$($(1)_BUILDDIR)/,$$($(1)_DIRS))
 $(1)_OBJS     := $$(addprefix $$($(1)_BUILDDIR)/,$$($(1)_FILES))
@@ -82,23 +82,32 @@ $$($(1)_DIRS_CREATED):
 	@echo ">>> Compiling program >>> $(1) <<< ..."
 
 #define how to compile .c files
-$$($(1)_BUILDDIR)/%.o: %.c conf/config.ini conf/Makefile.progs conf/Makefile
+$$($(1)_BUILDDIR)/%.o: %.c conf/config.ini conf/Makefile.progs conf/Makefile \
+			$$($(1)_DIRS_CREATED)
 	@echo [compiling '$(1)'] $$< ...
 	@$$(CC_U) -c $$< -o $$@ -MMD $$(CFLAGS_U) \
 		$$(foreach INC,$$(INCLUDES_U),-I $$(INC)) \
 		$$(foreach MACRO,$$($(1)_MACROS),-D $$(MACRO))
 
 #define how to compile .S files (assembler)
-$$($(1)_BUILDDIR)/%.asm.o: %.S conf/config.ini conf/Makefile.progs conf/Makefile
+$$($(1)_BUILDDIR)/%.asm.o: %.S conf/config.ini conf/Makefile.progs \
+			   conf/Makefile $$($(1)_DIRS_CREATED)
 	@echo [compiling '$(1)'] $$< ...
 	@$$(CC_U) -c $$< -o $$@ -MMD $$(CFLAGS_U) \
 		$$(foreach INC,$$(INCLUDES_U),-I$$(INC)) \
 		$$(foreach MACRO,$$($(1)_MACROS),-D $$(MACRO))
 
+# preprocessed linker script
+$(1)_LDSCRIPT := $$($(1)_BUILDDIR)/ldscript.ld
+$$($(1)_LDSCRIPT): $(LDSCRIPT_U)
+	@$$(CC_U) -E -P -x c -o $$@ $$< $$(CFLAGS_U) \
+		$$(foreach INC,$$(INCLUDES_U),-I$$(INC)) \
+		$$(foreach MACRO,$$($(1)_MACROS),-D $$(MACRO))
+
 #target
-$$($(1)_TARGET): $$($(1)_DIRS_CREATED) $$($(1)_OBJS) $(LDSCRIPT_U)
+$$($(1)_TARGET): $$($(1)_DIRS_CREATED) $$($(1)_OBJS) $$($(1)_LDSCRIPT)
 	@echo [linking '$(1)'] $$@
-	@$$(LINK_U) -o $$@ $$($(1)_OBJS) $$(LDFLAGS_U)
+	@$$(LINK_U) -o $$@ $$($(1)_OBJS) $$(LDFLAGS_U) -T $$($(1)_LDSCRIPT)
 
 endef
 

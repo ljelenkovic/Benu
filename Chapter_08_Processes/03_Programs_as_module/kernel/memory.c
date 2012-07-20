@@ -18,6 +18,8 @@ MEM_ALLOC_T *k_mpool = NULL;
 /*! Memory segments */
 static mseg_t *mseg = NULL;
 
+list_t kobjects; /* list of kernel objects reserved by programs */
+
 /*! Programs loaded as module */
 kprog_t prog;
 #define PNAME "prog_name="
@@ -27,20 +29,22 @@ void k_memory_init ()
 {
 	int i;
 	char *name, *pos;
+	uint kheap_start, kheap_size, prog_start, prog_size;
 
 	mseg = arch_memory_init ();
 
-	/* initialize dynamic memory allocation subsystem */
+	/* find kernel heap */
+	kheap_start = kheap_size = 0;
 	for ( i = 0; mseg[i].type != MS_END && !k_mpool; i++ )
 	{
 		if ( mseg[i].type == MS_KHEAP )
 		{
-			k_mpool = k_mem_init ( mseg[i].start, mseg[i].size );
+			kheap_start = (uint) mseg[i].start;
+			kheap_size  = mseg[i].size;
 			break;
 		}
 	}
-
-	ASSERT ( k_mpool );
+	ASSERT ( kheap_start && kheap_size );
 
 	prog.pi = NULL;
 
@@ -62,14 +66,38 @@ void k_memory_init ()
 			if ( pos )
 				*pos++ = 0; /* changing MB data!!! */
 			prog.prog_name = name;
-
-			prog.pi = (void *) mseg[i].start;
-
 			prog.m = &mseg[i];
+			prog.pi = (void *) mseg[i].start; /* at orig. loc. */
+
+			/* program must fit in space reserved for heap */
+			prog_start = (uint) prog.pi->start_adr;
+			prog_size = prog.m->size;
+
+			ASSERT(
+	/* start */	kheap_start <= prog_start &&
+	/* end */	prog_start + prog_size <= kheap_start + kheap_size );
+
+			/* copy module (programs) to address for which programs
+			 * are prepared (absolute address) */
+			prog.pi = (void *) prog_start;
+			memcpy ( prog.pi, prog.m->start, prog_size );
+
+			list_init ( &kobjects );
 
 			break;
 		}
 	}
+
+	ASSERT ( prog.pi );
+
+	/* kernel heap will be placed after programs */
+	kheap_size = ( kheap_start + kheap_size ) - ( prog_start + prog_size );
+	kheap_start = prog_start + prog_size;
+
+	ASSERT ( kheap_size > 0 );
+
+	k_mpool = k_mem_init ( (void *) kheap_start, kheap_size );
+	ASSERT ( k_mpool );
 }
 
 inline void *k_mem_init ( void *segment, size_t size )
@@ -85,39 +113,12 @@ inline int kfree ( void *chunk )
 	return KFREE ( chunk );
 }
 
-inline void *k_process_start_adr ( void *proc )
+/*! Allocate space for kernel object and descriptor of that object */
+void *kmalloc_kobject ( size_t obj_size )
 {
-	return ( (kprocess_t *) proc )->m.start;
-}
+	kobject_t *kobj;
 
-inline size_t k_process_size ( void *proc )
-{
-	return ( (kprocess_t *) proc )->m.size;
-}
-
-/*! kernel <--> user address translation (using segmentation) */
-inline void *k_u2k_adr ( void *uadr, kprocess_t *proc )
-{
-	ASSERT ( (aint) uadr < proc->m.size );
-
-	return uadr + (aint) proc->m.start;
-}
-inline void *k_k2u_adr ( void *kadr, kprocess_t *proc )
-{
-	ASSERT ( (aint) kadr >= (aint) proc->m.start &&
-		 (aint) kadr < (aint) proc->m.start + proc->m.size );
-
-	return kadr - (aint) proc->m.start;
-}
-
-/*! Allocate space for kernel object and for process descriptor of that object*/
-void *kmalloc_proc_object ( kprocess_t *proc, size_t obj_size )
-{
-	kproc_object_t *kobj;
-
-	ASSERT ( proc );
-
-	kobj = kmalloc ( sizeof (kproc_object_t) );
+	kobj = kmalloc ( sizeof (kobject_t) );
 	ASSERT ( kobj );
 
 	kobj->kobject = NULL;
@@ -130,18 +131,16 @@ void *kmalloc_proc_object ( kprocess_t *proc, size_t obj_size )
 		ASSERT ( kobj->kobject );
 	}
 
-	list_append ( &proc->kobjects, kobj, &kobj->list );
+	list_append ( &kobjects, kobj, &kobj->list );
 
 	return kobj;
 }
-void *kfree_proc_object ( kprocess_t *proc, kproc_object_t *kobj )
+void *kfree_kobject ( kobject_t *kobj )
 {
-	ASSERT ( proc && kobj );
-
 #ifndef DEBUG
-	list_remove ( &proc->kobjects, 0, &kobj->list );
+	list_remove ( &kobjects, 0, &kobj->list );
 #else /* DEBUG */
-	ASSERT ( list_find_and_remove ( &proc->kobjects, &kobj->list ) );
+	ASSERT ( list_find_and_remove ( &kobjects, &kobj->list ) );
 #endif
 
 	if ( kobj->kobject )
@@ -253,21 +252,15 @@ int sys__sysinfo ( void *p )
 	char *buffer;
 	size_t buf_size;
 	char **param; /* last param is NULL */
-	char *param1; /* *param0; */
+
 	char usage[] = "Usage: sysinfo [programs|threads|memory]";
 	char look_console[] = "(sysinfo printed on console)";
 
-	buffer = *( (char **) p ); p += sizeof (char *);
+	buffer =   *( (char **) p );	p += sizeof (char *);
+	buf_size = *( (size_t *) p );	p += sizeof (size_t *);
+	param =    *( (char ***) p );
+
 	ASSERT_ERRNO_AND_EXIT ( buffer, EINVAL );
-
-	buffer = U2K_GET_ADR ( buffer, kthread_get_process (NULL) );
-
-	buf_size = *( (size_t *) p ); p += sizeof (size_t *);
-
-	param = *( (char ***) p );
-	param = U2K_GET_ADR ( param, kthread_get_process (NULL) );
-	/* param0 = U2K_GET_ADR ( param[0], kthread_get_process (NULL) );
-	-- param0 should be "sysinfo" so actualy its not required */
 
 	if ( param[1] == NULL )
 	{
@@ -282,10 +275,8 @@ int sys__sysinfo ( void *p )
 		EXIT ( EXIT_SUCCESS );
 	}
 	else {
-		param1 = U2K_GET_ADR ( param[1], kthread_get_process (NULL) );
-
 		/* extended info is requested */
-		if ( strcmp ( "memory", param1 ) == 0 )
+		if ( strcmp ( "memory", param[1] ) == 0 )
 		{
 			k_memory_info ();
 			if ( strlen ( look_console ) > buf_size )
@@ -294,7 +285,7 @@ int sys__sysinfo ( void *p )
 			EXIT ( EXIT_SUCCESS );
 			/* TODO: "memory [segments|modules|***]" */
 		}
-		else if ( strcmp ( "threads", param1 ) == 0 )
+		else if ( strcmp ( "threads", param[1] ) == 0 )
 		{
 			kthread_info ();
 			if ( strlen ( look_console ) > buf_size )

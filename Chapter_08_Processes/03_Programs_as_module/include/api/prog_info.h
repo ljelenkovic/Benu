@@ -14,15 +14,16 @@ typedef struct _prog_info_t_
 	uint    prio;
 
 	void   *start_adr;
-	void   *heap;
-	void   *stack;
 	void   *end_adr;
+
+	void   *heap;
+	size_t  heap_size;
 
 	/* (re)defined in run time */
 	void   *mpool;
 }
 prog_info_t;
 
-void prog_init ();
+void prog_init ( void *args );
 
 #define MAX_DESCRIPTORS		10

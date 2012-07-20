@@ -35,7 +35,7 @@ SECTIONS {
 
 		user_stack = .;
 
-		. += 0x10000 - 1;
+		. += 0x10000;
 
 		user_end = .;
 	}

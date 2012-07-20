@@ -2,6 +2,7 @@
 
 #define _ARCH_
 #include <arch/memory.h>
+#include "descriptor.h"
 #include "boot/multiboot.h"
 #include <arch/processor.h>
 #include <kernel/memory.h>
@@ -67,20 +68,23 @@ mseg_t *arch_memory_init ()
 	mseg[2].type = MS_KHEAP;
 	mseg[2].name = NULL;
 	mseg[2].start = (void *) max;
-	mseg[2].size = ( mbi->mem_upper - 1024 ) * 1024 - max;
+	mseg[2].size = mbi->mem_upper * 1024 - (max - 0x100000);
+
+	/* limit access to range: [ 0, mseg[2].start + mseg[2].size ] */
+	arch_update_segments ( NULL, max + mseg[2].size, PRIV_KERNEL);
 
 	/* second run on modules - add each as separate segment */
-	j = 0;
+	j = 3;
 	if ( mbi->flags & MULTIBOOT_INFO_MODS )
 	{
 		mod = (void *) mbi->mods_addr;
 
-		for ( i = 0, j = 3; i < mbi->mods_count; i++, mod++, j++ )
+		for ( i = 0; i < mbi->mods_count; i++, mod++, j++ )
 		{
 			mseg[j].type = MS_MODULE;
 			mseg[j].name = (char *) mod->cmdline;
 			mseg[j].start = (void *) mod->mod_start;
-			mseg[j].size = mod->mod_end - mod->mod_start + 1;
+			mseg[j].size = mod->mod_end - mod->mod_start;
 		}
 	}
 

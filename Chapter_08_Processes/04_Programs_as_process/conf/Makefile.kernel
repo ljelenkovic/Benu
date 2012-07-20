@@ -4,7 +4,7 @@
 # NOTE: This makefile requires already defined variables:
 #	AUTHOR, PROJECT, PLATFORM, BUILDDIR, CMACROS, LIBS, GMA, FIRST_FIT
 
-#if in command line given: debug=yes or/and optimize=yes, add flags to CFLAFS...
+#if in command line given: debug=yes or/and optimize=yes, add flags to CFLAGS...
 ifeq ($(debug),yes)
 	CFLAGS_K += -g
 	CMACROS_K += DEBUG
@@ -24,7 +24,6 @@ KERNEL_FILE_NAME = kernel.elf
 KERNEL_IMG = $(BUILDDIR)/$(KERNEL_FILE_NAME)
 
 CMACROS_K += $(CMACROS) ASSERT_H=\<kernel/errno.h\>
-#		K_INIT_PROG=\"$(K_INIT_PROG)\"
 
 #------------------------------------------------------------------------------
 # Memory allocators: 'gma' and/or 'first_fit'
@@ -62,7 +61,14 @@ $(BUILD_K)/%.asm.o: %.S conf/config.ini conf/Makefile.kernel conf/Makefile
 		$(foreach INC,$(INCLUDES_K),-I$(INC)) \
 		$(foreach MACRO,$(CMACROS_K),-D $(MACRO))
 
+# preprocessed linker script (konstants)
+LDSCRIPT_KPP := $(BUILD_K)/ldscript.ld
+$(LDSCRIPT_KPP): $(LDSCRIPT_K)
+	@$(CC_K) -E -P -x c -o $@ $< $(CFLAGS_K)		\
+		$(foreach INC,$(INCLUDES_K),-I$(INC)) 		\
+		$(foreach MACRO,$(CMACROS_K),-D $(MACRO))
+
 # KERNEL image
-$(KERNEL_IMG): $(KDIRS_CREATED) $(OBJS_K) $(LDSCRIPT_K)
+$(KERNEL_IMG): $(KDIRS_CREATED) $(OBJS_K) $(LDSCRIPT_KPP)
 	@echo [linking 'kernel'] $@
-	@$(LINK_K) -o$@ $(OBJS_K) $(LDFLAGS_K)
+	@$(LINK_K) -o$@ $(OBJS_K) $(LDFLAGS_K) -T $(LDSCRIPT_KPP)

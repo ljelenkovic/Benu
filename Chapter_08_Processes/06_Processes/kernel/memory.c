@@ -113,13 +113,13 @@ inline void *k_k2u_adr ( void *kadr, kprocess_t *proc )
 }
 
 /*! Allocate space for kernel object and for process descriptor of that object*/
-void *kmalloc_proc_object ( kprocess_t *proc, size_t obj_size )
+void *kmalloc_kobject ( kprocess_t *proc, size_t obj_size )
 {
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 
 	ASSERT ( proc );
 
-	kobj = kmalloc ( sizeof (kproc_object_t) );
+	kobj = kmalloc ( sizeof (kobject_t) );
 	ASSERT ( kobj );
 
 	kobj->kobject = NULL;
@@ -136,7 +136,7 @@ void *kmalloc_proc_object ( kprocess_t *proc, size_t obj_size )
 
 	return kobj;
 }
-void *kfree_proc_object ( kprocess_t *proc, kproc_object_t *kobj )
+void *kfree_kobject ( kprocess_t *proc, kobject_t *kobj )
 {
 	ASSERT ( proc && kobj );
 

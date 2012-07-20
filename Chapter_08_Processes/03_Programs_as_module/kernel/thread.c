@@ -18,9 +18,6 @@ static list_t all_threads; /* all threads */
 
 static kthread_t *active_thread = NULL; /* active thread */
 
-kprocess_t kernel_proc; /* kernel process (currently only for idle thread) */
-kprocess_t user_proc;   /* user process descriptor */
-
 static void kthread_remove_descriptor ( kthread_t *kthread );
 /* idle thread */
 static void idle_thread ( void *param );
@@ -29,7 +26,6 @@ static void idle_thread ( void *param );
 /*! initialize thread structures and create idle thread */
 void kthreads_init ()
 {
-	extern kprog_t prog;
 	int prio;
 
 	list_init ( &all_threads );
@@ -37,31 +33,17 @@ void kthreads_init ()
 	active_thread = NULL;
 	ksched_init ();
 
-	/* initially create 'idle thread' */
-	kernel_proc.prog = NULL;
-	kernel_proc.stack_pool = NULL; /* use kernel pool */
-	kernel_proc.m.start = NULL;
-	kernel_proc.m.size = (size_t) 0xffffffff;
-
-	(void) kthread_create ( idle_thread, NULL, 0, SCHED_FIFO, 0, NULL,
-				NULL, 0, &kernel_proc );
-
-	/* user_proc */
-	user_proc.prog = &prog;
-	user_proc.m.size = prog.m->size;
-	user_proc.m.start = user_proc.pi = prog.pi;
+	(void) kthread_create(idle_thread,NULL,0,SCHED_FIFO,0,NULL,NULL,0);
 
 	/* initialize memory pool for threads stacks */
-	user_proc.stack_pool = ffs_init (
-		U2K_GET_ADR ( user_proc.pi->stack, &user_proc ),
-		(size_t) prog.pi->end_adr - (size_t) prog.pi->stack + 1 );
+	prog.pi->heap = kmalloc ( PROG_HEAP_SIZE );
+	prog.pi->heap_size = PROG_HEAP_SIZE;
 
 	prio = prog.pi->prio;
 	if ( !prio )
 		prio = THREAD_DEF_PRIO;
 
-	kthread_create ( user_proc.pi->init, NULL, 0, SCHED_FIFO, prio, NULL,
-			 NULL, 0, &user_proc );
+	(void) kthread_create(prog.pi->init,NULL,0,SCHED_FIFO,prio,NULL,NULL,0);
 
 	kthreads_schedule ();
 }
@@ -74,15 +56,12 @@ void kthreads_init ()
  * \param sched_priority Thread priority
  * \param stackaddr Address of thread stack (if not NULL)
  * \param stacksize Stack size
- * \param proc Process descriptor thread belongs to
  * \return Pointer to descriptor of created kernel thread
  */
 kthread_t *kthread_create ( void *start_routine, void *arg, uint flags,
 	int sched_policy, int sched_priority, sched_supp_t *sched_param,
-	void *stackaddr, size_t stacksize, kprocess_t *proc )
+	void *stackaddr, size_t stacksize )
 {
-	ASSERT ( proc );
-
 	kthread_t *kthread;
 
 	/* thread descriptor */
@@ -91,9 +70,6 @@ kthread_t *kthread_create ( void *start_routine, void *arg, uint flags,
 
 	/* initialize thread descriptor */
 	kthread->id = k_new_id ();
-
-	kthread->proc = proc;
-	kthread->proc->thread_count++;
 
 	kthread->queue = NULL;
 	kthreadq_init ( &kthread->join_queue );
@@ -132,8 +108,6 @@ void kthread_create_new_state ( kthread_t *kthread,
 				int save_old_state )
 {
 	ASSERT ( kthread );
-	kprocess_t *proc = kthread_get_process ( kthread );
-	ASSERT ( proc );
 
 	/* save old state if requested (put it at beginning of state list) */
 	if ( save_old_state )
@@ -145,19 +119,8 @@ void kthread_create_new_state ( kthread_t *kthread,
 
 	int stack_provided = FALSE;
 
-	if ( stack && stack_size )
+	if ( !stack || !stack_size )
 	{
-		stack_provided = TRUE;
-	}
-	else if ( proc->stack_pool )
-	{
-		/* use process stack heap */
-		if ( !stack_size )
-			stack_size = DEFAULT_THREAD_STACK_SIZE;
-		stack = ffs_alloc ( proc->stack_pool, stack_size );
-	}
-	else {
-		/* use kernel heap */
 		if ( !stack_size )
 			stack_size = DEFAULT_THREAD_STACK_SIZE;
 
@@ -180,7 +143,7 @@ void kthread_create_new_state ( kthread_t *kthread,
 	kthread->state.errno = kthread->state.stack + stack_size;
 
 	arch_create_thread_context ( &kthread->state.context, start_func, param,
-				     proc->pi->exit, stack, stack_size, proc );
+				     prog.pi->exit, stack, stack_size );
 
 	*kthread->state.errno = 0;
 	kthread->state.exit_status = NULL;
@@ -205,13 +168,7 @@ int kthread_restore_state ( kthread_t *kthread )
 
 	/* release thread stack */
 	if ( kthread->state.stack )
-	{
-		if ( kthread->proc->stack_pool ) /* user level thread */
-			ffs_free ( kthread->proc->stack_pool,
-				   kthread->state.stack );
-		else /* kernel level thread */
-			kfree ( kthread->state.stack );
-	}
+		kfree ( kthread->state.stack );
 
 	int retval = FALSE;
 
@@ -267,7 +224,7 @@ void kthread_add_cleanup ( kthread_t *kthread, void *cleanup_function,
 /*! kfree for cleanup */
 void kthread_param_free ( param_t p1, param_t p2, param_t p3 )
 {
-	ffs_free ( p1.p_ptr, p2.p_ptr );
+	kfree ( p1.p_ptr );
 }
 
 /*!
@@ -334,7 +291,6 @@ int kthread_exit ( kthread_t *kthread, void *exit_status, int force )
 	kthread->state.state = THR_STATE_PASSIVE;
 	kthread->ref_cnt--;
 	kthread->state.exit_status = exit_status;
-	kthread->proc->thread_count--;
 
 	/* remove it from its scheduler */
 	ksched2_thread_remove ( kthread );
@@ -635,14 +591,6 @@ inline void *kthread_get_context ( kthread_t *kthread )
 		return &active_thread->state.context;
 }
 
-inline void *kthread_get_process ( kthread_t *kthread )
-{
-	if ( kthread )
-		return kthread->proc;
-	else
-		return active_thread->proc;
-}
-
 /*! Get kernel thread descriptor from user thread descriptor */
 inline kthread_t *kthread_get_descriptor ( pthread_t *thread )
 {
@@ -749,9 +697,8 @@ int kthread_info ()
 
 	kprintf ( "Threads info\n" );
 
-	kprintf ( "[this]\tid=%d (desc. at %x) in process at %x, size=%d\n",
-		  active_thread->id, active_thread, active_thread->proc->m.start,
-		  active_thread->proc->m.size );
+	kprintf ( "[this]\tid=%d (desc. at %x), size=%d\n",
+		  active_thread->id, active_thread, prog.m->size );
 
 	kprintf ( "\tprio=%d, state=%d, exit_status=%x\n",
 		  active_thread->sched_priority, active_thread->state.state,
@@ -760,13 +707,12 @@ int kthread_info ()
 	kthread = list_get ( &all_threads, FIRST );
 	while ( kthread )
 	{
-		kprintf ( "[%d]\tid=%d (desc. at %x) in process at %x, size=%d\n",
-			 i++, kthread->id, kthread, kthread->proc->m.start,
-			 kthread->proc->m.size );
+		kprintf ( "[%d]\tid=%d (desc. at %x), size=%d\n",
+			  i++, kthread->id, kthread, prog.m->size );
 
 		kprintf ( "\tprio=%d, state=%d, exit_status=%x\n",
-			 kthread->sched_priority, kthread->state.state,
-			 kthread->state.exit_status );
+			  kthread->sched_priority, kthread->state.state,
+			  kthread->state.exit_status );
 
 		kthread = list_get_next ( &kthread->all );
 	}

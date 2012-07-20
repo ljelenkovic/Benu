@@ -6,7 +6,6 @@
  */
 
 #define ASM_FILE        1
-//#define _USER_MODE_
 
 #include "interrupt.h"
 

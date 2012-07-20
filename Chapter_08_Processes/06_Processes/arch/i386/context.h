@@ -5,7 +5,6 @@
 #include <types/basic.h>
 #include <arch/context.h>
 
-#define CONTEXT_SIZE	( sizeof(int) * 10 )
 #define	INIT_EFLAGS	0x3202 /* ring 3 ! */
 
 
@@ -32,8 +31,6 @@ struct _context_t_
 	uint32          sse_mmx_fpu;
 	void           *sse_mmx_fpu_start;
 #endif
-	void           *start_adr;
-	size_t          size;
 
 	void           *proc; /* pointer to thread's process descriptor */
 };

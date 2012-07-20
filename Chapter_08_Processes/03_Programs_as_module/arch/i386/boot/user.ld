@@ -6,7 +6,7 @@ ENTRY(prog_init)
 
 SECTIONS {
 
-	.user 0x200000: /* prepare for absolute address */
+	.user PROG_START_ADDR: /* prepare for absolute address */
 	{
 		user_code = .;
 

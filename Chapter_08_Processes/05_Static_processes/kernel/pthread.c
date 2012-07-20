@@ -336,7 +336,7 @@ int sys__pthread_mutex_init ( void *p )
 
 	kprocess_t *proc;
 	kpthread_mutex_t *kmutex;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 
 	mutex = *( (pthread_mutex_t **) p ); /* p += sizeof (pthread_mutex_t *);
 	mutexattr = *( (pthread_mutexattr_t *) p ); */
@@ -347,7 +347,7 @@ int sys__pthread_mutex_init ( void *p )
 	mutex = U2K_GET_ADR ( mutex, proc );
 	ASSERT_ERRNO_AND_EXIT ( mutex, EINVAL );
 
-	kobj = kmalloc_proc_object ( proc, sizeof (kpthread_mutex_t) );
+	kobj = kmalloc_kobject ( proc, sizeof (kpthread_mutex_t) );
 	ASSERT_ERRNO_AND_EXIT ( kobj, ENOMEM );
 	kmutex = kobj->kobject;
 
@@ -374,7 +374,7 @@ int sys__pthread_mutex_destroy ( void *p )
 
 	kprocess_t *proc;
 	kpthread_mutex_t *kmutex;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 
 	mutex = *( (pthread_mutex_t **) p );
 	ASSERT_ERRNO_AND_EXIT ( mutex, EINVAL );
@@ -405,7 +405,7 @@ int sys__pthread_mutex_destroy ( void *p )
 	else
 		k_free_id ( kmutex->id );
 
-	kfree_proc_object ( proc, kobj );
+	kfree_kobject ( proc, kobj );
 
 	mutex->ptr = NULL;
 	mutex->id = 0;
@@ -426,7 +426,7 @@ int sys__pthread_mutex_lock ( void *p )
 
 	kprocess_t *proc;
 	kpthread_mutex_t *kmutex;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 	int retval = EXIT_SUCCESS;
 
 	mutex = *( (pthread_mutex_t **) p );
@@ -490,7 +490,7 @@ int sys__pthread_mutex_unlock ( void *p )
 
 	kprocess_t *proc;
 	kpthread_mutex_t *kmutex;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 
 	mutex = *( (pthread_mutex_t **) p );
 	ASSERT_ERRNO_AND_EXIT ( mutex, EINVAL );
@@ -535,7 +535,7 @@ int sys__pthread_cond_init ( void *p )
 
 	kprocess_t *proc;
 	kpthread_cond_t *kcond;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 
 	cond = *( (pthread_cond_t **) p ); /* p += sizeof (pthread_cond_t *);
 	condattr = *( (pthread_condattr_t *) p ); */
@@ -546,7 +546,7 @@ int sys__pthread_cond_init ( void *p )
 	cond = U2K_GET_ADR ( cond, proc );
 	ASSERT_ERRNO_AND_EXIT ( cond, EINVAL );
 
-	kobj = kmalloc_proc_object ( proc, sizeof (kpthread_cond_t) );
+	kobj = kmalloc_kobject ( proc, sizeof (kpthread_cond_t) );
 	ASSERT_ERRNO_AND_EXIT ( kobj, ENOMEM );
 	kcond = kobj->kobject;
 
@@ -572,7 +572,7 @@ int sys__pthread_cond_destroy ( void *p )
 
 	kprocess_t *proc;
 	kpthread_cond_t *kcond;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 
 	cond = *( (pthread_cond_t **) p );
 	ASSERT_ERRNO_AND_EXIT ( cond, EINVAL );
@@ -596,7 +596,7 @@ int sys__pthread_cond_destroy ( void *p )
 	else
 		k_free_id ( kcond->id );
 
-	kfree_proc_object ( proc, kobj );
+	kfree_kobject ( proc, kobj );
 
 	cond->ptr = NULL;
 	cond->id = 0;
@@ -618,7 +618,7 @@ int sys__pthread_cond_wait ( void *p )
 	kprocess_t *proc;
 	kpthread_cond_t *kcond;
 	kpthread_mutex_t *kmutex;
-	kproc_object_t *kobj_cond, *kobj_mutex;
+	kobject_t *kobj_cond, *kobj_mutex;
 	int retval = EXIT_SUCCESS;
 
 	cond = *( (pthread_cond_t **) p ); p += sizeof (pthread_cond_t *);
@@ -693,7 +693,7 @@ int cond_release ( void *p, int release_all )
 	kprocess_t *proc;
 	kpthread_cond_t *kcond;
 	kpthread_mutex_t *kmutex;
-	kproc_object_t *kobj_cond, *kobj_mutex;
+	kobject_t *kobj_cond, *kobj_mutex;
 	kthread_t *kthread;
 	int retval = 0;
 
@@ -759,7 +759,7 @@ int sys__sem_init ( void *p )
 
 	kprocess_t *proc;
 	ksem_t *ksem;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 
 	sem =		*( (sem_t **) p );	p += sizeof (sem_t *);
 	pshared =	*( (int *) p );		p += sizeof (int);
@@ -771,7 +771,7 @@ int sys__sem_init ( void *p )
 	sem = U2K_GET_ADR ( sem, proc );
 	ASSERT_ERRNO_AND_EXIT ( sem, EINVAL );
 
-	kobj = kmalloc_proc_object ( proc, sizeof (ksem_t) );
+	kobj = kmalloc_kobject ( proc, sizeof (ksem_t) );
 	ASSERT_ERRNO_AND_EXIT ( kobj, ENOMEM );
 	ksem = kobj->kobject;
 
@@ -802,7 +802,7 @@ int sys__sem_destroy ( void *p )
 
 	kprocess_t *proc;
 	ksem_t *ksem;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 
 	sem = *( (sem_t **) p );
 
@@ -829,7 +829,7 @@ int sys__sem_destroy ( void *p )
 	else
 		k_free_id ( ksem->id );
 
-	kfree_proc_object ( proc, kobj );
+	kfree_kobject ( proc, kobj );
 
 	sem->ptr = NULL;
 	sem->id = 0;
@@ -848,7 +848,7 @@ int sys__sem_wait ( void *p )
 
 	kprocess_t *proc;
 	ksem_t *ksem;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 	kthread_t *kthread;
 
 	sem = *( (sem_t **) p );
@@ -892,7 +892,7 @@ int sys__sem_post ( void *p )
 
 	kprocess_t *proc;
 	ksem_t *ksem;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 	kthread_t *kthread, *released;
 
 	sem = *( (sem_t **) p );
@@ -954,7 +954,7 @@ int sys__mq_open ( void *p )
 
 	kprocess_t *proc;
 	kmq_queue_t *kq_queue;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 
 	name =	*( (char **) p );		p += sizeof (char *);
 	oflag =	*( (int *) p );			p += sizeof (int);
@@ -1013,7 +1013,7 @@ int sys__mq_open ( void *p )
 
 	kq_queue->ref_cnt++;
 
-	kobj = kmalloc_proc_object ( proc, 0 );
+	kobj = kmalloc_kobject ( proc, 0 );
 	kobj->kobject = kq_queue;
 	kobj->flags = oflag;
 
@@ -1034,7 +1034,7 @@ int sys__mq_close ( void *p )
 
 	kprocess_t *proc;
 	kmq_queue_t *kq_queue;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 	kmq_msg_t *kmq_msg;
 	kthread_t *kthread;
 
@@ -1087,7 +1087,7 @@ int sys__mq_close ( void *p )
 
 	/* remove kernel object descriptor */
 	kobj->kobject = NULL;
-	kfree_proc_object ( proc, kobj );
+	kfree_kobject ( proc, kobj );
 
 	EXIT2 ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
@@ -1139,7 +1139,7 @@ static int kmq_send ( void *p, kthread_t *sender )
 
 	kprocess_t *proc = kthread_get_process (sender);
 	kmq_queue_t *kq_queue;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 	kmq_msg_t *kmq_msg;
 	kthread_t *kthread;
 	int retval;
@@ -1265,7 +1265,7 @@ static int kmq_receive ( void *p, kthread_t *receiver )
 
 	kprocess_t *proc = kthread_get_process (receiver);
 	kmq_queue_t *kq_queue;
-	kproc_object_t *kobj;
+	kobject_t *kobj;
 	kmq_msg_t *kmq_msg;
 	kthread_t *kthread;
 	int retval;

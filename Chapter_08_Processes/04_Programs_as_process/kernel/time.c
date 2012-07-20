@@ -506,24 +506,28 @@ int sys__timer_create ( void *p )
 
 	ktimer_t *ktimer;
 	int retval = EXIT_SUCCESS;
+	kprocess_t *proc;
+	kobject_t *kobj;
 
 	clockid =	*( (clockid_t *) p );	p += sizeof (clockid_t);
 	evp =		*( (sigevent_t **) p );	p += sizeof (sigevent_t *);
 	timerid =	*( (timer_t **) p );
 
+	proc = kthread_get_process (NULL);
 	ASSERT_ERRNO_AND_EXIT (
-		clockid == CLOCK_REALTIME || clockid == CLOCK_REALTIME, EINVAL
-	);
+	clockid == CLOCK_REALTIME || clockid == CLOCK_REALTIME, EINVAL );
 	ASSERT_ERRNO_AND_EXIT ( evp && timerid, EINVAL );
-	evp = U2K_GET_ADR ( evp, kthread_get_process (NULL) );
-	timerid = U2K_GET_ADR ( timerid, kthread_get_process (NULL) );
+	evp = U2K_GET_ADR ( evp, proc );
+	timerid = U2K_GET_ADR ( timerid, proc );
 	ASSERT_ERRNO_AND_EXIT ( evp && timerid, EINVAL );
 
 	retval = ktimer_create ( clockid, evp, &ktimer, kthread_get_active() );
 	if ( retval == EXIT_SUCCESS )
 	{
+		kobj = kmalloc_kobject ( proc, 0 );
+		kobj->kobject = ktimer;
 		timerid->id = ktimer->id;
-		timerid->ptr = ktimer;
+		timerid->ptr = kobj;
 	}
 	EXIT ( retval );
 }
@@ -539,13 +543,21 @@ int sys__timer_delete ( void *p )
 
 	ktimer_t *ktimer;
 	int retval;
+	kprocess_t *proc;
+	kobject_t *kobj;
 
 	timerid = *( (timer_t **) p );
 
+	proc = kthread_get_process (NULL);
 	ASSERT_ERRNO_AND_EXIT ( timerid, EINVAL );
-	timerid = U2K_GET_ADR ( timerid, kthread_get_process (NULL) );
+	timerid = U2K_GET_ADR ( timerid, proc );
 	ASSERT_ERRNO_AND_EXIT ( timerid, EINVAL );
-	ktimer = timerid->ptr;
+	kobj = timerid->ptr;
+	ASSERT_ERRNO_AND_EXIT ( kobj, EINVAL );
+	ASSERT_ERRNO_AND_EXIT ( list_find ( &proc->kobjects, &kobj->list ),
+				EINVAL );
+
+	ktimer = kobj->kobject;
 	ASSERT_ERRNO_AND_EXIT ( ktimer && ktimer->id == timerid->id, EINVAL );
 
 	retval = ktimer_delete ( ktimer );
@@ -570,20 +582,29 @@ int sys__timer_settime ( void *p )
 
 	ktimer_t *ktimer;
 	int retval;
+	kprocess_t *proc;
+	kobject_t *kobj;
 
 	timerid = *( (timer_t **) p );		p += sizeof (timer_t *);
 	flags =	  *( (int *) p );		p += sizeof (int);
 	value =	  *( (itimerspec_t **) p );	p += sizeof (itimerspec_t *);
 	ovalue =  *( (itimerspec_t **) p );
 
+	proc = kthread_get_process (NULL);
 	ASSERT_ERRNO_AND_EXIT ( timerid, EINVAL );
-	timerid = U2K_GET_ADR ( timerid, kthread_get_process (NULL) );
+	timerid = U2K_GET_ADR ( timerid, proc );
 	ASSERT_ERRNO_AND_EXIT ( timerid, EINVAL );
-	ktimer = timerid->ptr;
+
+	kobj = timerid->ptr;
+	ASSERT_ERRNO_AND_EXIT ( kobj, EINVAL );
+	ASSERT_ERRNO_AND_EXIT ( list_find ( &proc->kobjects, &kobj->list ),
+				EINVAL );
+
+	ktimer = kobj->kobject;
 	ASSERT_ERRNO_AND_EXIT ( ktimer && ktimer->id == timerid->id, EINVAL );
 
-	value = U2K_GET_ADR ( value, kthread_get_process (NULL) );
-	ovalue = U2K_GET_ADR ( ovalue, kthread_get_process (NULL) );
+	value = U2K_GET_ADR ( value, proc );
+	ovalue = U2K_GET_ADR ( ovalue, proc );
 
 	retval = ktimer_settime ( ktimer, flags, value, ovalue );
 
@@ -603,17 +624,26 @@ int sys__timer_gettime ( void *p )
 
 	ktimer_t *ktimer;
 	int retval;
+	kprocess_t *proc;
+	kobject_t *kobj;
 
 	timerid = *( (timer_t **) p );		p += sizeof (timer_t *);
 	value =	  *( (itimerspec_t **) p );
 
+	proc = kthread_get_process (NULL);
 	ASSERT_ERRNO_AND_EXIT ( timerid, EINVAL );
-	timerid = U2K_GET_ADR ( timerid, kthread_get_process (NULL) );
+	timerid = U2K_GET_ADR ( timerid, proc );
 	ASSERT_ERRNO_AND_EXIT ( timerid, EINVAL );
-	ktimer = timerid->ptr;
+
+	kobj = timerid->ptr;
+	ASSERT_ERRNO_AND_EXIT ( kobj, EINVAL );
+	ASSERT_ERRNO_AND_EXIT ( list_find ( &proc->kobjects, &kobj->list ),
+				EINVAL );
+
+	ktimer = kobj->kobject;
 	ASSERT_ERRNO_AND_EXIT ( ktimer && ktimer->id == timerid->id, EINVAL );
 
-	value = U2K_GET_ADR ( value, kthread_get_process (NULL) );
+	value = U2K_GET_ADR ( value, proc );
 
 	retval = ktimer_gettime ( ktimer, value );
 

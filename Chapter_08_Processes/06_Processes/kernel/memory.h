@@ -71,13 +71,13 @@ struct _kprocess_t_
 	int	      thread_count;
 
 	list_t	      kobjects;
-		      /* kproc_object_t elements */
+		      /* kobject_t elements */
 
 	list_h	      list;
 };
 
 /*! Object referenced in process (kernel object reference + additional info) */
-struct _kproc_object_t_
+struct _kobject_t_
 {
 	void	*kobject;
 		 /* pointer to kernel object, e.g. device */
@@ -102,5 +102,5 @@ int k_list_programs ( char *buffer, size_t buf_size );
 
 void k_memory_fault (); /* memory fault handler */
 
-void *kmalloc_proc_object ( kprocess_t *proc, size_t obj_size );
-void *kfree_proc_object ( kprocess_t *proc, kproc_object_t *kobj );
+void *kmalloc_kobject ( kprocess_t *proc, size_t obj_size );
+void *kfree_kobject ( kprocess_t *proc, kobject_t *kobj );
