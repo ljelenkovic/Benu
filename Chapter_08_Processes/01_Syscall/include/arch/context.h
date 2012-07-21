@@ -19,9 +19,6 @@ void arch_create_thread_context (
 	void *stack, size_t stack_size
 );
 
-/*! Cleanups on context when deleting thread */
-void arch_destroy_thread_context ( context_t *context );
-
 /*! Select thread to return to from interrupt (from syscall) */
 void arch_select_thread ( context_t *cntx );
 

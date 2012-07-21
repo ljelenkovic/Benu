@@ -22,9 +22,6 @@ int ktimer_settime ( ktimer_t *ktimer, int flags, itimerspec_t *value,
 		     itimerspec_t *ovalue );
 int ktimer_gettime ( ktimer_t *ktimer, itimerspec_t *value );
 
-extern inline void *ktimer_set_param ( ktimer_t *ktimer, void *param );
-extern inline void *ktimer_get_param ( ktimer_t *ktimer );
-
 /* signal notification type for wakeup */
 #define	SIGEV_WAKE_THREAD	(SIGEV_THREAD_ID + 1)
 

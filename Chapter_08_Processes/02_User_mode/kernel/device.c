@@ -351,7 +351,7 @@ static int read_write ( void *p, int op )
 		retval = k_device_send ( buf, count, kobj->flags, kdev );
 
 	if ( retval >= 0 )
-		EXIT2 ( EXIT_SUCCESS, EXIT_SUCCESS );
+		EXIT2 ( EXIT_SUCCESS, retval );
 	else
 		EXIT2 ( EIO, EXIT_FAILURE );
 }

@@ -792,11 +792,11 @@ int kthread_setschedparam (kthread_t *kthread, int policy, sched_param_t *param)
 
 	ASSERT_ERRNO_AND_EXIT ( kthread, EINVAL );
 	ASSERT_ERRNO_AND_EXIT ( kthread_is_alive (kthread), ESRCH );
-	ASSERT_ERRNO_AND_RETURN ( policy >= 0 && policy < SCHED_NUM, EINVAL );
+	ASSERT_ERRNO_AND_EXIT ( policy >= 0 && policy < SCHED_NUM, EINVAL );
 
 	if ( param )
 	{
-		ASSERT_ERRNO_AND_RETURN (
+		ASSERT_ERRNO_AND_EXIT (
 			param->sched_priority >= THREAD_MIN_PRIO &&
 			param->sched_priority <= THREAD_MAX_PRIO, EINVAL );
 

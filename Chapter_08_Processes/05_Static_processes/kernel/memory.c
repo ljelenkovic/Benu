@@ -234,7 +234,7 @@ int k_list_programs ( char *buffer, size_t buf_size )
 	prog = list_get ( &progs, FIRST );
 
 	if ( strlen ( hdr ) > buf_size )
-		RETURN ( ENOMEM );
+		return ENOMEM;
 	strcpy ( buffer, hdr );
 
 	while ( prog )
@@ -242,14 +242,14 @@ int k_list_programs ( char *buffer, size_t buf_size )
 		cur_size += strlen ( prog->prog_name );
 
 		if ( cur_size > buf_size )
-			RETURN ( ENOMEM );
+			return ENOMEM;
 
 		strcat ( buffer, prog->prog_name );
 		strcat ( buffer, " " );
 		prog = list_get_next ( &prog->list );
 	}
 
-	RETURN ( EXIT_SUCCESS );
+	return EXIT_SUCCESS;
 }
 
 /*! print memory layout */

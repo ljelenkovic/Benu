@@ -39,12 +39,9 @@ arch_startup:
 	pushl	$0
 	popf
 
-	/* copy multiboot parameters on stack as parameters to 'k_startup'
-	   (parameters are already in eax:ebx registers), set by grub) */
+	/* copy multiboot parameters in arch_mb_magic and arch_mb_info */
 	movl	%eax, arch_mb_magic
 	movl	%ebx, arch_mb_info
-	/*push	%ebx
-	push	%eax*/
 
 #ifdef USE_SSE /* Use SSE? Enable its use */
 	/* code copied from: http://wiki.osdev.org/SSE */
@@ -71,7 +68,7 @@ arch_startup:
 	/* set up GDT, IDT */
 	call	arch_context_init
 
-	/* call starting kernel function (same multiboot parameters on stack) */
+	/* call starting kernel function */
 	call	k_startup
 
 	/* stop */

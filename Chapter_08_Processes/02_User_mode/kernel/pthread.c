@@ -85,7 +85,7 @@ int sys__pthread_create ( void *p )
 
 	kthreads_schedule ();
 
-	RETURN ( EXIT_SUCCESS );
+	return EXIT_SUCCESS;
 }
 
 /*!
@@ -193,11 +193,11 @@ int sys__pthread_setschedparam ( void *p )
 	ASSERT_ERRNO_AND_EXIT ( kthread_get_id (kthread) == thread->id, ESRCH );
 	ASSERT_ERRNO_AND_EXIT ( kthread_is_alive (kthread), ESRCH );
 
-	ASSERT_ERRNO_AND_RETURN ( policy >= 0 && policy < SCHED_NUM, EINVAL );
+	ASSERT_ERRNO_AND_EXIT ( policy >= 0 && policy < SCHED_NUM, EINVAL );
 
 	if ( param )
 	{
-		ASSERT_ERRNO_AND_RETURN (
+		ASSERT_ERRNO_AND_EXIT (
 			param->sched_priority >= THREAD_MIN_PRIO &&
 			param->sched_priority <= THREAD_MAX_PRIO, EINVAL );
 	}

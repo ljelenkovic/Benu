@@ -30,6 +30,6 @@ struct _device_t_
 	int   (*recv) ( void *data, size_t size, uint flags, device_t *dev );
 
 	/* various flags and parameters specific to device */
-	int flags;
-	void *params;
+	int     flags;
+	void   *params;
 };

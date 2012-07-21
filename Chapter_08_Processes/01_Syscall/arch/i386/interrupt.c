@@ -123,7 +123,7 @@ void arch_interrupt_handler ( int irq_num )
 
 	prev_mode = new_mode;
 	new_mode = KERNEL_MODE;
-//LOG(D,"ASD");
+
 	if ( irq_num < INTERRUPTS && (ih = list_get (&ihandlers[irq_num], FIRST)) )
 	{
 		/* Call registered handlers */

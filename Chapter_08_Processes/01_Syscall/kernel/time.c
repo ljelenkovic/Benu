@@ -35,7 +35,7 @@ int k_time_init ()
 		threshold.tv_nsec += 500000000L; /* + half second */
 	threshold.tv_sec /= 2;
 
-	RETURN ( EXIT_SUCCESS );
+	return EXIT_SUCCESS;
 }
 
 /*!
@@ -49,7 +49,7 @@ int kclock_gettime ( clockid_t clockid, timespec_t *time )
 
 	arch_get_time ( time );
 
-	RETURN ( EXIT_SUCCESS );
+	return EXIT_SUCCESS;
 }
 
 /*!
@@ -63,7 +63,7 @@ int kclock_settime ( clockid_t clockid, timespec_t *time )
 
 	arch_set_time ( time );
 
-	RETURN ( EXIT_SUCCESS );
+	return EXIT_SUCCESS;
 }
 
 /*!
@@ -82,8 +82,9 @@ void kclock_wake_thread ( sigval_t sigval )
 	ASSERT ( kthread_is_suspended ( kthread, NULL, NULL ) );
 
 	ktimer = kthread_get_private_param ( kthread );
-	timespec_t *remain = ktimer_get_param ( ktimer );
-	TIME_RESET ( remain ); /* timer expired */
+	timespec_t *remain = ktimer->param;
+	if ( remain )
+		TIME_RESET ( remain ); /* timer expired */
 
 	kthread_move_to_ready ( kthread, LAST );
 
@@ -108,7 +109,7 @@ void kclock_interrupt_sleep ( kthread_t *kthread, void *param )
 	ASSERT ( kthread_is_suspended ( kthread, NULL, NULL ) );
 
 	ktimer = param;
-	remain = ktimer_get_param (ktimer);
+	remain = ktimer->param;
 
 	if ( remain )
 	{
@@ -169,7 +170,7 @@ int ktimer_create ( clockid_t clockid, sigevent_t *evp, ktimer_t **_ktimer,
 
 	*_ktimer = ktimer;
 
-	RETURN ( EXIT_SUCCESS );
+	return EXIT_SUCCESS;
 }
 
 /*!
@@ -191,7 +192,7 @@ int ktimer_delete ( ktimer_t *ktimer )
 	k_free_id ( ktimer->id );
 	kfree ( ktimer );
 
-	RETURN ( EXIT_SUCCESS );
+	return EXIT_SUCCESS;
 }
 
 /*!
@@ -239,7 +240,7 @@ int ktimer_settime ( ktimer_t *ktimer, int flags, itimerspec_t *value,
 
 	ktimer_schedule ();
 
-	RETURN ( EXIT_SUCCESS );
+	return EXIT_SUCCESS;
 }
 
 /*!
@@ -261,29 +262,7 @@ int ktimer_gettime ( ktimer_t *ktimer, itimerspec_t *value )
 	if ( TIME_IS_SET ( &value->it_value ) )
 		time_sub ( &value->it_value, &now );
 
-	RETURN ( EXIT_SUCCESS );
-}
-
-/*!
- * Save/get single general purpose parameter with ktimer. Intended for timer
- * activation and timer cancellation routines (even outside timer subsystem).
- */
-inline void *ktimer_set_param ( ktimer_t *ktimer, void *param )
-{
-	void *ovalue;
-
-	ASSERT ( ktimer );
-
-	ovalue = ktimer->param;
-	ktimer->param = param;
-
-	return ovalue;
-}
-inline void *ktimer_get_param ( ktimer_t *ktimer )
-{
-	ASSERT ( ktimer );
-
-	return ktimer->param;
+	return EXIT_SUCCESS;
 }
 
 /*! Activate timers and reschedule threads if required */
@@ -460,8 +439,7 @@ int sys__clock_nanosleep ( void *p )
 	ASSERT ( !retval );
 
 	/* save remainder location, if provided */
-	if ( remain )
-		ktimer_set_param ( ktimer, remain );
+	ktimer->param = remain;
 
 	/* 2. suspend thread */
 	kthread_set_private_param ( kthread, ktimer );
