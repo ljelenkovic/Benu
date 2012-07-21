@@ -12,7 +12,7 @@ char PROG_HELP[] = "Round Robin scheduling example.";
 #define TEST_DURATION	10 /* seconds */
 
 static int iters[THR_NUM];
-static volatile int end = FALSE;
+static volatile int end;
 
 /* example threads */
 static void *rr_thread ( void *param )
@@ -49,6 +49,8 @@ int round_robin ( char *args[] )
 	pthread_attr_init ( &attr );
 	pthread_attr_setschedpolicy ( &attr, SCHED_RR );
 	pthread_attr_setschedparam ( &attr, &sched_param );
+
+	end = FALSE;
 
 	for ( i = 0; i < THR_NUM; i++ )
 	{

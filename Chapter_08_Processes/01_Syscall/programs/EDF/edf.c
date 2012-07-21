@@ -13,7 +13,7 @@ char PROG_HELP[] = "EDF scheduling demonstration example.";
 #define LOOPS	60000000 /* adjust manually per processor to be ~0,3 s */
 
 static timespec_t t0;
-static volatile int end = FALSE;
+static volatile int end;
 
 void message ( int thread, char *action )
 {
@@ -88,6 +88,8 @@ int edf ( char *args[] )
 
 	printf ( "Example program: [%s:%s]\n%s\n\n", __FILE__, __FUNCTION__,
 		 PROG_HELP );
+
+	end = FALSE;
 
 	clock_gettime ( CLOCK_REALTIME, &t0 );
 

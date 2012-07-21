@@ -29,12 +29,6 @@ typedef struct _kdevice_t_
 	int	   ref_cnt;
 		   /* number of processes that opened device */
 
-	int	   locked;
-		   /* is device locked */
-
-	kthread_q  thrq;
-		   /* locked threads wait in queue */
-
 	list_h	   list;
 		   /* all devices are in list */
 

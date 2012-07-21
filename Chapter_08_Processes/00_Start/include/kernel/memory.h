@@ -1,12 +1,12 @@
 /*! Memory management */
 #pragma once
 
+#include <types/basic.h>
+
 /*! interface to threads */
-int sys__sysinfo ( char *buffer, size_t buf_size, char **param )
+int sys__sysinfo ( char *buffer, size_t buf_size, char **param );
 
 #ifdef _KERNEL_ /* (for kernel and arch layer) */
-
-#include <types/basic.h>
 
 extern inline void *k_mem_init ( void *segment, size_t size );
 extern inline void *kmalloc ( size_t size );

@@ -89,7 +89,7 @@ void kclock_wake_thread ( sigval_t sigval )
 	kthread_move_to_ready ( kthread, LAST );
 
 	retval += ktimer_delete ( ktimer );
-	ASSERT ( !retval );
+	ASSERT ( retval == EXIT_SUCCESS );
 
 	kthreads_schedule ();
 }
@@ -422,7 +422,7 @@ int sys__clock_nanosleep ( clockid_t clockid, int flags,
 	evp.sigev_notify_function = kclock_wake_thread;
 
 	retval += ktimer_create ( clockid, &evp, &ktimer, kthread );
-	ASSERT ( !retval );
+	ASSERT ( retval == EXIT_SUCCESS );
 
 	/* save remainder location, if provided */
 	ktimer->param = remain;
@@ -430,14 +430,14 @@ int sys__clock_nanosleep ( clockid_t clockid, int flags,
 	/* 2. suspend thread */
 	kthread_set_private_param ( kthread, ktimer );
 	retval += kthread_suspend ( kthread, kclock_interrupt_sleep, ktimer );
-	ASSERT ( !retval );
+	ASSERT ( retval == EXIT_SUCCESS );
 
 	/* 3. arm timer */
 	TIME_RESET ( &itimer.it_interval );
 	itimer.it_value = *request;
 
 	retval += ktimer_settime ( ktimer, flags, &itimer, NULL );
-	ASSERT ( !retval );
+	ASSERT ( retval == EXIT_SUCCESS );
 
 	kthread_set_errno ( kthread, EXIT_SUCCESS );
 	kthread_set_syscall_retval ( kthread, retval );

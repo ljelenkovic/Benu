@@ -73,14 +73,12 @@ int k_device_init ( kdevice_t *kdev, int flags, void *params, void *callback )
 	if ( params )
 		kdev->dev.params = params;
 
-	kdev->locked = FALSE;
-	kthreadq_init ( &kdev->thrq );
 	list_init ( &kdev->descriptors );
 
 	if ( kdev->dev.init )
 		retval = kdev->dev.init ( flags, params, &kdev->dev );
 
-	if ( !retval && kdev->dev.irq_handler )
+	if ( retval == EXIT_SUCCESS && kdev->dev.irq_handler )
 	{
 		(void) arch_register_interrupt_handler ( kdev->dev.irq_num,
 							 kdev->dev.irq_handler,
@@ -190,34 +188,6 @@ void k_device_close ( kdevice_t *kdev )
 	/* FIXME: restore flags; use list kdev->descriptors? */
 }
 
-/*! Lock device */
-int k_device_lock ( kdevice_t *dev, int wait )
-{
-	if ( !wait && dev->locked )
-		return -1;
-
-	if ( dev->locked )
-	{
-		kthread_enqueue ( NULL, &dev->thrq );
-		kthreads_schedule ();
-	}
-
-	dev->locked = TRUE;
-
-	return 0;
-}
-
-/*! Unlock device */
-int k_device_unlock ( kdevice_t *dev )
-{
-	if ( kthreadq_release ( &dev->thrq ) )
-		kthreads_schedule ();
-	else
-		dev->locked = FALSE;
-
-	return 0;
-}
-
 /* /dev/null emulation */
 static int do_nothing ()
 {
@@ -299,7 +269,7 @@ int sys__close ( descriptor_t *desc )
 	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
 
-static int read_write ( descriptor_t *desc, void *buf, int op );
+static int read_write ( descriptor_t *desc, void *buf, size_t count, int op );
 
 int sys__read ( descriptor_t *desc, void *buf, size_t count )
 {
@@ -310,7 +280,7 @@ int sys__write ( descriptor_t *desc, void *buf, size_t count )
 	return read_write ( desc, buf, count, FALSE );
 }
 
-static int read_write ( descriptor_t *desc, void *buf, int op )
+static int read_write ( descriptor_t *desc, void *buf, size_t count, int op )
 {
 	kdevice_t *kdev;
 	kobject_t *kobj;

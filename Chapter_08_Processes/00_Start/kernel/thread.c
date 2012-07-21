@@ -8,7 +8,6 @@
 #include "sched.h"
 #include <arch/processor.h>
 #include <arch/interrupt.h>
-#include <arch/syscall.h>
 #include <types/bits.h>
 #include <lib/list.h>
 #include <lib/string.h>
@@ -725,8 +724,6 @@ int kthread_info ()
 }
 
 /*! Idle thread ------------------------------------------------------------- */
-#include <api/syscall.h>
-
 /*! Idle thread starting (and only) function */
 static void idle_thread ( void *param )
 {
@@ -740,13 +737,13 @@ int kthread_setschedparam (kthread_t *kthread, int policy, sched_param_t *param)
 	int sched_priority;
 	sched_supp_t *supp;
 
-	ASSERT_ERRNO_AND_EXIT ( kthread, EINVAL );
-	ASSERT_ERRNO_AND_EXIT ( kthread_is_alive (kthread), ESRCH );
-	ASSERT_ERRNO_AND_EXIT ( policy >= 0 && policy < SCHED_NUM, EINVAL );
+	ASSERT_AND_RETURN_ERRNO ( kthread, EINVAL );
+	ASSERT_AND_RETURN_ERRNO ( kthread_is_alive (kthread), ESRCH );
+	ASSERT_AND_RETURN_ERRNO ( policy >= 0 && policy < SCHED_NUM, EINVAL );
 
 	if ( param )
 	{
-		ASSERT_ERRNO_AND_EXIT (
+		ASSERT_AND_RETURN_ERRNO (
 			param->sched_priority >= THREAD_MIN_PRIO &&
 			param->sched_priority <= THREAD_MAX_PRIO, EINVAL );
 

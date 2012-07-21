@@ -6,14 +6,14 @@
 #include <api/errno.h>
 #include <lib/string.h>
 
-static descriptor_t std_desc[MAX_DESCRIPTORS];
+static descriptor_t std_desc[MAX_USER_DESCRIPTORS];
 static int _stdin, _stdout, _stderr;
 
 /*! Initialize standard descriptors (input, output, error) */
 int stdio_init ()
 {
 	int i;
-	for ( i = 0; i < MAX_DESCRIPTORS; i++ )
+	for ( i = 0; i < MAX_USER_DESCRIPTORS; i++ )
 	{
 		std_desc[i].id = 0;
 		std_desc[i].ptr = NULL;
@@ -35,11 +35,11 @@ int open ( char *pathname, int flags, mode_t mode )
 	descriptor_t desc;
 	int i, retval;
 
-	for ( i = 0; i < MAX_DESCRIPTORS; i++ )
+	for ( i = 0; i < MAX_USER_DESCRIPTORS; i++ )
 		if ( std_desc[i].id == 0 )
 			break;
 
-	if ( i == MAX_DESCRIPTORS )
+	if ( i == MAX_USER_DESCRIPTORS )
 	{
 		set_errno ( EMFILE );
 		return EXIT_FAILURE;
@@ -61,7 +61,7 @@ int close ( int fd )
 {
 	int retval;
 
-	if ( 	fd < 0 || fd >= MAX_DESCRIPTORS ||
+	if ( 	fd < 0 || fd >= MAX_USER_DESCRIPTORS ||
 		!std_desc[fd].id || !std_desc[fd].ptr )
 	{
 		set_errno ( EBADF );
@@ -82,7 +82,7 @@ int close ( int fd )
 /*! Read from device */
 ssize_t read ( int fd, void *buf, size_t count )
 {
-	if ( 	fd < 0 || fd >= MAX_DESCRIPTORS ||
+	if ( 	fd < 0 || fd >= MAX_USER_DESCRIPTORS ||
 		!std_desc[fd].id || !std_desc[fd].ptr || !buf || !count )
 	{
 		set_errno ( EBADF );
@@ -95,7 +95,7 @@ ssize_t read ( int fd, void *buf, size_t count )
 /*! Write from device */
 ssize_t write ( int fd, void *buf, size_t count )
 {
-	if ( 	fd < 0 || fd >= MAX_DESCRIPTORS ||
+	if ( 	fd < 0 || fd >= MAX_USER_DESCRIPTORS ||
 		!std_desc[fd].id || !std_desc[fd].ptr || !buf || !count )
 	{
 		set_errno ( EBADF );

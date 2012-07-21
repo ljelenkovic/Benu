@@ -14,7 +14,7 @@ typedef void uthread_t;
 typedef struct _uthread_t_
 {
 	int id;
-	ucontext_t context;
+	context_t context;
 	void *stack;
 	list_h list;
 }

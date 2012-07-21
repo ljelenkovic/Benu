@@ -17,7 +17,7 @@ char PROG_HELP[] = "Messaging example.";
 #define MAX_MSG_SIZE	10
 
 static timespec_t sleep = { .tv_sec = 1, .tv_nsec = 0 };
-static int producers_alive = PRODUCERS;
+static int producers_alive;
 static mqd_t mqdes;
 
 /* consumer thread */
@@ -114,6 +114,8 @@ int messages ( char *args[] )
 	attr.mq_msgsize = MAX_MSG_SIZE;
 	attr.mq_curmsgs = 0;
 
+	producers_alive = PRODUCERS;
+
 	mqdes = mq_open ( "mq1", O_CREAT | O_RDWR | O_NONBLOCK, 0, &attr );
 	if ( mqdes.id == -1 )
 	{
@@ -131,7 +133,8 @@ int messages ( char *args[] )
 	for ( i = 0; i < CONSUMERS + PRODUCERS; i++ )
 		pthread_join ( thread[i], NULL );
 
-	mq_close ( mqdes );
+	if ( mq_close ( mqdes ) )
+		printf ( "Error closing message queue! Errno=%d\n", _errno );
 
 	return 0;
 }

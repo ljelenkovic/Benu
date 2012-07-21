@@ -72,14 +72,14 @@ static int uart_config ( device_t *dev, uart_t *params )
 
 	ASSERT ( dev );
 
-	ASSERT_ERRNO_AND_RETURN ( params->data_bits >= 5 || params->data_bits<=8,
+	ASSERT_AND_RETURN_ERRNO ( params->data_bits >= 5 || params->data_bits<=8,
 				  -EINVAL );
-	ASSERT_ERRNO_AND_RETURN ( params->parity >= 0 || params->parity <= 7,
+	ASSERT_AND_RETURN_ERRNO ( params->parity >= 0 || params->parity <= 7,
 				  -EINVAL );
-	ASSERT_ERRNO_AND_RETURN ( params->stop_bit >= STOPBIT_1 ||
+	ASSERT_AND_RETURN_ERRNO ( params->stop_bit >= STOPBIT_1 ||
 				  params->stop_bit <= STOPBIT_15,
 				  -EINVAL );
-	ASSERT_ERRNO_AND_RETURN ( params->mode == UART_BYTE ||
+	ASSERT_AND_RETURN_ERRNO ( params->mode == UART_BYTE ||
 				  params->mode == UART_STREAM,
 				  -EINVAL );
 

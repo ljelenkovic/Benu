@@ -25,7 +25,8 @@ CMACROS_U += $(CMACROS) ASSERT_H=\<api/errno.h\>
 
 #------------------------------------------------------------------------------
 # Memory
-CMACROS_U += MEM_ALLOCATOR_FOR_USER=$(MEM_ALLOCATOR_FOR_USER)
+CMACROS_U += MEM_ALLOCATOR_FOR_USER=$(MEM_ALLOCATOR_FOR_USER)	\
+	     MAX_USER_DESCRIPTORS=$(MAX_USER_DESCRIPTORS)
 
 
 # Programs compilation through template ----------------------------------------

@@ -192,7 +192,7 @@ static int sysinfo ( char *args[] )
 {
 	char info[INFO_SIZE];
 
-	int sys__sysinfo ( &info, INFO_SIZE, args );
+	sys__sysinfo ( info, INFO_SIZE, args );
 
 	printf ( "%s\n", info );
 

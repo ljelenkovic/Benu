@@ -10,7 +10,6 @@
 
 #include "memory.h"
 #include "sched.h"
-#include <arch/syscall.h>
 #include <lib/string.h>
 #include <kernel/errno.h>
 
@@ -24,13 +23,9 @@
  * \param arg Parameter sent to starting function
  * (parameters are on calling thread stack)
  */
-int sys__pthread_create ( void *p )
+int sys__pthread_create ( pthread_t *thread, pthread_attr_t *attr,
+			  void *(*start_routine) (void *), void *arg )
 {
-	pthread_t *thread;
-	pthread_attr_t *attr;
-	void *(*start_routine) (void *);
-	void *arg;
-
 	kthread_t *kthread;
 	uint flags = 0;
 	int sched_policy = SCHED_FIFO;
@@ -39,10 +34,7 @@ int sys__pthread_create ( void *p )
 	void *stackaddr = NULL;
 	size_t stacksize = 0;
 
-	thread = *( (pthread_t **) p );		p += sizeof (pthread_t *);
-	attr = *( (pthread_attr_t **) p );	p += sizeof (pthread_attr_t *);
-	start_routine = *( (void **) p );	p += sizeof (void *);
-	arg = *( (void **) p );
+	SYS_ENTRY();
 
 	if ( attr )
 	{
@@ -81,25 +73,24 @@ int sys__pthread_create ( void *p )
 		thread->id = kthread_get_id (kthread);
 	}
 
-	SET_ERRNO ( EXIT_SUCCESS );
-
 	kthreads_schedule ();
 
-	return EXIT_SUCCESS;
+	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
 
 /*!
  * End current thread (exit from it)
  * \param retval Pointer to exit status
  */
-int sys__pthread_exit ( void *p )
+int sys__pthread_exit ( void *retval )
 {
-	void *retval;
+	SYS_ENTRY();
 
-	retval = *( (void **) p );
 	kthread_exit ( kthread_get_active(), retval, FALSE );
 
-	return 0;
+	ASSERT ( FALSE ); /* should not return here! */
+
+	SYS_EXIT ( EXIT_FAILURE, EXIT_FAILURE );
 }
 
 /*!
@@ -109,16 +100,11 @@ int sys__pthread_exit ( void *p )
  * \return 0 if thread already gone; -1 if not finished and 'wait' not set;
  *         'thread exit status' otherwise
  */
-int sys__pthread_join ( void *p )
+int sys__pthread_join ( pthread_t *thread, void **retval )
 {
-	pthread_t *thread;
-	void **retval;
-
 	kthread_t *kthread;
-	int ret_value = 0;
 
-	thread = *( (pthread_t **) p );		p += sizeof (pthread_t *);
-	retval = *( (void ***) p );
+	SYS_ENTRY();
 
 	ASSERT_ERRNO_AND_EXIT ( thread, ESRCH );
 
@@ -127,46 +113,44 @@ int sys__pthread_join ( void *p )
 	if ( kthread_get_id (kthread) != thread->id )
 	{
 		/* at 'kthread' is now something else */
-		ret_value = EXIT_FAILURE;
-		SET_ERRNO ( ESRCH );
+		SYS_EXIT ( ESRCH, EXIT_FAILURE );
 	}
 	else if ( kthread_is_alive (kthread) )
 	{
-		ret_value = EXIT_SUCCESS;
-		SET_ERRNO ( EXIT_SUCCESS );
+		kthread_set_errno ( kthread, EXIT_SUCCESS );
+		kthread_set_syscall_retval ( kthread, EXIT_SUCCESS );
+
 		kthread_set_private_param ( kthread_get_active(), retval );
 
 		kthread_wait_thread ( NULL, kthread );
 
 		kthreads_schedule ();
+
+		SYS_EXIT ( kthread_get_errno(NULL),
+			   kthread_get_syscall_retval(NULL) );
 	}
 	else {
 		/* target thread is passive, collect status and free descr. */
-		ret_value = EXIT_SUCCESS;
-		SET_ERRNO ( EXIT_SUCCESS );
-
 		kthread_collect_status ( kthread, retval );
-	}
 
-	return ret_value;
+		SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
+	}
 }
 
 /*! Return calling thread descriptor
  * \param thread Thread descriptor (user level descriptor)
  * \return 0
  */
-int sys__pthread_self ( void *p )
+int sys__pthread_self ( pthread_t *thread )
 {
-	pthread_t *thread;
-
-	thread = *( (void **) p );
+	SYS_ENTRY();
 
 	ASSERT_ERRNO_AND_EXIT ( thread, ESRCH );
 
 	thread->ptr = kthread_get_active ();
 	thread->id = kthread_get_id (NULL);
 
-	EXIT ( EXIT_SUCCESS );
+	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
 
 /*!
@@ -176,17 +160,13 @@ int sys__pthread_self ( void *p )
  * \param param Additional scheduling parameters (when policy != SCHED_FIFO)
  * \return 0
  */
-int sys__pthread_setschedparam ( void *p )
+int sys__pthread_setschedparam ( pthread_t *thread, int policy,
+				 sched_param_t *param )
 {
-	pthread_t *thread;
-	int policy;
-	sched_param_t *param;
-
 	kthread_t *kthread;
+	int retval;
 
-	thread = *( (pthread_t **) p );		p += sizeof (pthread_t *);
-	policy = *( (int *) p );		p += sizeof (int);
-	param =  *( (sched_param_t **) p );
+	SYS_ENTRY();
 
 	kthread = thread->ptr;
 	ASSERT_ERRNO_AND_EXIT ( kthread, EINVAL );
@@ -202,30 +182,40 @@ int sys__pthread_setschedparam ( void *p )
 			param->sched_priority <= THREAD_MAX_PRIO, EINVAL );
 	}
 
-	return kthread_setschedparam ( kthread, policy, param );
+	retval = kthread_setschedparam ( kthread, policy, param );
+	if ( retval == EXIT_SUCCESS )
+		SYS_EXIT ( EXIT_SUCCESS, retval );
+	else
+		SYS_EXIT ( retval, EXIT_FAILURE );
 }
 
 /*! Set and get current thread error status */
-int sys__set_errno ( void *p )
+int sys__set_errno ( int errno )
 {
-	kthread_set_errno ( NULL, *( (int *) p ) );
-	return 0;
+	SYS_ENTRY();
+
+	kthread_set_errno ( NULL, errno );
+
+	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
-int sys__get_errno ( void *p )
+int sys__get_errno ()
 {
-	return kthread_get_errno (NULL);
+	SYS_ENTRY();
+	SYS_EXIT ( EXIT_SUCCESS, kthread_get_errno (NULL) );
 }
 
-int sys__get_errno_ptr ( void *p )
+int sys__get_errno_ptr ( int **errno )
 {
-	int **errno;
-
-	errno = *( (int ***) p );
+	SYS_ENTRY();
 
 	if ( errno )
+	{
 		*errno = kthread_get_errno_ptr (NULL);
-
-	return errno != NULL;
+		SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
+	}
+	else {
+		SYS_EXIT ( EINVAL, EXIT_FAILURE );
+	}
 }
 
 /*! Mutex ------------------------------------------------------------------- */
@@ -236,16 +226,13 @@ int sys__get_errno_ptr ( void *p )
  * \param mutexattr Mutex parameters
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__pthread_mutex_init ( void *p )
+int sys__pthread_mutex_init ( pthread_mutex_t *mutex,
+			      pthread_mutexattr_t *mutexattr )
 {
-	pthread_mutex_t *mutex;
-	/* pthread_mutexattr_t *mutexattr; not implemented */
-
 	kpthread_mutex_t *kmutex;
 	kobject_t *kobj;
 
-	mutex = *( (pthread_mutex_t **) p ); /* p += sizeof (pthread_mutex_t *);
-	mutexattr = *( (pthread_mutexattr_t *) p ); */
+	SYS_ENTRY();
 
 	ASSERT_ERRNO_AND_EXIT ( mutex, EINVAL );
 
@@ -262,7 +249,7 @@ int sys__pthread_mutex_init ( void *p )
 	mutex->ptr = kobj;
 	mutex->id = kmutex->id;
 
-	EXIT2 ( EXIT_SUCCESS, EXIT_SUCCESS );
+	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
 
 /*!
@@ -270,14 +257,13 @@ int sys__pthread_mutex_init ( void *p )
  * \param mutex Mutex descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__pthread_mutex_destroy ( void *p )
+int sys__pthread_mutex_destroy ( pthread_mutex_t *mutex )
 {
-	pthread_mutex_t *mutex;
-
 	kpthread_mutex_t *kmutex;
 	kobject_t *kobj;
 
-	mutex = *( (pthread_mutex_t **) p );
+	SYS_ENTRY();
+
 	ASSERT_ERRNO_AND_EXIT ( mutex, EINVAL );
 
 	kobj = mutex->ptr;
@@ -307,7 +293,7 @@ int sys__pthread_mutex_destroy ( void *p )
 	mutex->ptr = NULL;
 	mutex->id = 0;
 
-	EXIT2 ( EXIT_SUCCESS, EXIT_SUCCESS );
+	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
 
 int mutex_lock ( kpthread_mutex_t *kmutex, kthread_t *kthread );
@@ -317,15 +303,14 @@ int mutex_lock ( kpthread_mutex_t *kmutex, kthread_t *kthread );
  * \param mutex Mutex descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__pthread_mutex_lock ( void *p )
+int sys__pthread_mutex_lock ( pthread_mutex_t *mutex )
 {
-	pthread_mutex_t *mutex;
-
 	kpthread_mutex_t *kmutex;
 	kobject_t *kobj;
 	int retval = EXIT_SUCCESS;
 
-	mutex = *( (pthread_mutex_t **) p );
+	SYS_ENTRY();
+
 	ASSERT_ERRNO_AND_EXIT ( mutex, EINVAL );
 
 	kobj = mutex->ptr;
@@ -340,7 +325,11 @@ int sys__pthread_mutex_lock ( void *p )
 	if ( retval == 1 )
 		kthreads_schedule ();
 
-	return retval != -1;
+	 /* errno is already set */
+	if ( retval != -1 )
+		SYS_RETURN ( EXIT_SUCCESS );
+	else
+		SYS_RETURN ( EXIT_FAILURE );
 }
 
 /*! lock mutex; return 0 if locked, 1 if thread blocked, -1 if error */
@@ -376,14 +365,13 @@ int mutex_lock ( kpthread_mutex_t *kmutex, kthread_t *kthread )
  * \param mutex Mutex descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__pthread_mutex_unlock ( void *p )
+int sys__pthread_mutex_unlock ( pthread_mutex_t *mutex )
 {
-	pthread_mutex_t *mutex;
-
 	kpthread_mutex_t *kmutex;
 	kobject_t *kobj;
 
-	mutex = *( (pthread_mutex_t **) p );
+	SYS_ENTRY();
+
 	ASSERT_ERRNO_AND_EXIT ( mutex, EINVAL );
 
 	kobj = mutex->ptr;
@@ -395,8 +383,6 @@ int sys__pthread_mutex_unlock ( void *p )
 
 	ASSERT_ERRNO_AND_EXIT ( kmutex->owner == kthread_get_active(), EPERM );
 
-	SET_ERRNO ( EXIT_SUCCESS );
-
 	kmutex->owner = kthreadq_get ( &kmutex->queue );
 	if ( kmutex->owner )
 	{
@@ -404,7 +390,7 @@ int sys__pthread_mutex_unlock ( void *p )
 		kthreads_schedule ();
 	}
 
-	return EXIT_SUCCESS;
+	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
 
 /*! conditional variables --------------------------------------------------- */
@@ -415,16 +401,12 @@ int sys__pthread_mutex_unlock ( void *p )
  * \param condattr conditional variable descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__pthread_cond_init ( void *p )
+int sys__pthread_cond_init (pthread_cond_t *cond, pthread_condattr_t *condattr)
 {
-	pthread_cond_t *cond;
-	/* pthread_condattr_t *condattr; not implemented */
-
 	kpthread_cond_t *kcond;
 	kobject_t *kobj;
 
-	cond = *( (pthread_cond_t **) p ); /* p += sizeof (pthread_cond_t *);
-	condattr = *( (pthread_condattr_t *) p ); */
+	SYS_ENTRY();
 
 	ASSERT_ERRNO_AND_EXIT ( cond, EINVAL );
 
@@ -440,7 +422,7 @@ int sys__pthread_cond_init ( void *p )
 	cond->ptr = kobj;
 	cond->id = kcond->id;
 
-	EXIT2 ( EXIT_SUCCESS, EXIT_SUCCESS );
+	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
 
 /*!
@@ -448,14 +430,13 @@ int sys__pthread_cond_init ( void *p )
  * \param cond conditional variable descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__pthread_cond_destroy ( void *p )
+int sys__pthread_cond_destroy ( pthread_cond_t *cond )
 {
-	pthread_cond_t *cond;
-
 	kpthread_cond_t *kcond;
 	kobject_t *kobj;
 
-	cond = *( (pthread_cond_t **) p );
+	SYS_ENTRY();
+
 	ASSERT_ERRNO_AND_EXIT ( cond, EINVAL );
 
 	kobj = cond->ptr;
@@ -478,7 +459,7 @@ int sys__pthread_cond_destroy ( void *p )
 	cond->ptr = NULL;
 	cond->id = 0;
 
-	EXIT2 ( EXIT_SUCCESS, EXIT_SUCCESS );
+	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
 
 /*!
@@ -487,18 +468,14 @@ int sys__pthread_cond_destroy ( void *p )
  * \param mutex Mutex descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__pthread_cond_wait ( void *p )
+int sys__pthread_cond_wait ( pthread_cond_t *cond, pthread_mutex_t *mutex )
 {
-	pthread_cond_t *cond;
-	pthread_mutex_t *mutex;
-
 	kpthread_cond_t *kcond;
 	kpthread_mutex_t *kmutex;
 	kobject_t *kobj_cond, *kobj_mutex;
-	int retval = EXIT_SUCCESS;
 
-	cond = *( (pthread_cond_t **) p ); p += sizeof (pthread_cond_t *);
-	mutex = *( (pthread_mutex_t **) p );
+	SYS_ENTRY();
+
 	ASSERT_ERRNO_AND_EXIT ( cond && mutex, EINVAL );
 
 	kobj_cond = cond->ptr;
@@ -517,7 +494,8 @@ int sys__pthread_cond_wait ( void *p )
 
 	ASSERT_ERRNO_AND_EXIT ( kmutex->owner == kthread_get_active(), EPERM );
 
-	SET_ERRNO ( EXIT_SUCCESS );
+	kthread_set_errno ( NULL, EXIT_SUCCESS );
+	kthread_set_syscall_retval ( NULL, EXIT_SUCCESS );
 
 	/* move thread in conditional variable queue */
 	kthread_enqueue ( NULL, &kcond->queue );
@@ -532,19 +510,19 @@ int sys__pthread_cond_wait ( void *p )
 
 	kthreads_schedule ();
 
-	return retval;
+	SYS_EXIT ( kthread_get_errno(NULL), kthread_get_syscall_retval(NULL) );
 }
 
-int cond_release ( void *p, int release_all );
+int cond_release ( pthread_cond_t *cond, int release_all );
 
 /*!
  * Restart thread waiting on conditional variable
  * \param cond conditional variable descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__pthread_cond_signal ( void *p )
+int sys__pthread_cond_signal ( pthread_cond_t *cond )
 {
-	return cond_release ( p, FALSE );
+	return cond_release ( cond, FALSE );
 }
 
 /*!
@@ -552,22 +530,21 @@ int sys__pthread_cond_signal ( void *p )
  * \param cond conditional variable descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__pthread_cond_broadcast ( void *p )
+int sys__pthread_cond_broadcast ( pthread_cond_t *cond )
 {
-	return cond_release ( p, TRUE );
+	return cond_release ( cond, TRUE );
 }
 
-int cond_release ( void *p, int release_all )
+int cond_release ( pthread_cond_t *cond, int release_all )
 {
-	pthread_cond_t *cond;
-
 	kpthread_cond_t *kcond;
 	kpthread_mutex_t *kmutex;
 	kobject_t *kobj_cond, *kobj_mutex;
 	kthread_t *kthread;
 	int retval = 0;
 
-	cond = *( (pthread_cond_t **) p );
+	SYS_ENTRY();
+
 	ASSERT_ERRNO_AND_EXIT ( cond, EINVAL );
 
 	kobj_cond = cond->ptr;
@@ -604,7 +581,7 @@ int cond_release ( void *p, int release_all )
 	if ( retval > -1 )
 		kthreads_schedule ();
 
-	return EXIT_SUCCESS;
+	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
 
 
@@ -617,18 +594,12 @@ int cond_release ( void *p, int release_all )
  * \param value Initial semaphore value
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__sem_init ( void *p )
+int sys__sem_init ( sem_t *sem, int pshared, int value )
 {
-	sem_t *sem;
-	int pshared;
-	int value;
-
 	ksem_t *ksem;
 	kobject_t *kobj;
 
-	sem =		*( (sem_t **) p );	p += sizeof (sem_t *);
-	pshared =	*( (int *) p );		p += sizeof (int);
-	value =		*( (uint *) p );
+	SYS_ENTRY();
 
 	ASSERT_ERRNO_AND_EXIT ( sem, EINVAL );
 
@@ -649,7 +620,7 @@ int sys__sem_init ( void *p )
 	sem->ptr = kobj;
 	sem->id = ksem->id;
 
-	EXIT2 ( EXIT_SUCCESS, EXIT_SUCCESS );
+	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
 
 /*!
@@ -657,14 +628,12 @@ int sys__sem_init ( void *p )
  * \param sem Semaphore descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__sem_destroy ( void *p )
+int sys__sem_destroy ( sem_t *sem )
 {
-	sem_t *sem;
-
 	ksem_t *ksem;
 	kobject_t *kobj;
 
-	sem = *( (sem_t **) p );
+	SYS_ENTRY();
 
 	ASSERT_ERRNO_AND_EXIT ( sem, EINVAL );
 
@@ -690,7 +659,7 @@ int sys__sem_destroy ( void *p )
 	sem->ptr = NULL;
 	sem->id = 0;
 
-	EXIT2 ( EXIT_SUCCESS, EXIT_SUCCESS );
+	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
 
 /*!
@@ -698,15 +667,14 @@ int sys__sem_destroy ( void *p )
  * \param sem Semaphore descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__sem_wait ( void *p )
+int sys__sem_wait ( sem_t *sem )
 {
-	sem_t *sem;
-
 	ksem_t *ksem;
 	kobject_t *kobj;
 	kthread_t *kthread;
 
-	sem = *( (sem_t **) p );
+	SYS_ENTRY();
+
 	ASSERT_ERRNO_AND_EXIT ( sem, EINVAL );
 
 	kthread = kthread_get_active ();
@@ -719,6 +687,7 @@ int sys__sem_wait ( void *p )
 	ASSERT_ERRNO_AND_EXIT ( ksem && ksem->id == sem->id, EINVAL );
 
 	kthread_set_errno ( kthread, EXIT_SUCCESS );
+	kthread_set_syscall_retval ( kthread, EXIT_SUCCESS );
 
 	if ( ksem->sem_value > 0 )
 	{
@@ -730,7 +699,7 @@ int sys__sem_wait ( void *p )
 		kthreads_schedule ();
 	}
 
-	return EXIT_SUCCESS;
+	SYS_EXIT ( kthread_get_errno(NULL), kthread_get_syscall_retval(NULL) );
 }
 
 /*!
@@ -738,15 +707,13 @@ int sys__sem_wait ( void *p )
  * \param sem Semaphore descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__sem_post ( void *p )
+int sys__sem_post ( sem_t *sem )
 {
-	sem_t *sem;
-
 	ksem_t *ksem;
 	kobject_t *kobj;
 	kthread_t *kthread, *released;
 
-	sem = *( (sem_t **) p );
+	SYS_ENTRY();
 
 	ASSERT_ERRNO_AND_EXIT ( sem, EINVAL );
 
@@ -760,13 +727,14 @@ int sys__sem_post ( void *p )
 	ASSERT_ERRNO_AND_EXIT ( ksem && ksem->id == sem->id, EINVAL );
 
 	kthread_set_errno ( kthread, EXIT_SUCCESS );
+	kthread_set_syscall_retval ( kthread, EXIT_SUCCESS );
 
 	released = kthreadq_get ( &ksem->queue ); /* first to release */
 
 	if ( !released || ksem->sem_value < 0 )
 	{
 		/* if initial semaphore value (set by sem_init) was negative,
-		 * semaphore will not release threads until until its value
+		 * semaphore will not release threads until its value
 		 * reaches zero (small extension of POSIX semaphore) */
 		ksem->sem_value++;
 	}
@@ -775,7 +743,7 @@ int sys__sem_post ( void *p )
 		kthreads_schedule ();
 	}
 
-	return EXIT_SUCCESS;
+	SYS_EXIT ( kthread_get_errno(NULL), kthread_get_syscall_retval(NULL) );
 }
 
 /*! Messages ---------------------------------------------------------------- */
@@ -792,22 +760,13 @@ static list_t kmq_queue = LIST_T_NULL;
  * \param mqdes Return queue descriptor address (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__mq_open ( void *p )
+int sys__mq_open ( char *name, int oflag, mode_t mode, mq_attr_t *attr,
+		   mqd_t *mqdes )
 {
-	char *name;
-	int oflag;
-	/* mode_t mode;	not used in this implementation */
-	mq_attr_t *attr;
-	mqd_t *mqdes;
-
 	kmq_queue_t *kq_queue;
 	kobject_t *kobj;
 
-	name =	*( (char **) p );		p += sizeof (char *);
-	oflag =	*( (int *) p );			p += sizeof (int);
-	/* mode = *( (mode_t *) p ); */		p += sizeof (mode_t);
-	attr =	*( (mq_attr_t **) p );		p += sizeof (mq_attr_t*);
-	mqdes =	*( (mqd_t **) p );
+	SYS_ENTRY();
 
 	ASSERT_ERRNO_AND_EXIT ( name && mqdes, EBADF );
 	ASSERT_ERRNO_AND_EXIT ( strlen (name) < NAME_MAX, EBADF );
@@ -823,7 +782,7 @@ int sys__mq_open ( void *p )
 	{
 		mqdes->ptr = (void *) -1;
 		mqdes->id = -1;
-		EXIT2 ( EEXIST, EXIT_FAILURE );
+		SYS_EXIT ( EEXIST, EXIT_FAILURE );
 	}
 
 	if ( !kq_queue && (oflag & O_CREAT) )
@@ -857,7 +816,7 @@ int sys__mq_open ( void *p )
 	mqdes->ptr = kobj;
 	mqdes->id = kq_queue->id;
 
-	EXIT2 ( EXIT_SUCCESS, EXIT_SUCCESS );
+	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
 
 /*!
@@ -865,16 +824,14 @@ int sys__mq_open ( void *p )
  * \param mqdes Queue descriptor address (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__mq_close ( void *p )
+int sys__mq_close ( mqd_t *mqdes )
 {
-	mqd_t *mqdes;
-
 	kmq_queue_t *kq_queue;
 	kobject_t *kobj;
 	kmq_msg_t *kmq_msg;
 	kthread_t *kthread;
 
-	mqdes = *( (mqd_t **) p );
+	SYS_ENTRY();
 
 	ASSERT_ERRNO_AND_EXIT ( mqdes, EBADF );
 
@@ -884,10 +841,10 @@ int sys__mq_close ( void *p )
 				EBADF );
 
 	kq_queue = kobj->kobject;
-	kq_queue = list_find ( &kmq_queue, &kq_queue->list );
+	kq_queue = list_find_and_remove ( &kmq_queue, &kq_queue->list );
 
 	if ( !kq_queue || kq_queue->id != mqdes->id )
-		EXIT2 ( EBADF, EXIT_FAILURE );
+		SYS_EXIT ( EBADF, EXIT_FAILURE );
 
 	kq_queue->ref_cnt--;
 
@@ -921,7 +878,7 @@ int sys__mq_close ( void *p )
 	kobj->kobject = NULL;
 	kfree_kobject ( kobj );
 
-	EXIT2 ( EXIT_SUCCESS, EXIT_SUCCESS );
+	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
 
 /* compare two messages by priority */
@@ -929,9 +886,6 @@ static int cmp_mq_msg ( kmq_msg_t *m1, kmq_msg_t *m2 )
 {
 	return m1->msg_prio - m2->msg_prio;
 }
-
-static int kmq_send ( void *p, kthread_t *sender );
-static int kmq_receive ( void *p, kthread_t *sender );
 
 /*!
  * Send a message to a message queue
@@ -941,44 +895,14 @@ static int kmq_receive ( void *p, kthread_t *sender );
  * \param msg_prio Message priority
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sys__mq_send ( void *p )
+int sys__mq_send ( mqd_t *mqdes, char *msg_ptr, size_t msg_len, uint msg_prio )
 {
-	kthread_t *kthread;
-	int retval;
-
-	kthread = kthread_get_active ();
-
-	retval = kmq_send ( p, kthread );
-
-	if ( retval == EXIT_SUCCESS )
-	{
-		kthread_set_errno ( kthread, EXIT_SUCCESS );
-	}
-	else {
-		kthread_set_errno ( kthread, retval );
-		retval = EXIT_FAILURE;
-	}
-
-	return retval;
-}
-
-static int kmq_send ( void *p, kthread_t *sender )
-{
-	mqd_t *mqdes;
-	char *msg_ptr;
-	size_t msg_len;
-	uint msg_prio;
-
 	kmq_queue_t *kq_queue;
 	kobject_t *kobj;
 	kmq_msg_t *kmq_msg;
 	kthread_t *kthread;
-	int retval;
 
-	mqdes =		*( (mqd_t **) p );	p += sizeof (mqd_t *);
-	msg_ptr = 	*( (char **) p );	p += sizeof (char *);
-	msg_len = 	*( (size_t *) p );	p += sizeof (size_t);
-	msg_prio =	*( (uint *) p );
+	SYS_ENTRY();
 
 	ASSERT_ERRNO_AND_EXIT ( mqdes && msg_ptr, EINVAL );
 	ASSERT_ERRNO_AND_EXIT ( msg_prio <= MQ_PRIO_MAX, EINVAL );
@@ -993,20 +917,25 @@ static int kmq_send ( void *p, kthread_t *sender )
 	ASSERT_ERRNO_AND_EXIT ( list_find ( &kmq_queue, &kq_queue->list ),
 				EBADF );
 
-	if ( kq_queue->attr.mq_curmsgs >= kq_queue->attr.mq_maxmsg )
+	while ( kq_queue->attr.mq_curmsgs >= kq_queue->attr.mq_maxmsg )
 	{
 		if ( (kobj->flags & O_NONBLOCK) )
-			return EAGAIN;
+			SYS_EXIT ( EAGAIN, EXIT_FAILURE );
 
 		/* block thread */
-		kthread_enqueue ( sender, &kq_queue->send_q );
+		kthread_set_errno ( NULL, EAGAIN );
+		kthread_set_syscall_retval ( NULL, EAGAIN );
+
+		kthread_enqueue ( NULL, &kq_queue->send_q );
 		kthreads_schedule ();
 
-		return EAGAIN;
+		if ( kthread_get_errno (NULL) != EAGAIN )
+			SYS_EXIT ( kthread_get_errno (NULL),
+				   kthread_get_syscall_retval (NULL) );
 	}
 
 	if ( msg_len > kq_queue->attr.mq_msgsize )
-		return EMSGSIZE;
+		SYS_EXIT ( EMSGSIZE, EXIT_FAILURE );
 
 	kmq_msg = kmalloc ( sizeof (kmq_msg_t) + msg_len );
 	ASSERT_ERRNO_AND_EXIT ( kmq_msg, ENOMEM );
@@ -1022,34 +951,19 @@ static int kmq_send ( void *p, kthread_t *sender )
 	kq_queue->attr.mq_curmsgs++;
 
 	/* is there a blocked receiver? */
-	if ( (kthread = kthreadq_remove ( &kq_queue->recv_q, NULL )) )
+	if ( ( kthread = kthreadq_remove ( &kq_queue->recv_q, NULL ) ) )
 	{
-		/* "save" sender thread */
-		kthread_move_to_ready ( sender, FIRST );
-		kthread_set_errno ( sender, EXIT_SUCCESS );
-		kthread_set_syscall_retval ( sender, EXIT_SUCCESS );
-
 		/* unblock receiver */
-		kthread_set_active ( kthread ); /* temporary */
-		p = arch_syscall_get_params ( kthread_get_context (kthread) );
-
-		retval = kmq_receive ( p, kthread );
-
-		if ( retval >= 0 )
-		{
-			kthread_set_errno ( kthread, EXIT_SUCCESS );
-			kthread_set_syscall_retval ( kthread, retval );
-		}
-		else {
-			kthread_set_errno ( kthread, -retval );
-			kthread_set_syscall_retval ( kthread, EXIT_FAILURE );
-		}
+		kthread_move_to_ready ( kthread, LAST );
+		kthread_set_errno ( kthread, EAGAIN );
+		kthread_set_syscall_retval ( kthread, EAGAIN );
 
 		kthreads_schedule ();
 	}
 
-	return EXIT_SUCCESS;
+	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
+
 
 /*!
  * Receive a message from a message queue
@@ -1062,44 +976,14 @@ static int kmq_send ( void *p, kthread_t *sender )
  * NOTE: since mq_receive returns size of received message, if error occurs
  *       returned error numbers are internally negated (only for this function!)
  */
-int sys__mq_receive ( void *p )
+int sys__mq_receive (mqd_t *mqdes,char *msg_ptr,size_t msg_len,uint *msg_prio)
 {
-	kthread_t *kthread;
-	int retval;
-
-	kthread = kthread_get_active ();
-
-	retval = kmq_receive ( p, kthread );
-
-	if ( retval >= 0)
-	{
-		kthread_set_errno ( kthread, EXIT_SUCCESS );
-	}
-	else {
-		kthread_set_errno ( kthread, -retval );
-		retval = EXIT_FAILURE;
-	}
-
-	return retval;
-}
-
-static int kmq_receive ( void *p, kthread_t *receiver )
-{
-	mqd_t *mqdes;
-	char *msg_ptr;
-	size_t msg_len;
-	uint *msg_prio;
-
 	kmq_queue_t *kq_queue;
 	kobject_t *kobj;
 	kmq_msg_t *kmq_msg;
 	kthread_t *kthread;
-	int retval;
 
-	mqdes =		*( (mqd_t **) p );	p += sizeof (mqd_t *);
-	msg_ptr = 	*( (char **) p );	p += sizeof (char *);
-	msg_len = 	*( (size_t *) p );	p += sizeof (size_t);
-	msg_prio =	*( (uint **) p );
+	SYS_ENTRY();
 
 	ASSERT_ERRNO_AND_EXIT ( mqdes && msg_ptr, -EINVAL );
 
@@ -1113,20 +997,25 @@ static int kmq_receive ( void *p, kthread_t *receiver )
 	ASSERT_ERRNO_AND_EXIT ( list_find ( &kmq_queue, &kq_queue->list ),
 				-EBADF );
 
-	if ( kq_queue->attr.mq_curmsgs == 0 )
+	while ( kq_queue->attr.mq_curmsgs == 0 )
 	{
 		if ( (kobj->flags & O_NONBLOCK) )
-			return -EAGAIN;
+			SYS_EXIT ( EAGAIN, EXIT_FAILURE );
 
 		/* block thread */
-		kthread_enqueue ( receiver, &kq_queue->recv_q );
+		kthread_set_errno ( NULL, EAGAIN );
+		kthread_set_syscall_retval ( NULL, EAGAIN );
+
+		kthread_enqueue ( NULL, &kq_queue->recv_q );
 		kthreads_schedule ();
 
-		return -EAGAIN;
+		if ( kthread_get_errno (NULL) != EAGAIN )
+			SYS_EXIT ( kthread_get_errno (NULL),
+				   kthread_get_syscall_retval (NULL) );
 	}
 
 	if ( msg_len < kq_queue->attr.mq_msgsize )
-		return -EMSGSIZE;
+		SYS_EXIT ( EMSGSIZE, EXIT_FAILURE );
 
 	kmq_msg = list_remove ( &kq_queue->msg_list, FIRST, NULL );
 
@@ -1142,29 +1031,13 @@ static int kmq_receive ( void *p, kthread_t *receiver )
 	/* is there a blocked sender? */
 	if ( (kthread = kthreadq_remove ( &kq_queue->send_q, NULL )) )
 	{
-		/* "save" receiver thread */
-		kthread_move_to_ready ( receiver, FIRST );
-		kthread_set_errno ( receiver, EXIT_SUCCESS );
-		kthread_set_syscall_retval ( receiver, msg_len );
-
 		/* unblock sender */
-		kthread_set_active ( kthread ); /* temporary */
-		p = arch_syscall_get_params ( kthread_get_context (kthread) );
-
-		retval = kmq_send ( p, kthread );
-
-		if ( retval == EXIT_SUCCESS )
-		{
-			kthread_set_errno ( kthread, EXIT_SUCCESS );
-			kthread_set_syscall_retval ( kthread, retval );
-		}
-		else {
-			kthread_set_errno ( kthread, retval );
-			kthread_set_syscall_retval ( kthread, EXIT_FAILURE );
-		}
+		kthread_move_to_ready ( kthread, LAST );
+		kthread_set_errno ( kthread, EAGAIN );
+		kthread_set_syscall_retval ( kthread, EAGAIN );
 
 		kthreads_schedule ();
 	}
 
-	return msg_len;
+	SYS_EXIT ( EXIT_SUCCESS, msg_len );
 }

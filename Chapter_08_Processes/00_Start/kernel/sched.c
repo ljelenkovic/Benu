@@ -149,12 +149,12 @@ void kthreads_schedule ()
 		ksched2_activate_thread ( next );
 	}
 
-	if ( curr != active_thread )
+	if ( curr != kthread_get_active() )
 	{
 		/* switch to newly selected thread */
 		arch_switch_to_thread (
 		/* from */	( curr ? kthread_get_context ( curr ) : NULL ),
-		/* to */	kthread_get_context ( active_thread )
+		/* to */	kthread_get_context ( NULL )
 		);
 	}
 	/* else => continue with current thread */

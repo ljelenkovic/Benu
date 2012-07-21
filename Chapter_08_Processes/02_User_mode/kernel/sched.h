@@ -10,7 +10,6 @@
  */
 #pragma once
 
-#include <kernel/sched.h>
 #include <kernel/thread.h>
 
 /*! ------------------------------------------------------------------------- */

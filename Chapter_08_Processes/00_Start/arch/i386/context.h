@@ -28,4 +28,4 @@ struct _context_t_
 #ifdef USE_SSE
 	uint32          sse_mmx_fpu;
 #endif
-}
+};

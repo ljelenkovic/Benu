@@ -1052,7 +1052,7 @@ int sys__mq_close ( void *p )
 				EBADF );
 
 	kq_queue = kobj->kobject;
-	kq_queue = list_find ( &kmq_queue, &kq_queue->list );
+	kq_queue = list_find_and_remove ( &kmq_queue, &kq_queue->list );
 
 	if ( !kq_queue || kq_queue->id != mqdes->id )
 		EXIT2 ( EBADF, EXIT_FAILURE );

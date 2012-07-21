@@ -27,9 +27,9 @@ static inline int set_interrupts ( int enable )
 			"pop	%0\n\t"
 			: "=r" (old_flags) );
 	if (enable)
-		enable_interrupts();
+		arch_enable_interrupts ();
 	else
-		disable_interrupts();
+		arch_disable_interrupts ();
 
 	return old_flags & EFLAGS_IF;
 }

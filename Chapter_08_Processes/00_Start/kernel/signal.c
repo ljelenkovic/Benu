@@ -7,10 +7,9 @@
 #include "kprint.h"
 #include "errno.h"
 #include "time.h"
-#include <arch/syscall.h>
-#include <kernel/syscall.h>
 
 static int ksignal_received_signal ( kthread_t *kthread, void *param );
+static void ksignal_add_to_pending ( ksignal_handling_t *sh, siginfo_t *sig );
 
 /*! Initialize thread signal handling data */
 int ksignal_thread_init ( kthread_t *kthread )
@@ -39,7 +38,6 @@ int ksignal_queue ( kthread_t *kthread, siginfo_t *sig )
 	void (*func) (kthread_t *, void *), *param;
 	siginfo_t *us;
 	param_t param1, param2, param3;
-	ksiginfo_t *ksig;
 
 	ASSERT ( kthread );
 	ASSERT ( kthread_check_kthread ( kthread ) );
@@ -160,16 +158,8 @@ int ksignal_queue ( kthread_t *kthread, siginfo_t *sig )
 
 	if ( enqueue )
 	{
-		/* mask signal in thread mask */
-		sigaddset ( sh->mask, sig->si_signo );
+		ksignal_add_to_pending ( sh, sig );
 
-		/* add signal to list of pending signals */
-		ksig = kmalloc ( sizeof (ksiginfo_t) );
-		ksig->siginfo = *sig;
-
-		list_append ( &sh->pending_signals, ksig, &ksig->list );
-		/* list_sort_add ( &sh->pending_signals, ksig, &ksig->list,
-				ksignal_compare ); */
 		retval = EAGAIN;
 	}
 
@@ -177,6 +167,22 @@ int ksignal_queue ( kthread_t *kthread, siginfo_t *sig )
 		kthreads_schedule ();
 
 	return retval;
+}
+
+static void ksignal_add_to_pending ( ksignal_handling_t *sh, siginfo_t *sig )
+{
+	ksiginfo_t *ksig;
+
+	/* mask signal in thread mask */
+	sigaddset ( sh->mask, sig->si_signo );
+
+	/* add signal to list of pending signals */
+	ksig = kmalloc ( sizeof (ksiginfo_t) );
+	ksig->siginfo = *sig;
+
+	list_append ( &sh->pending_signals, ksig, &ksig->list );
+	/* list_sort_add ( &sh->pending_signals, ksig, &ksig->list,
+			ksignal_compare ); */
 }
 
 /*! Process pending signals for thread (called from kthreads_schedule ()) */
@@ -197,9 +203,10 @@ int ksignal_process_pending ( kthread_t *kthread )
 
 		if ( !sigtestset ( sh->mask, ksig->siginfo.si_signo ) )
 		{
+			list_remove ( &sh->pending_signals, 0, &ksig->list );
+
 			retval = ksignal_queue ( kthread, &ksig->siginfo );
 
-			list_remove ( &sh->pending_signals, 0, &ksig->list );
 			kfree ( ksig );
 
 			/* handle only first signal?
@@ -218,12 +225,7 @@ int ksignal_process_pending ( kthread_t *kthread )
 static int ksignal_received_signal ( kthread_t *kthread, void *param )
 {
 	siginfo_t *sig;
-	context_t *context;
-	uint sysid;
-	void *p;
-	sigset_t *set;
-	siginfo_t *info;
-	int retval = EXIT_SUCCESS;
+	ksignal_handling_t *sh;
 
 	ASSERT ( kthread );
 
@@ -231,52 +233,31 @@ static int ksignal_received_signal ( kthread_t *kthread, void *param )
 	if ( param == NULL )
 	{
 		kthread_set_errno ( kthread, EINTR );
+		kthread_set_syscall_retval ( kthread, EXIT_FAILURE );
+
 		return EXIT_FAILURE; /* other event interrupted thread */
 	}
 
 	/* signal interrupted, but did thread waited for this signal? */
 	sig = param;
+	sh = kthread_get_sigparams ( kthread );
 
-	/* get syscall which caused thread to be suspend */
-	context = kthread_get_context ( kthread );
-	sysid = arch_syscall_get_id ( context );
+	/* thread is suspended and waiting for signal
+	 * (FIXME if other reasons can lead to this point) */
 
-	switch ( sysid )
-	{
-	case SIGWAITINFO: /* sigwaitinfo */
-		p = arch_syscall_get_params ( context );
+	/* add signal to pending and resume suspended thread
+	 * (which will then handle signal) */
 
-		set =   *( (sigset_t **) p );	p += sizeof (sigset_t *);
-		info =  *( (siginfo_t **) p );	p += sizeof (siginfo_t *);
+	ksignal_add_to_pending ( sh, sig );
 
-		ASSERT ( set );
+	/* resume with thread */
+	kthread_set_errno ( kthread, EAGAIN );
+	kthread_set_syscall_retval ( kthread, EXIT_FAILURE );
+	kthread_move_to_ready ( kthread, LAST );
 
-		retval = EXIT_FAILURE;
+	kthreads_schedule ();
 
-		if ( sigtestset ( set, sig->si_signo ) )
-		{
-			retval = sig->si_signo;
-			kthread_set_syscall_retval ( kthread, retval );
-
-			if ( info )
-				*info = *sig;
-
-			kthread_set_errno ( kthread, EXIT_SUCCESS );
-
-			/* resume with thread */
-			kthread_move_to_ready ( kthread, LAST );
-
-			kthreads_schedule ();
-
-			return EXIT_SUCCESS;
-		}
-		else {
-			/* not waiting for this signal */
-			return EXIT_FAILURE;
-		}
-	default:
-		return EXIT_FAILURE;
-	}
+	return EXIT_SUCCESS;
 }
 
 /*! Process event defined with sigevent_t */
@@ -381,7 +362,7 @@ int sys__sigqueue ( pid_t pid, int signo, sigval_t sigval )
 
 	retval = ksignal_queue ( kthread, &sig );
 
-	if ( !retval )
+	if ( retval == EXIT_SUCCESS )
 		SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 	else
 		SYS_EXIT ( retval, EXIT_FAILURE );
@@ -427,10 +408,10 @@ int sys__pthread_sigmask ( int how, sigset_t *set, sigset_t *oset )
 	}
 
 	/* reevaluate pending signals with new mask */
-	if ( !retval )
+	if ( retval == EXIT_SUCCESS )
 		ksignal_process_pending ( kthread_get_active () );
 
-	if ( !retval )
+	if ( retval == EXIT_SUCCESS )
 		SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 	else
 		SYS_EXIT ( retval, EXIT_FAILURE );
@@ -500,36 +481,42 @@ int sys__sigwaitinfo ( sigset_t *set, siginfo_t *info )
 	kthread = kthread_get_active ();
 	sh = kthread_get_sigparams ( kthread );
 
-	/* first, search for such signal in pending signals */
-	ksig = list_get ( &sh->pending_signals, FIRST );
-	while ( ksig )
-	{
-		next = list_get_next ( &ksig->list );
-
-		if ( sigtestset ( set, ksig->siginfo.si_signo ) )
+	do {
+		/* first, search for such signal in pending signals */
+		ksig = list_get ( &sh->pending_signals, FIRST );
+		while ( ksig )
 		{
-			retval = ksig->siginfo.si_signo;
-			if ( info )
-				*info = ksig->siginfo;
+			next = list_get_next ( &ksig->list );
 
-			list_remove ( &sh->pending_signals, 0, &ksig->list );
-			kfree ( ksig );
+			if ( sigtestset ( set, ksig->siginfo.si_signo ) )
+			{
+				retval = ksig->siginfo.si_signo;
+				if ( info )
+					*info = ksig->siginfo;
 
-			SYS_EXIT ( EXIT_SUCCESS, retval );
+				list_remove ( &sh->pending_signals,
+					      0, &ksig->list );
+				kfree ( ksig );
+
+				SYS_EXIT ( EXIT_SUCCESS, retval );
+			}
+
+			ksig = next;
 		}
 
-		ksig = next;
+		/*
+		* if no pending signal found that matches given mask
+		* suspend thread until signal is received
+		*/
+		kthread_suspend ( kthread, ksignal_received_signal, NULL );
+
+		kthread_set_errno ( kthread, EINTR );
+		kthread_set_syscall_retval ( kthread, EXIT_FAILURE );
+
+		kthreads_schedule ();
+
 	}
-
-	/*
-	 * if no pending signal found that matches given mask
-	 * suspend thread until signal is received
-	 */
-	kthread_suspend ( kthread, ksignal_received_signal, NULL );
-	kthread_set_errno ( kthread, EINTR );
-	kthread_set_syscall_retval ( kthread, EXIT_FAILURE );
-
-	kthreads_schedule ();
+	while ( kthread_get_errno(NULL) == EAGAIN );
 
 	SYS_EXIT ( kthread_get_errno(NULL), kthread_get_syscall_retval(NULL) );
 }

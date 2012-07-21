@@ -2,21 +2,21 @@
 #pragma once
 
 #include <types/errno.h>
-#include <api/syscall.h>
+#include <kernel/errno.h>
 
 static inline int set_errno ( int error_number )
 {
-	return syscall ( SET_ERRNO, error_number );
+	return sys__set_errno ( error_number );
 }
 static inline int get_errno ()
 {
-	return syscall ( GET_ERRNO );
+	return sys__get_errno ();
 }
 
 static inline int *get_errno_ptr ()
 {
 	int *error_number_ptr;
-	syscall ( GET_ERRNO_PTR, &error_number_ptr );
+	sys__get_errno_ptr ( &error_number_ptr );
 
 	return error_number_ptr;
 }

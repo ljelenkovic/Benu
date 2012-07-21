@@ -43,7 +43,7 @@ kprintf ( "[" #LEVEL ":%s:%d]" format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 #define ASSERT(expr)	do if ( !( expr ) ) { LOG ( BUG, ""); halt(); } while(0)
 
 /* assert and return (inter kernel calls) */
-#define ASSERT_ERRNO_AND_RETURN(expr, errnum) \
+#define ASSERT_AND_RETURN_ERRNO(expr, errnum) \
 do {	if ( !( expr ) )			\
 	{					\
 		LOG ( ASSERT, "");		\
@@ -64,7 +64,7 @@ do {	if ( !( expr ) )			\
 
 #define ASSERT(expr)
 #define ASSERT_ERRNO_AND_EXIT(expr, errnum)
-#define ASSERT_ERRNO_AND_RETURN(expr, errnum)
+#define ASSERT_AND_RETURN_ERRNO(expr, errnum)
 #define LOG(LEVEL, format, ...)
 
 #endif /* DEBUG */

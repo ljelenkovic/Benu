@@ -12,7 +12,7 @@ char PROG_HELP[] = "Thread example (semaphore): producer consumer example.";
 #define BUFF_SIZE	5
 
 static timespec_t sleep;
-static int end_msgs = 0;
+static int end_msgs;
 
 static sem_t filled, empty, crit1, crit2;
 

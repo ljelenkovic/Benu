@@ -8,7 +8,6 @@
 #include <kernel/device.h>
 #include <kernel/errno.h>
 #include <kernel/memory.h>
-#include <kernel/sched.h>
 #include <kernel/signal.h>
 #include <kernel/time.h>
 

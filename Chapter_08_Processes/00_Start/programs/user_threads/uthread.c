@@ -30,7 +30,7 @@ uthread_t *create_uthread ( void (func) (void *), void *param )
 
 	thread->id = next_id;
 
-	arch_create_uthread_context ( &thread->context, func, param,
+	arch_create_thread_context ( &thread->context, func, param,
 		uthread_exit, thread->stack, DEFAULT_THREAD_STACK_SIZE );
 
 	next_id++;
@@ -58,7 +58,7 @@ void uthread_exit ()
 	/* make it active */
 	list_append ( &active, new_thread, &new_thread->list );
 	/* switch to it */
-	arch_switch_to_uthread ( &tmp.context, &new_thread->context );
+	arch_switch_to_thread ( &tmp.context, &new_thread->context );
 }
 
 void uthread_yield ()
@@ -74,5 +74,5 @@ void uthread_yield ()
 	list_append ( &active, new_thread, &new_thread->list );
 
 	/* switch to new active thread */
-	arch_switch_to_uthread ( &cur_thread->context, &new_thread->context );
+	arch_switch_to_thread ( &cur_thread->context, &new_thread->context );
 }

@@ -433,7 +433,7 @@ int sys__pthread_sigmask ( void *p )
 	}
 
 	/* reevaluate pending signals with new mask */
-	if ( !retval )
+	if ( retval == EXIT_SUCCESS )
 		retval = ksignal_process_pending ( kthread_get_active () );
 
 	EXIT ( retval );

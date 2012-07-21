@@ -4,29 +4,34 @@
 #include <types/pthread.h>
 
 /*! interface for threads (via software interrupt) -------------------------- */
-int sys__pthread_create ( void *p );
-int sys__pthread_exit ( void *p );
-int sys__pthread_join ( void *p );
-int sys__pthread_self ( void *p );
+int sys__pthread_create ( pthread_t *thread, pthread_attr_t *attr,
+			  void *(*start_routine) (void *), void *arg );
+int sys__pthread_exit ( void *retval );
+int sys__pthread_join ( pthread_t *thread, void **retval );
+int sys__pthread_self ( pthread_t *thread );
 
-int sys__pthread_setschedparam ( void *p );
+int sys__pthread_setschedparam ( pthread_t *thread, int policy,
+				 sched_param_t *param );
 
-int sys__pthread_mutex_init ( void *p );
-int sys__pthread_mutex_destroy ( void *p );
-int sys__pthread_mutex_lock ( void *p );
-int sys__pthread_mutex_unlock ( void *p );
-int sys__pthread_cond_init ( void *p );
-int sys__pthread_cond_destroy ( void *p );
-int sys__pthread_cond_wait ( void *p );
-int sys__pthread_cond_signal ( void *p );
-int sys__pthread_cond_broadcast ( void *p );
+int sys__pthread_mutex_init ( pthread_mutex_t *mutex,
+			      pthread_mutexattr_t *mutexattr );
+int sys__pthread_mutex_destroy ( pthread_mutex_t *mutex );
+int sys__pthread_mutex_lock ( pthread_mutex_t *mutex );
+int sys__pthread_mutex_unlock ( pthread_mutex_t *mutex );
 
-int sys__sem_init ( void *p );
-int sys__sem_destroy ( void *p );
-int sys__sem_wait ( void *p );
-int sys__sem_post ( void *p );
+int sys__pthread_cond_init (pthread_cond_t *cond, pthread_condattr_t *condattr);
+int sys__pthread_cond_destroy ( pthread_cond_t *cond );
+int sys__pthread_cond_wait ( pthread_cond_t *cond, pthread_mutex_t *mutex );
+int sys__pthread_cond_signal ( pthread_cond_t *cond );
+int sys__pthread_cond_broadcast ( pthread_cond_t *cond );
 
-int sys__mq_open ( void *p );
-int sys__mq_close ( void *p );
-int sys__mq_send ( void *p );
-int sys__mq_receive ( void *p );
+int sys__sem_init ( sem_t *sem, int pshared, int value );
+int sys__sem_destroy ( sem_t *sem );
+int sys__sem_wait ( sem_t *sem );
+int sys__sem_post ( sem_t *sem );
+
+int sys__mq_open ( char *name, int oflag, mode_t mode, mq_attr_t *attr,
+		   mqd_t *mqdes );
+int sys__mq_close ( mqd_t *mqdes );
+int sys__mq_send ( mqd_t *mqdes, char *msg_ptr, size_t msg_len, uint msg_prio );
+int sys__mq_receive (mqd_t *mqdes,char *msg_ptr,size_t msg_len,uint *msg_prio );

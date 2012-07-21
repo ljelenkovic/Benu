@@ -2,7 +2,7 @@
 
 #include <api/signal.h>
 
-#include <api/syscall.h>
+#include <kernel/signal.h>
 #include <types/basic.h>
 #include <api/stdio.h>
 #include <api/errno.h>
@@ -20,7 +20,7 @@ int sigaction ( int sig, sigaction_t *act, sigaction_t *oact )
 {
 	ASSERT_ERRNO_AND_RETURN ( sig > 0 && sig <= SIGMAX, EINVAL );
 
-	return syscall ( SIGACTION, sig, act, oact );
+	return sys__sigaction ( sig, act, oact );
 }
 
 /*!
@@ -34,7 +34,7 @@ int sigqueue ( pid_t pid, int signo, sigval_t sigval )
 {
 	ASSERT_ERRNO_AND_RETURN ( signo > 0 && signo <= SIGMAX, EINVAL );
 
-	return syscall ( SIGQUEUE, pid, signo, sigval );
+	return sys__sigqueue ( pid, signo, sigval );
 }
 
 /*!
@@ -48,7 +48,7 @@ int sigwaitinfo ( sigset_t *set, siginfo_t *info )
 {
 	ASSERT_ERRNO_AND_RETURN ( set, EINVAL );
 
-	return syscall ( SIGWAITINFO, set, info );
+	return sys__sigwaitinfo ( set, info );
 }
 
 /*!
@@ -62,5 +62,5 @@ int pthread_sigmask ( int how, sigset_t *set, sigset_t *oset )
 {
 	ASSERT_ERRNO_AND_RETURN ( set, EINVAL );
 
-	return syscall ( PTHREAD_SIGMASK, how, set, oset );
+	return sys__pthread_sigmask ( how, set, oset );
 }

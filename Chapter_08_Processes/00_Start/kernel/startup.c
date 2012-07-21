@@ -3,13 +3,13 @@
 
 #include "time.h"
 #include "thread.h"
-#include "syscall.h"
 #include "device.h"
 #include "memory.h"
 #include "kprint.h"
 #include <kernel/errno.h>
 #include <arch/interrupt.h>
-#include <arch/processor.h>
+//#include <arch/processor.h>
+#include <arch/context.h>
 #include <types/basic.h>
 #include <lib/string.h>
 
@@ -35,7 +35,6 @@ void k_startup ()
 
 	/* interrupts */
 	arch_init_interrupts ();
-	arch_register_interrupt_handler ( SOFTWARE_INTERRUPT, k_syscall, NULL );
 
 	/* detect memory faults (qemu do not detect segment violations!) */
 	arch_register_interrupt_handler ( INT_STF, k_memory_fault, NULL );
@@ -52,14 +51,11 @@ void k_startup ()
 
 	kprintf ( "%s\n", system_info );
 
-	/* thread subsystem */
-	kthreads_init ();
-
 	if ( strcmp ( U_STDIN, "i8042" ) == 0 )
 		kprintf ("For input (keyboard) focus QEMU simulator window!\n");
 	else if ( strcmp ( U_STDIN, "COM1" ) == 0 )
 		kprintf ("For input (keyboard) focus shell\n");
 
-	/* complete initialization by starting first thread */
-	arch_return_to_thread ();
+	/* thread subsystem */
+	kthreads_init (); /* there is no return from it */
 }
