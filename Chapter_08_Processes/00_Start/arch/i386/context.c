@@ -125,3 +125,33 @@ void arch_switch_to_thread ( context_t *from, context_t *to )
 	);
 #endif
 }
+
+/* switch from one thread to another with cleanup of first */
+void arch_switch_to_thread_with_cleanup ( void *from, context_t *to )
+{
+	extern uint8 k_stack[];
+
+	asm volatile (
+	"movl	%0, %%eax	\n\t"	/* save from */
+	"movl	%1, %%ebx	\n\t"	/* save to */
+
+	"movl	%2, %%esp	\n\t"	/* temporary switch to bootup stack */
+
+	"pushl	%%ebx		\n\t"	/* to */
+	"pushl	%%eax		\n\t"	/* from */
+
+	"call	kthread_cleanup		\n\t"	/* cleanup "from" */
+
+	/* replace first argument with NULL */
+	"popl	%%eax		\n\t"
+	"xorl	%%eax, %%eax	\n\t"
+	"pushl	%%eax		\n\t"
+
+	"call	arch_switch_to_thread	\n\t"	/* "real" switch */
+	/* there is no return to here */
+
+		:: "m" (from), 				/* %0 */
+		   "m" (to),				/* %1 */
+		   "i" (k_stack + KERNEL_STACK_SIZE)	/* %2 */
+	);
+}

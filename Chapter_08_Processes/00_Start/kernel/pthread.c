@@ -117,8 +117,8 @@ int sys__pthread_join ( pthread_t *thread, void **retval )
 	}
 	else if ( kthread_is_alive (kthread) )
 	{
-		kthread_set_errno ( kthread, EXIT_SUCCESS );
-		kthread_set_syscall_retval ( kthread, EXIT_SUCCESS );
+		kthread_set_errno ( NULL, EXIT_SUCCESS );
+		kthread_set_syscall_retval ( NULL, EXIT_SUCCESS );
 
 		kthread_set_private_param ( kthread_get_active(), retval );
 
@@ -196,12 +196,12 @@ int sys__set_errno ( int errno )
 
 	kthread_set_errno ( NULL, errno );
 
-	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
+	SYS_RETURN ( EXIT_SUCCESS );
 }
 int sys__get_errno ()
 {
 	SYS_ENTRY();
-	SYS_EXIT ( EXIT_SUCCESS, kthread_get_errno (NULL) );
+	SYS_RETURN ( kthread_get_errno (NULL) );
 }
 
 int sys__get_errno_ptr ( int **errno )
@@ -211,10 +211,10 @@ int sys__get_errno_ptr ( int **errno )
 	if ( errno )
 	{
 		*errno = kthread_get_errno_ptr (NULL);
-		SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
+		SYS_RETURN ( EXIT_SUCCESS );
 	}
 	else {
-		SYS_EXIT ( EINVAL, EXIT_FAILURE );
+		SYS_RETURN ( EXIT_FAILURE );
 	}
 }
 

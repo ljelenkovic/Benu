@@ -140,6 +140,7 @@ void kthread_create_new_state ( kthread_t *kthread,
 	arch_create_thread_context ( &kthread->state.context, start_func, param,
 				     pi.exit, stack, stack_size );
 
+	kthread->state.flags = 0;
 	kthread->state.retval = 0;
 	kthread->state.errno = 0;
 	kthread->state.exit_status = NULL;
@@ -181,7 +182,8 @@ int kthread_restore_state ( kthread_t *kthread )
 }
 
 /*! Suspend thread (kthreads_schedule must follow this call) */
-inline int kthread_suspend (kthread_t *kthread,void *wakeup_action,void *param)
+inline int kthread_suspend ( kthread_t *kthread, void *wakeup_action,
+			     void *param )
 {
 	if ( !kthread )
 		kthread = active_thread;
@@ -246,7 +248,14 @@ int kthread_exit ( kthread_t *kthread, void *exit_status, int force )
 	if ( restored && !force ) /* restored to previous state */
 	{
 		if ( kthread == active_thread )
+		{
 			kthread->state.state = THR_STATE_ACTIVE;
+			arch_switch_to_thread ( NULL, &kthread->state.context );
+		}
+		else {
+			ASSERT (FALSE); /* hum, rethink this */
+			/* move to ready? */
+		}
 
 		kthreads_schedule ();
 
@@ -285,34 +294,30 @@ int kthread_exit ( kthread_t *kthread, void *exit_status, int force )
 	}
 
 	kthread->state.state = THR_STATE_PASSIVE;
-	kthread->ref_cnt--;
 	kthread->state.exit_status = exit_status;
 
 	/* remove it from its scheduler */
 	ksched2_thread_remove ( kthread );
 
-	kthread_restore_state ( kthread );
+	/* any thread waiting on this? */
+	q = &kthread->join_queue;
 
-	if ( !kthread->ref_cnt )
+	while ( (released = kthreadq_remove ( q, NULL )) != NULL )
 	{
-		kthread_remove_descriptor ( kthread );
-	}
-	else {
-		q = &kthread->join_queue;
+		/* save exit status to all waiting threads */
+		p = kthread_get_private_param ( released );
+		if ( p )
+			*p = exit_status;
 
-		while ( (released = kthreadq_remove ( q, NULL )) != NULL )
-		{
-			/* save exit status to all waiting threads */
-			p = kthread_get_private_param ( released );
-			if ( p )
-				*p = exit_status;
-
-			kthread_move_to_ready ( released, LAST );
-		}
+		kthread_move_to_ready ( released, LAST );
 	}
+
+	/* defer removing thread resources until last moment */
+	kthread->state.flags |= THR_FLAG_DELETE;
+
 	if ( kthread == active_thread )
 	{
-		active_thread = NULL;
+		//active_thread = NULL;
 		kthreads_schedule ();
 	}
 
@@ -361,7 +366,37 @@ void kthread_collect_status ( kthread_t *waited, void **retval )
 		kthread_remove_descriptor ( waited );
 }
 
+/*! Switch to other thread */
+void kthread_switch_to_thread ( kthread_t *from, kthread_t *to )
+{
+	ASSERT ( to == active_thread );
+LOG ( DEBUG, "from %x to %x", from, to );
+	if ( from && ( from->state.flags & THR_FLAG_DELETE ) )
+	{
+LOG ( DEBUG, "from %x to %x", from, to );
+		/* delete thread resources with switch */
+		from->state.flags &= ~THR_FLAG_DELETE;
 
+		arch_switch_to_thread_with_cleanup (
+			from, kthread_get_context ( to )
+		);
+	}
+	else {
+LOG ( DEBUG, "from %x to %x", from, to );
+		arch_switch_to_thread (
+		/* from */	( from ? kthread_get_context ( from ) : NULL ),
+		/* to */	kthread_get_context ( to )
+		);
+	}
+}
+
+void kthread_cleanup ( kthread_t *kthread )
+{
+	kthread_restore_state ( kthread );
+	kthread->ref_cnt--;
+	if ( !kthread->ref_cnt )
+		kthread_remove_descriptor ( kthread );
+}
 
 /*! operations on thread queues (blocked threads) --------------------------- */
 
@@ -540,6 +575,15 @@ inline int kthread_is_alive ( kthread_t *kthread )
 		kthread_check_kthread ( kthread );
 }
 
+inline int kthread_is_passive ( kthread_t *kthread )
+{
+	ASSERT ( kthread );
+	if ( kthread->state.state == THR_STATE_PASSIVE )
+		return TRUE;
+	else
+		return FALSE;
+}
+
 inline int kthread_is_suspended (kthread_t *kthread, void **func, void **param)
 {
 	if ( !kthread )
@@ -653,12 +697,11 @@ inline void *kthread_get_private_param ( kthread_t *kthread )
 
 
 /*! errno and return value */
-inline void kthread_set_errno ( kthread_t *kthread, int error_number )
+inline void kthread_set_errno1 ( kthread_t *kthread, int error_number )
 {
-	if ( kthread )
-		kthread->state.errno = error_number;
-	else
-		active_thread->state.errno = error_number;
+	if ( !kthread )
+		kthread = active_thread;
+	kthread->state.errno = error_number;
 }
 inline int kthread_get_errno ( kthread_t *kthread )
 {

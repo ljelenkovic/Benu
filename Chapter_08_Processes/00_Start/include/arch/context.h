@@ -19,6 +19,7 @@ void arch_create_thread_context (
 );
 
 void arch_switch_to_thread ( context_t *from, context_t *to );
+void arch_switch_to_thread_with_cleanup ( void *from, context_t *to );
 
 struct _ucontext_t_; typedef struct _ucontext_t_ ucontext_t;
 

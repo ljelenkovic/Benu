@@ -211,6 +211,7 @@ int ktimer_settime ( ktimer_t *ktimer, int flags, itimerspec_t *value,
 	ASSERT ( ktimer );
 
 	kclock_gettime ( ktimer->clockid, &now );
+//LOG ( DEBUG, "" );
 
 	if ( ovalue )
 	{
@@ -227,9 +228,11 @@ int ktimer_settime ( ktimer_t *ktimer, int flags, itimerspec_t *value,
 		TIMER_DISARM ( ktimer );
 		list_remove ( &ktimers, 0, &ktimer->list );
 	}
+//LOG ( DEBUG, "" );
 
 	if ( value && TIME_IS_SET ( &value->it_value ) )
 	{
+//LOG ( DEBUG, "" );
 		/* arm timer */
 		ktimer->itimer = *value;
 		if ( !(flags & TIMER_ABSTIME) ) /* convert to absolute time */
@@ -286,6 +289,7 @@ static void ktimer_schedule ()
 		/* timers have absolute values in 'it_value' */
 		if ( time_cmp ( &first->itimer.it_value, &ref_time ) <= 0 )
 		{
+//LOG ( DEBUG, "" );
 			/* 'activate' timer */
 
 			/* but first remove timer from list */
@@ -307,6 +311,7 @@ static void ktimer_schedule ()
 
 			if ( first->owner == NULL )
 			{
+LOG ( DEBUG, "" );
 				/* timer set by kernel - call now, directly */
 				if ( first->evp.sigev_notify_function )
 					first->evp.sigev_notify_function (
@@ -335,6 +340,7 @@ static void ktimer_schedule ()
 		ref_time = first->itimer.it_value;
 		time_sub ( &ref_time, &time );
 		arch_timer_set ( &ref_time, ktimer_schedule );
+LOG ( DEBUG, "%d:%d", ref_time.tv_sec, ref_time.tv_nsec );
 	}
 
 	if ( resched )

@@ -74,7 +74,7 @@ $$($(1)_DIRS_CREATED):
 
 #define how to compile .c files
 $$($(1)_BUILDDIR)/%.o: %.c conf/config.ini conf/Makefile.progs conf/Makefile \
-			$$($(1)_DIRS_CREATED) $(PROGRAM_HEADERS)
+			$$($(1)_DIRS_CREATED)
 	@echo [compiling '$(1)'] $$< ...
 	@$$(CC_U) -c $$< -o $$@ -MMD $$(CFLAGS_U) \
 		$$(foreach INC,$$(INCLUDES_U),-I $$(INC)) \
@@ -82,7 +82,7 @@ $$($(1)_BUILDDIR)/%.o: %.c conf/config.ini conf/Makefile.progs conf/Makefile \
 
 #define how to compile .S files (assembler)
 $$($(1)_BUILDDIR)/%.asm.o: %.S conf/config.ini conf/Makefile.progs \
-			conf/Makefile $$($(1)_DIRS_CREATED) $(PROGRAM_HEADERS)
+			conf/Makefile $$($(1)_DIRS_CREATED)
 	@echo [compiling '$(1)'] $$< ...
 	@$$(CC_U) -c $$< -o $$@ -MMD $$(CFLAGS_U) \
 		$$(foreach INC,$$(INCLUDES_U),-I$$(INC)) \

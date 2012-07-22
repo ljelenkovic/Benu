@@ -127,7 +127,7 @@ void kthreads_schedule ()
 	if ( !curr || !kthread_is_active ( curr ) ||
 		kthread_get_prio ( curr ) < kthread_get_prio ( next ) )
 	{
-		if ( curr )	/* deactivate curr */
+		if ( curr && !kthread_is_passive (curr) ) /* deactivate curr */
 		{
 			ksched2_deactivate_thread ( curr );
 
@@ -149,18 +149,12 @@ void kthreads_schedule ()
 		ksched2_activate_thread ( next );
 	}
 
-	if ( curr != kthread_get_active() )
-	{
-		/* switch to newly selected thread */
-		arch_switch_to_thread (
-		/* from */	( curr ? kthread_get_context ( curr ) : NULL ),
-		/* to */	kthread_get_context ( NULL )
-		);
-	}
-	/* else => continue with current thread */
-
 	/* process pending signals (if any) */
 	ksignal_process_pending ( kthread_get_active() );
+
+	if ( curr != kthread_get_active() )
+		kthread_switch_to_thread ( curr, kthread_get_active() );
+	/* else => continue with current thread */
 }
 
 /*! ------------------------------------------------------------------------- */

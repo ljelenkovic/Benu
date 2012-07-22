@@ -43,6 +43,8 @@ void kthread_param_free ( param_t p1, param_t p2, param_t p3 );
 int kthread_exit ( kthread_t *kthread, void *exit_status, int force );
 void kthread_wait_thread ( kthread_t *waiting, kthread_t *waited );
 void kthread_collect_status ( kthread_t *waited, void **retval );
+void kthread_switch_to_thread ( kthread_t *from, kthread_t *to );
+void kthread_cleanup ( kthread_t *kthread );
 
 /*! Thread queue manipulation - advanced operations */
 void kthread_enqueue ( kthread_t *kthread, kthread_q *q_id );
@@ -72,6 +74,7 @@ int kthread_set_prio ( kthread_t *kthread, int prio );
 extern inline int kthread_is_active ( kthread_t *kthread );
 extern inline int kthread_is_ready ( kthread_t *kthread );
 extern inline int kthread_is_alive ( kthread_t *kthread );
+extern inline int kthread_is_passive ( kthread_t *kthread );
 extern inline int kthread_is_suspended (kthread_t *, void **func, void **param);
 extern inline int kthread_check_kthread ( kthread_t *kthread );
 
@@ -89,11 +92,19 @@ extern inline void kthread_set_private_param (kthread_t *kthread, void *qdata);
 extern inline void *kthread_get_private_param ( kthread_t *kthread );
 
 /*! errno and return value */
-extern inline void kthread_set_errno ( kthread_t *kthread, int error_number );
+extern inline void kthread_set_errno1 ( kthread_t *kthread, int error_number );
 extern inline int kthread_get_errno ( kthread_t *kthread );
 extern inline int *kthread_get_errno_ptr ( kthread_t *kthread );
 extern inline void kthread_set_syscall_retval (kthread_t *kthread, int ret_val);
 extern inline int kthread_get_syscall_retval (kthread_t *kthread);
+#if 0 /* debug set_errno (from where it is called from) */
+#define kthread_set_errno(kthread,errno)			\
+do {	LOG ( DEBUG, "set errno %x %d", kthread, errno );	\
+	kthread_set_errno1 ( kthread, errno );			\
+} while(0)
+#else
+#define kthread_set_errno(kthread,errno)  kthread_set_errno1(kthread,errno)
+#endif
 
 /*! display active & ready threads info on console */
 int kthread_info ();
@@ -214,5 +225,7 @@ enum {
 	THR_STATE_SUSPENDED,
 	THR_STATE_PASSIVE	/* when just descriptor is left of thread */
 };
+
+#define THR_FLAG_DELETE		1	/* release thread resources */
 
 #endif	/* _K_THREAD_C_ */

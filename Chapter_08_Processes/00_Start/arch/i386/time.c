@@ -3,6 +3,7 @@
 #include "time.h"
 
 #include <types/time.h>
+#include <kernel/errno.h>
 
 extern arch_timer_t TIMER;
 static arch_timer_t *timer = &TIMER;
@@ -121,6 +122,9 @@ static void arch_timer_handler ()
 
 	time_sub ( &delay, &last_load );
 	last_load = timer->max_interval;
+
+//LOG ( DEBUG, "time %d:%d, delay %d:%d", clock.tv_sec, clock.tv_nsec,
+//					delay.tv_sec, delay.tv_nsec );
 
 	if ( time_cmp ( &delay, &threshold ) <= 0 )
 	{

@@ -158,7 +158,7 @@ int shell ( char *args[] )
 			break;
 
 		/* not program kernel or shell knows about it - report error! */
-		printf ( "Invalid command or program already started!" );
+		printf ( "Invalid command!" );
 	}
 
 	printf ( "Exiting from shell\n" );

@@ -42,7 +42,7 @@ $(KDIRS_CREATED):
 
 # define how to compile .c files
 $(BUILD_K)/%.o: %.c conf/config.ini conf/Makefile.kernel conf/Makefile \
-		$(KDIRS_CREATED) $(PROGRAM_HEADERS)
+		$(KDIRS_CREATED)
 	@echo [compiling 'kernel'] $< ...
 	@$(CC_K) -c $< -o $@ -MMD $(CFLAGS_K) \
 		$(foreach INC,$(INCLUDES_K),-I $(INC)) \
@@ -50,7 +50,7 @@ $(BUILD_K)/%.o: %.c conf/config.ini conf/Makefile.kernel conf/Makefile \
 
 # define how to compile .S files (assembler)
 $(BUILD_K)/%.asm.o: %.S conf/config.ini conf/Makefile.kernel conf/Makefile \
-			$(KDIRS_CREATED) $(PROGRAM_HEADERS)
+			$(KDIRS_CREATED)
 	@echo [compiling 'kernel'] $< ...
 	@$(CC_K) -c $< -o $@ -MMD $(CFLAGS_K) \
 		$(foreach INC,$(INCLUDES_K),-I$(INC)) \

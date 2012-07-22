@@ -4,6 +4,7 @@
 #include "signal.h"
 
 #include "thread.h"
+#include <arch/context.h>
 #include "kprint.h"
 #include "errno.h"
 #include "time.h"
@@ -38,6 +39,7 @@ int ksignal_queue ( kthread_t *kthread, siginfo_t *sig )
 	void (*func) (kthread_t *, void *), *param;
 	siginfo_t *us;
 	param_t param1, param2, param3;
+	void *context;
 
 	ASSERT ( kthread );
 	ASSERT ( kthread_check_kthread ( kthread ) );
@@ -118,7 +120,8 @@ int ksignal_queue ( kthread_t *kthread, siginfo_t *sig )
 
 				kthread_move_to_ready ( kthread, LAST );
 				kthread_set_errno ( kthread, EINTR );
-				kthread_set_syscall_retval(kthread,EXIT_FAILURE);
+				kthread_set_syscall_retval ( kthread,
+							     EXIT_FAILURE );
 
 				/* thread is unsuspended, but signal
 				 * handler will be added first */
@@ -132,11 +135,13 @@ int ksignal_queue ( kthread_t *kthread, siginfo_t *sig )
 
 		/* copy sig */
 		us = kmalloc ( sizeof (siginfo_t) );
-		ASSERT (us);
-		/*if ( !us )
-			return ENOMEM;*/
+		ASSERT (us); /* if ( !us ) return ENOMEM; */
 
 		*us = *sig;
+
+		/* if sender is recipient, remember context */
+		if ( kthread_is_active ( kthread ) )
+			context = kthread_get_context (kthread);
 
 		kthread_create_new_state ( kthread, act->sa_sigaction, us, NULL,
 					   HANDLER_STACK_SIZE, TRUE );
@@ -151,6 +156,11 @@ int ksignal_queue ( kthread_t *kthread, siginfo_t *sig )
 		sigaddset ( sh->mask, sig->si_signo );
 		/* mask additional signals in thread mask */
 		sigaddsets ( sh->mask, &act->sa_mask );
+
+		/* if sender is recipient switch to new state */
+		if ( kthread_is_active ( kthread ) )
+			arch_switch_to_thread ( context,
+						kthread_get_context (kthread) );
 	}
 	else {
 		enqueue = TRUE;
@@ -250,7 +260,7 @@ static int ksignal_received_signal ( kthread_t *kthread, void *param )
 
 	ksignal_add_to_pending ( sh, sig );
 
-	/* resume with thread */
+	/* resume thread */
 	kthread_set_errno ( kthread, EAGAIN );
 	kthread_set_syscall_retval ( kthread, EXIT_FAILURE );
 	kthread_move_to_ready ( kthread, LAST );
@@ -514,7 +524,6 @@ int sys__sigwaitinfo ( sigset_t *set, siginfo_t *info )
 		kthread_set_syscall_retval ( kthread, EXIT_FAILURE );
 
 		kthreads_schedule ();
-
 	}
 	while ( kthread_get_errno(NULL) == EAGAIN );
 

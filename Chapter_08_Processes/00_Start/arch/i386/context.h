@@ -13,10 +13,8 @@
 typedef struct _arch_context_t_
 {
 	int32    edi, esi, ebp, _esp, ebx, edx, ecx, eax;
-	int32    err;
-	uint32   eip;
-	uint32   cs;
 	uint32   eflags;
+	uint32   eip;
 }
 __attribute__((__packed__)) arch_context_t;
 

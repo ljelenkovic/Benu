@@ -36,15 +36,21 @@ static void *signal_waiting_thread ( void *param )
 {
 	sigset_t set;
 	siginfo_t info;
+	int signo;
+
+	info.si_signo = 0;
+	info.si_code = 0;
+	info.si_errno = 0;
+	info.si_value.sival_int = 0;
 
 	sigfillset ( &set );
 	pthread_sigmask ( SIG_BLOCK, &set, NULL);
 
 	printf ( "Signal waiting thread started\n" );
-	sigwaitinfo ( &set, &info );
+	signo = sigwaitinfo ( &set, &info );
 	printf ( "Signal waiting thread got signal:"
-		 "num=%d, code=%d, errno=%d, si_value=%d\n",
-		 info.si_signo, info.si_code, info.si_errno,
+		 "num=%d (%d), code=%d, errno=%d, si_value=%d\n",
+		 info.si_signo, signo, info.si_code, info.si_errno,
 		 info.si_value.sival_int );
 
 	return NULL;
@@ -95,7 +101,7 @@ int signals ( char *args[] )
 	{
 		printf ( "In main thread (%d)\n", i );
 
-		if ( clock_nanosleep(CLOCK_REALTIME,0,&t,NULL)==EXIT_FAILURE )
+		if ( clock_nanosleep(CLOCK_REALTIME,0,&t,NULL) == EXIT_FAILURE )
 		{
 			int errno = get_errno ();
 			printf ( "Interrupted, errno=%d\n", errno );
@@ -107,7 +113,7 @@ int signals ( char *args[] )
 	/* send signal to waiting thread */
 	sigval.sival_int = SIGUSR2;
 
-	/* FIXME */
+	/* send signal */
 	sigqueue ( thread, SIGUSR2, sigval );
 
 	pthread_join ( thread, NULL );

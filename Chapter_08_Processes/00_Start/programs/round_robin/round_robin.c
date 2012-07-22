@@ -28,6 +28,8 @@ static void *rr_thread ( void *param )
 			memory_barrier ();
 
 		iters[thr_no]++;
+		if ( iters[thr_no] % 50 == 0 )
+			printf ( "RR %d iter %d\n", thr_no, iters[thr_no] );
 	}
 	printf ( "RR thread %d exiting\n", thr_no );
 
@@ -59,7 +61,7 @@ int round_robin ( char *args[] )
 	}
 
 	printf ( "Threads created, giving them %d seconds\n", TEST_DURATION );
-	sleep.tv_sec = TEST_DURATION;
+	sleep.tv_sec = 3;//TEST_DURATION;
 	sleep.tv_nsec = 0;
 	nanosleep ( &sleep, NULL );
 

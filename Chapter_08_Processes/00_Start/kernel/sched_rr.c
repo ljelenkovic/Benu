@@ -43,7 +43,6 @@ static int rr_init ( ksched_t *ksched )
 	evp.sigev_notify_function = rr_timer;
 	evp.sigev_notify_attributes = NULL;
 	evp.sigev_value.sival_ptr = ksched;
-
 	ktimer_create ( CLOCK_REALTIME, &evp, &ksched->params.rr.ktimer, NULL );
 	TIME_RESET ( &ksched->params.rr.alarm.it_interval );
 	TIME_RESET ( &ksched->params.rr.alarm.it_value );

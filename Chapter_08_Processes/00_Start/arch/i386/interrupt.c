@@ -116,6 +116,11 @@ void arch_interrupt_handler ( int irq_num )
 
 	if ( irq_num < INTERRUPTS && (ih = list_get (&ihandlers[irq_num], FIRST)) )
 	{
+		/* enable interrupts on PIC immediately since may not return
+		 * here immediately after handler - other thread may continue */
+		if ( icdev->at_exit )
+			icdev->at_exit ( irq_num );
+
 		/* Call registered handlers */
 		while ( ih )
 		{
@@ -123,9 +128,6 @@ void arch_interrupt_handler ( int irq_num )
 
 			ih = list_get_next ( &ih->list );
 		}
-
-		if ( icdev->at_exit )
-			icdev->at_exit ( irq_num );
 	}
 
 	else if ( irq_num < INTERRUPTS )
