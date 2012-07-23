@@ -9,8 +9,6 @@
 #include "kprint.h"
 #include <kernel/errno.h>
 #include <arch/interrupt.h>
-#include <arch/processor.h>
-#include <types/basic.h>
 #include <lib/string.h>
 
 char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "

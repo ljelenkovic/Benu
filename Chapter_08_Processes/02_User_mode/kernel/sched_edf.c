@@ -392,8 +392,9 @@ static void edf_deadline_alarm ( sigval_t sigev_value )
 			kthread_set_errno ( kthread, ETIMEDOUT );
 			kthread_exit ( kthread, NULL, TRUE );
 		}
-
-		edf_schedule (ksched);
+		else {
+			edf_schedule (ksched);
+		}
 	}
 	else {
 	/*

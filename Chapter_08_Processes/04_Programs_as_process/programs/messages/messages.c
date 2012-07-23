@@ -1,4 +1,4 @@
-/*! Messages and signals */
+/*! Messages */
 
 #include <pthread.h>
 #include <time.h>

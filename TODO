@@ -21,10 +21,9 @@ projects on:
 
 
 Chapter 7
-08 EDF
-07 RR
-06 Signals
-05 Messages
++07 Sched2
++06 Signals
++05 Messages
 04 Synchronization
 03 Extended context
 02 Threads

@@ -1,4 +1,4 @@
-/*! Messages and signals */
+/*! Messages */
 
 #include <pthread.h>
 #include <time.h>
@@ -133,8 +133,7 @@ int messages ( char *args[] )
 	for ( i = 0; i < CONSUMERS + PRODUCERS; i++ )
 		pthread_join ( thread[i], NULL );
 
-	if ( mq_close ( mqdes ) )
-		printf ( "Error closing message queue! Errno=%d\n", _errno );
+	mq_close ( mqdes );
 
 	return 0;
 }

@@ -8,7 +8,6 @@
 #include <kernel/errno.h>
 #include <lib/list.h>
 #include <kernel/memory.h>
-#include <kernel/thread.h>
 
 /*! Interrupt controller device */
 extern arch_ic_t IC_DEV;

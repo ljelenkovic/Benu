@@ -29,7 +29,7 @@ void k_memory_init ()
 {
 	int i;
 	char *name, *pos;
-	uint kheap_start, kheap_size, prog_start, prog_size;
+	uint kheap_start, kheap_size, prog_start = 0, prog_size = 0;
 
 	mseg = arch_memory_init ();
 

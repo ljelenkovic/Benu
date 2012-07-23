@@ -12,8 +12,10 @@
 #include <arch/processor.h>
 #include <types/bits.h>
 
-static void ktimer_schedule ();
+static void kclock_wake_thread ( sigval_t sigval );
+static void kclock_interrupt_sleep ( kthread_t *kthread, void *param );
 static int ktimer_cmp ( void *_a, void *_b );
+static void ktimer_schedule ();
 
 /*! List of active timers */
 static list_t ktimers;
@@ -70,7 +72,7 @@ int kclock_settime ( clockid_t clockid, timespec_t *time )
  * Resume suspended thread (called on timer activation)
  * \param sigval Thread that should be released
  */
-void kclock_wake_thread ( sigval_t sigval )
+static void kclock_wake_thread ( sigval_t sigval )
 {
 	kthread_t *kthread;
 	ktimer_t *ktimer;
@@ -98,7 +100,7 @@ void kclock_wake_thread ( sigval_t sigval )
  *  - handle return values and errno;
  *  - thread must be handled elsewhere - with source of interrupt (signal?)
  */
-void kclock_interrupt_sleep ( kthread_t *kthread, void *param )
+static void kclock_interrupt_sleep ( kthread_t *kthread, void *param )
 {
 	ktimer_t *ktimer;
 	timespec_t *remain;

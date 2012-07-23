@@ -95,7 +95,7 @@ int signals ( char *args[] )
 	{
 		printf ( "In main thread (%d)\n", i );
 
-		if ( clock_nanosleep(CLOCK_REALTIME,0,&t,NULL)==EXIT_FAILURE )
+		if ( clock_nanosleep(CLOCK_REALTIME,0,&t,NULL) == EXIT_FAILURE )
 		{
 			int errno = get_errno ();
 			printf ( "Interrupted, errno=%d\n", errno );
@@ -107,7 +107,7 @@ int signals ( char *args[] )
 	/* send signal to waiting thread */
 	sigval.sival_int = SIGUSR2;
 
-	/* FIXME */
+	/* send signal */
 	sigqueue ( thread, SIGUSR2, sigval );
 
 	pthread_join ( thread, NULL );

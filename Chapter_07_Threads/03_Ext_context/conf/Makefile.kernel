@@ -1,0 +1,64 @@
+# Compiling and linking kernel
+
+# NOTE: Include this makefile from top one, do not use it directly!
+# NOTE: This makefile requires already defined variables:
+#	AUTHOR, PROJECT, PLATFORM, BUILDDIR, CMACROS, LIBS, GMA, FIRST_FIT
+
+#if in command line given: debug=yes or/and optimize=yes, add flags to CFLAGS...
+ifeq ($(debug),yes)
+	CFLAGS_K += -g
+	CMACROS_K += DEBUG
+	ifeq ($(optimize),yes) #if both are set!
+		CFLAGS_K += $(CFLAGS_KOPTD)
+	endif
+else #optimize by default
+	CFLAGS_K += $(CFLAGS_KOPT)
+endif
+
+#------------------------------------------------------------------------------
+BUILD_K = $(BUILDDIR)/kernel
+
+CMACROS_K += $(CMACROS) ASSERT_H=\<kernel/errno.h\>
+
+#------------------------------------------------------------------------------
+# Memory allocators: 'gma' and/or 'first_fit'
+CMACROS_K += MEM_ALLOCATOR_FOR_KERNEL=$(MEM_ALLOCATOR_FOR_KERNEL)
+
+#------------------------------------------------------------------------------
+FILES_K := $(foreach DIR,$(DIRS_K),$(wildcard $(DIR)/*.c $(DIR)/*.S))
+OBJS_K := $(addprefix $(BUILD_K)/,$(FILES_K:.c=.o))
+OBJS_K := $(OBJS_K:.S=.asm.o)
+DEPS_K := $(OBJS_K:.o=.d)
+
+# dummy file that indicate directories for kernel objects are created
+KDIRS_CREATED = $(BUILD_K)/.null
+
+# create required directories in $(BUILD_K) directory (including $(BUILD_K))
+$(KDIRS_CREATED):
+	@-if [ ! -e $(BUILD_K) ]; then mkdir -p $(BUILD_K); fi;
+	@-$(foreach DIR,$(DIRS_K), if [ ! -e $(BUILD_K)/$(DIR) ]; \
+		then mkdir -p $(BUILD_K)/$(DIR); fi; )
+	@touch $(KDIRS_CREATED)
+
+# define how to compile .c files
+$(BUILD_K)/%.o: %.c conf/config.ini conf/Makefile.kernel conf/Makefile \
+		$(KDIRS_CREATED)
+	@echo [compiling 'kernel'] $< ...
+	@$(CC_K) -c $< -o $@ -MMD $(CFLAGS_K) \
+		$(foreach INC,$(INCLUDES_K),-I $(INC)) \
+		$(foreach MACRO,$(CMACROS_K),-D $(MACRO))
+
+# define how to compile .S files (assembler)
+$(BUILD_K)/%.asm.o: %.S conf/config.ini conf/Makefile.kernel conf/Makefile \
+			$(KDIRS_CREATED)
+	@echo [compiling 'kernel'] $< ...
+	@$(CC_K) -c $< -o $@ -MMD $(CFLAGS_K) \
+		$(foreach INC,$(INCLUDES_K),-I$(INC)) \
+		$(foreach MACRO,$(CMACROS_K),-D $(MACRO))
+
+# preprocessed linker script (konstants)
+LDSCRIPT_PP := $(BUILD_K)/ldscript.ld
+$(LDSCRIPT_PP): $(LDSCRIPT)
+	@$(CC_K) -E -P -x c -o $@ $< $(CFLAGS_K)		\
+		$(foreach INC,$(INCLUDES_K),-I$(INC)) 		\
+		$(foreach MACRO,$(CMACROS_K),-D $(MACRO))

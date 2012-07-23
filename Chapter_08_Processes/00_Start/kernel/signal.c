@@ -39,7 +39,7 @@ int ksignal_queue ( kthread_t *kthread, siginfo_t *sig )
 	void (*func) (kthread_t *, void *), *param;
 	siginfo_t *us;
 	param_t param1, param2, param3;
-	void *context;
+	void *context = NULL;
 
 	ASSERT ( kthread );
 	ASSERT ( kthread_check_kthread ( kthread ) );

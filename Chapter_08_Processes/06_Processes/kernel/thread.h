@@ -82,11 +82,11 @@ extern inline void *kthread_get_context ( kthread_t *thread );
 extern inline void *kthread_get_process ( kthread_t *kthread );
 extern inline kthread_t *kthread_get_descriptor ( pthread_t *thr );
 
-/*! Get scheduling, signal, messaging parts of thread descriptor */
+/*! Get scheduling and signal parts of thread descriptor */
 extern inline void *kthread_get_sched2_param ( kthread_t *kthread );
 extern inline void *kthread_get_sigparams ( kthread_t *kthread );
 
-/* FIXME */
+/* save extra parameter when blocking thread */
 extern inline void kthread_set_private_param (kthread_t *kthread, void *qdata);
 extern inline void *kthread_get_private_param ( kthread_t *kthread );
 
