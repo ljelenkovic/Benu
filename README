@@ -11,14 +11,26 @@ System is "work in progress", improved/extended with (almost) every year.
 Name Benu, besides acronym, represents an Egyptian bird...
 
 Previous version (https://github.com/l30nard0/os4ec/) is used in academic year
-2011/2012 i course Operating System for Embedded Computers.
+2011/2012 i course Operating System for Embedded Computers. This one, Benu, will
+be used in next, 2012/2013 year.
 
-Full description (in Croatian) available in textbook at:
+Full description (in Croatian, for os4ec) available in textbook at:
 	http://www.fer.unizg.hr/en/course/osfec
 	http://www.fer.unizg.hr/predmet/oszur
 
-This version changed interface (among many other things) to POSIX.
+
+This version (Benu) changed interface (among many other things) to POSIX.
+Documentation is not yet adapted for Benu.
+
 
 Please report any bugs (and other problems) on site or via email.
 
 Contact address: leonardo@zemris.fer.hr
+
+
+DISCLAIMER
+==========
+Presented system has (probably) *many* bugs! Many concepts might not be
+adequate or good as might be (as are in some "real systems").
+*Please* do not use it for any other purpose other than education.
+Its not tested near enough to be used for anything more.

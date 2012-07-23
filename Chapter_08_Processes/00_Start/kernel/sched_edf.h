@@ -29,7 +29,7 @@ typedef struct _ksched_edf_t_
 }
 ksched_edf_t;
 
-#define EDF_DEBUG	0	/* print extensive debug informations? */
+#define EDF_DEBUG	1	/* print extensive debug informations? */
 
 #if EDF_DEBUG == 1
 #define	EDF_LOG(...)		LOG ( EDFLOG, ##__VA_ARGS__ )

@@ -10,7 +10,7 @@ char PROG_HELP[] = "EDF scheduling demonstration example.";
 #define THR_NUM	4
 #define TEST_DURATION	20 /* seconds */
 
-#define LOOPS	60000000 /* adjust manually per processor to be ~0,3 s */
+#define LOOPS	10000000 /* adjust manually per processor to be ~0,3 s */
 
 static timespec_t t0;
 static volatile int end;

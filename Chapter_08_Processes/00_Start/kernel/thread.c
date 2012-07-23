@@ -370,10 +370,9 @@ void kthread_collect_status ( kthread_t *waited, void **retval )
 void kthread_switch_to_thread ( kthread_t *from, kthread_t *to )
 {
 	ASSERT ( to == active_thread );
-LOG ( DEBUG, "from %x to %x", from, to );
+
 	if ( from && ( from->state.flags & THR_FLAG_DELETE ) )
 	{
-LOG ( DEBUG, "from %x to %x", from, to );
 		/* delete thread resources with switch */
 		from->state.flags &= ~THR_FLAG_DELETE;
 
@@ -382,7 +381,6 @@ LOG ( DEBUG, "from %x to %x", from, to );
 		);
 	}
 	else {
-LOG ( DEBUG, "from %x to %x", from, to );
 		arch_switch_to_thread (
 		/* from */	( from ? kthread_get_context ( from ) : NULL ),
 		/* to */	kthread_get_context ( to )

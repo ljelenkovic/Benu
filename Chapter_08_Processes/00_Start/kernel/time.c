@@ -211,7 +211,6 @@ int ktimer_settime ( ktimer_t *ktimer, int flags, itimerspec_t *value,
 	ASSERT ( ktimer );
 
 	kclock_gettime ( ktimer->clockid, &now );
-//LOG ( DEBUG, "" );
 
 	if ( ovalue )
 	{
@@ -228,11 +227,9 @@ int ktimer_settime ( ktimer_t *ktimer, int flags, itimerspec_t *value,
 		TIMER_DISARM ( ktimer );
 		list_remove ( &ktimers, 0, &ktimer->list );
 	}
-//LOG ( DEBUG, "" );
 
 	if ( value && TIME_IS_SET ( &value->it_value ) )
 	{
-//LOG ( DEBUG, "" );
 		/* arm timer */
 		ktimer->itimer = *value;
 		if ( !(flags & TIMER_ABSTIME) ) /* convert to absolute time */
@@ -271,7 +268,7 @@ int ktimer_gettime ( ktimer_t *ktimer, itimerspec_t *value )
 /*! Activate timers and reschedule threads if required */
 static void ktimer_schedule ()
 {
-	ktimer_t *first;
+	ktimer_t *first, *next;
 	timespec_t time, ref_time;
 	int resched = 0;
 
@@ -289,7 +286,6 @@ static void ktimer_schedule ()
 		/* timers have absolute values in 'it_value' */
 		if ( time_cmp ( &first->itimer.it_value, &ref_time ) <= 0 )
 		{
-//LOG ( DEBUG, "" );
 			/* 'activate' timer */
 
 			/* but first remove timer from list */
@@ -309,9 +305,22 @@ static void ktimer_schedule ()
 				TIMER_DISARM ( first );
 			}
 
+			/* potential problem: if more timers activate at same
+			 * time, first that activate might cause other timers to
+			 * wait very LONG, since in activation an thread might
+			 * resume its execution before other timers are
+			 * processed!
+			 * fix: set alarm right here for next timer in list
+			 */
+			if ( (next = list_get ( &ktimers, FIRST )) )
+			{
+				ref_time = next->itimer.it_value;
+				time_sub ( &ref_time, &time );
+				arch_timer_set ( &ref_time, ktimer_schedule );
+			}
+
 			if ( first->owner == NULL )
 			{
-LOG ( DEBUG, "" );
 				/* timer set by kernel - call now, directly */
 				if ( first->evp.sigev_notify_function )
 					first->evp.sigev_notify_function (
@@ -327,20 +336,23 @@ LOG ( DEBUG, "" );
 				}
 			}
 
+			/* processing may take some time! refresh "time" */
+			kclock_gettime ( CLOCK_REALTIME, &time );
+			ref_time = time;
+			time_add ( &ref_time, &threshold );
+
 			first = list_get ( &ktimers, FIRST );
 		}
 		else {
+			first = list_get ( &ktimers, FIRST );
+			if ( first )
+			{
+				ref_time = first->itimer.it_value;
+				time_sub ( &ref_time, &time );
+				arch_timer_set ( &ref_time, ktimer_schedule );
+			}
 			break;
 		}
-	}
-
-	first = list_get ( &ktimers, FIRST );
-	if ( first )
-	{
-		ref_time = first->itimer.it_value;
-		time_sub ( &ref_time, &time );
-		arch_timer_set ( &ref_time, ktimer_schedule );
-LOG ( DEBUG, "%d:%d", ref_time.tv_sec, ref_time.tv_nsec );
 	}
 
 	if ( resched )
