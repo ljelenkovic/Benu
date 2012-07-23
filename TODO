@@ -20,17 +20,6 @@ projects on:
 - const, restrict keywords..., static
 
 
-Chapter 7
-+07 Sched2
-+06 Signals
-+05 Messages
-04 Synchronization
-03 Extended context
-02 Threads
-01 User threads
-
-Chapter 6 OK
-
 Chapter 5
 03 Serial port
 02 Keyboard
