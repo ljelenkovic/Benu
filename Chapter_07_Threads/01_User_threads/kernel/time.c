@@ -22,7 +22,7 @@ static timespec_t threshold;
 
 /* timer for sleep + return value */
 static ktimer_t *sleep_timer;
-static int sleep_retval;
+volatile static int sleep_retval, wake_up;
 
 
 /*! Initialize time management subsystem */
@@ -41,6 +41,7 @@ int k_time_init ()
 
 	sleep_timer = NULL;
 	sleep_retval = EXIT_SUCCESS;
+	wake_up = FALSE;
 
 	return EXIT_SUCCESS;
 }
@@ -94,6 +95,7 @@ void kclock_wake_up ( sigval_t sigval )
 	sleep_timer = NULL;
 	sleep_retval = EXIT_SUCCESS;
 	set_errno ( EXIT_SUCCESS );
+	wake_up = TRUE;
 }
 
 /*! Cancel sleep
@@ -124,6 +126,7 @@ void kclock_interrupt_sleep ( void *source )
 	sleep_timer = NULL;
 	sleep_retval = EXIT_FAILURE;
 	set_errno ( EINTR );
+	wake_up = TRUE;
 }
 
 /*! Timers ------------------------------------------------------------------ */
@@ -462,12 +465,14 @@ int sys__clock_nanosleep ( clockid_t clockid, int flags,
 
 	/* 3. wait for timer activation */
 	sleep_retval = EXIT_SUCCESS;
+	wake_up = FALSE;
+
 	do {
 		enable_interrupts ();
 		suspend ();		/* suspend till next interrupt */
 		disable_interrupts ();
 	}
-	while ( sleep_timer ); /* until timer is deleted */
+	while ( wake_up == FALSE );
 
 	SYS_EXIT ( get_errno(), sleep_retval );
 }

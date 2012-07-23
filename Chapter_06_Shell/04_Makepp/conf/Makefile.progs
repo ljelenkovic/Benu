@@ -1,0 +1,106 @@
+# Compiling and linking programs
+
+# NOTE: Include this makefile from top one, do not run it directly!
+# NOTE: This makefile requires already defined variables:
+#	AUTHOR, PROJECT, PLATFORM, BUILDDIR, CMACROS, LIBS, GMA, FIRST_FIT
+
+#if in command line given: debug=yes or/and optimize=yes add flags to CFLAGS...
+ifeq ($(debug),yes)
+	CFLAGS_U += -g
+	CMACROS_U += DEBUG
+	ifeq ($(optimize),yes) #if both are set!
+		CFLAGS_U += $(CFLAGS_UOPTD)
+	endif
+else #optimize by default
+	CFLAGS_U += $(CFLAGS_UOPT)
+endif
+
+#------------------------------------------------------------------------------
+
+PROG := progs
+BUILD_U := $(BUILDDIR)/$(PROG)
+
+PROG_HEADERS := $(PROG)/programs.h
+
+CMACROS_U += $(CMACROS) ASSERT_H=\<api/errno.h\>		\
+	     PROGRAMS=\<$(PROG_HEADERS)\>			\
+	     PROG_START_FUNC=$(PROG_START_FUNC)			\
+	     MEM_ALLOCATOR_FOR_USER=$(MEM_ALLOCATOR_FOR_USER)	\
+	     MAX_USER_DESCRIPTORS=$(MAX_USER_DESCRIPTORS)
+
+PROGRAM_HEADERS := $(BUILDDIR)/$(PROG_HEADERS)
+
+#------------------------------------------------------------------------------
+
+# Programs compilation through template ----------------------------------------
+
+# Template is parsed twice:
+# 1) when "called" - when expanded on every "call" location;
+#    all "simple" variables and functions are evaluated
+#    (variables and functions defined with single $ character)
+#    Other ("complex") variables and function are left (but one $ is removed)
+# 2) when "final" makefile is parsed
+
+
+# Template is called with: $(call PROGRAM_TEMPLATE,prog_name)
+# for example: $(call PROGRAM_TEMPLATE,hello) => $(1) is hello
+define PROGRAM_TEMPLATE
+
+$(1)_MACROS := $(CMACROS_U) PROG_HELP=$(1)_prog_help_msg
+
+$(1)_DIRS := $(wordlist 2,$(words $($(1))),$($(1)))
+
+$(1)_FILES := $$(foreach DIR,$$($(1)_DIRS),$$(wildcard $$(DIR)/*.c $$(DIR)/*.S))
+$(1)_BUILDDIR := $(BUILD_U)/$(1)
+$(1)_BDIRS    := $$(addprefix $$($(1)_BUILDDIR)/,$$($(1)_DIRS))
+$(1)_OBJS     := $$(addprefix $$($(1)_BUILDDIR)/,$$($(1)_FILES))
+$(1)_OBJS     := $$($(1)_OBJS:.c=.o)
+$(1)_OBJS     := $$($(1)_OBJS:.S=.asm.o)
+$(1)_DEPS     := $$($(1)_OBJS:.o=.d)
+
+FILES_U += $$($(1)_FILES)
+OBJS_U	+= $$($(1)_OBJS)
+DEPS_U	+= $$($(1)_DEPS)
+
+# dummy file that indicate directories are created
+$(1)_DIRS_CREATED := $$($(1)_BUILDDIR)/.null
+
+#create directories for objects
+$$($(1)_DIRS_CREATED):
+	@if [ ! -e $$($(1)_BUILDDIR) ]; then mkdir -p $$($(1)_BUILDDIR); fi;
+	@$$(foreach DIR,$$($(1)_BDIRS), if [ ! -e $$(DIR) ]; \
+		then mkdir -p $$(DIR); fi; )
+	@touch $$($(1)_DIRS_CREATED)
+
+#define how to compile .c files
+$$($(1)_BUILDDIR)/%.o: %.c conf/config.ini conf/Makefile.progs conf/Makefile \
+			$$($(1)_DIRS_CREATED)
+	@echo [compiling '$(1)'] $$< ...
+	@$$(CC_U) -c $$< -o $$@ -MMD $$(CFLAGS_U) \
+		$$(foreach INC,$$(INCLUDES_U),-I $$(INC)) \
+		$$(foreach MACRO,$$($(1)_MACROS),-D $$(MACRO))
+
+#define how to compile .S files (assembler)
+$$($(1)_BUILDDIR)/%.asm.o: %.S conf/config.ini conf/Makefile.progs \
+			conf/Makefile $$($(1)_DIRS_CREATED)
+	@echo [compiling '$(1)'] $$< ...
+	@$$(CC_U) -c $$< -o $$@ -MMD $$(CFLAGS_U) \
+		$$(foreach INC,$$(INCLUDES_U),-I$$(INC)) \
+		$$(foreach MACRO,$$($(1)_MACROS),-D $$(MACRO))
+
+endef
+
+# "Call" above template for each program to be included
+$(foreach prog,$(CCPROGRAMS),$(eval $(call PROGRAM_TEMPLATE,$(prog))))
+
+$(PROGRAM_HEADERS): $(FILES_U)
+	@-if [ ! -e $(BUILD_U) ]; then mkdir -p $(BUILD_U); fi;
+	@-rm -f $(PROGRAM_HEADERS)
+	@$(foreach prog,$(PROGRAMS), \
+		echo "int $(word 1,$($(prog))) ( char *args[] );" \
+		>> $(PROGRAM_HEADERS); )
+	@echo "#define PROGRAMS_FOR_SHELL { \\" >> $(PROGRAM_HEADERS)
+	@$(foreach prog,$(PROGRAMS), \
+		echo "{ $(word 1,$($(prog))), \"$(prog)\", \" \" }, \\" \
+		>> $(PROGRAM_HEADERS); )
+	@echo "{NULL,NULL,NULL} }" >> $(PROGRAM_HEADERS)

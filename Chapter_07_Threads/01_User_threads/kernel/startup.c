@@ -57,6 +57,9 @@ void k_startup ()
 	pi.heap = kmalloc ( PROG_HEAP_SIZE );
 	pi.heap_size = PROG_HEAP_SIZE;
 
+	/* enable interrupts */
+	enable_interrupts ();
+
 	/* starting program routine (shell) */
 	kprintf ( "Starting program: timer\n" );
 	prog_init ( NULL );

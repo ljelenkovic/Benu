@@ -1,0 +1,49 @@
+/*! Basic data types and constants */
+#pragma once
+
+#include <arch/types.h>
+
+#if __WORD_SIZE >= 32
+
+#ifndef MEM_TEST
+typedef	word_t	size_t;
+typedef	sword_t	ssize_t;
+#endif /* MEM_TEST */
+
+#else /* size_t must be 32 bits or more */
+
+typedef	uint32	size_t;
+typedef	uint32	ssize_t;
+
+#endif /* __WORD_SIZE */
+
+#define NULL		((void *) 0)
+
+#define FALSE		0
+#define TRUE		0x0f
+
+/*! useful types */
+
+/*! identification for various objects */
+typedef int id_t;
+typedef int uid_t;
+typedef int mode_t;
+
+/*! generic parameter: can contain pointer or integer */
+typedef union _param_t_
+{
+	int    p_int;
+	void  *p_ptr;
+}
+param_t;
+
+/*! generic descriptor for user space, reference kernel level descriptor */
+typedef struct _descriptor_
+{
+	id_t   id;
+	       /* identification number of system resource */
+
+	void  *ptr;
+	       /* pointer to kernel descriptor (in kernel address space */
+}
+descriptor_t;
