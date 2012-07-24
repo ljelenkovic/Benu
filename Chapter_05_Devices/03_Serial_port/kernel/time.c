@@ -76,7 +76,7 @@ int kclock_settime ( clockid_t clockid, timespec_t *time )
 
 /*!
  * Resume suspended program (called on timer activation)
- * \param sigval Thread that should be released
+ * \param sigval Not used
  */
 void kclock_wake_up ( sigval_t sigval )
 {

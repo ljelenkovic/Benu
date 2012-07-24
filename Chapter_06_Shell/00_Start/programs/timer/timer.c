@@ -58,9 +58,9 @@ int timer ()
 	t.tv_sec = 25;
 	t.tv_nsec = 0;
 
-//	while ( TIME_IS_SET (&t) )
-	if ( clock_nanosleep ( CLOCK_REALTIME, 0, &t, &t ) )
-		printf ( "Interrupted sleep?\n" );
+	while ( TIME_IS_SET (&t) )
+		if ( clock_nanosleep ( CLOCK_REALTIME, 0, &t, &t ) )
+			printf ( "Interrupted sleep?\n" );
 
 	clock_gettime ( CLOCK_REALTIME, &t );
 	printf ( "System time: %d:%d\n", t.tv_sec, t.tv_nsec / 100000000 );
