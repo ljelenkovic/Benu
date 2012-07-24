@@ -21,7 +21,6 @@ static list_t ihandlers[INTERRUPTS];
 
 struct ihndlr
 {
-	void *device;
 	int (*ihandler) ( unsigned int );
 
 	list_h list;

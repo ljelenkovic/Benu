@@ -22,7 +22,6 @@ CMACROS += $(DEVICES) IC_DEV=$(IC_DEV) TIMER=$(TIMER)			\
 	K_INITIAL_STDOUT=$(K_INITIAL_STDOUT) K_STDOUT=$(K_STDOUT)	\
 	U_STDOUT=$(U_STDOUT) U_STDERR=$(U_STDERR)
 
-CMACROS += MAX_RESOURCES=$(MAX_RESOURCES)
 
 #------------------------------------------------------------------------------
 # Misc
@@ -30,8 +29,7 @@ CMACROS += MAX_RESOURCES=$(MAX_RESOURCES)
 CMACROS += STACK_SIZE=$(STACK_SIZE)				\
 	PROG_START_ADDR=$(PROG_START_ADDR)			\
 	ASSERT_H=\<kernel/errno.h\>				\
-	MEM_ALLOCATOR=$(MEM_ALLOCATOR)				\
-	MAX_USER_DESCRIPTORS=$(MAX_USER_DESCRIPTORS)
+	MEM_ALLOCATOR=$(MEM_ALLOCATOR)
 
 #------------------------------------------------------------------------------
 CMACROS += $(OPTIONALS)

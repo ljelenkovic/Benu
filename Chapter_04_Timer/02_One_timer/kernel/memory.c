@@ -89,67 +89,6 @@ void *kfree_kobject ( kobject_t *kobj )
 	return EXIT_SUCCESS;
 }
 
-/*! unique system wide id numbers */
-#define	WBITS		( sizeof(word_t) * 8 )
-#define	ID_ELEMS	( (MAX_RESOURCES-1) / WBITS + 1 )
-#define MAX_RES		( ID_ELEMS * WBITS )
-
-static word_t idmask[ ID_ELEMS ] = { 0 };
-static id_t last_id = 0;
-
-/*! Allocate and return unique id for new system resource */
-id_t k_new_id ()
-{
-	id_t id = -1;
-	uint elem, n;
-	word_t mask;
-
-	last_id = ( last_id + 1 < MAX_RES ? last_id + 1 : 1 ); /* skip 0 */
-
-	elem = last_id / WBITS;
-	mask = idmask [elem] | ( ( 1 << (last_id % WBITS) ) - 1 );
-	/* do not look at lower bits (for now) */
-
-	if ( ~mask ) /* current 'elem' has free ids from last_id forward */
-	{
-		id = lsb_index ( ~mask );
-	}
-	else {
-		n = elem + 1;
-		do {
-			if ( ~idmask[n] )
-			{
-				id = lsb_index ( ~idmask[n] );
-				elem = n;
-				break;
-			}
-			n = ( n + 1 ) % ID_ELEMS;
-		}
-		while ( n != elem + 1 );
-	}
-
-	ASSERT ( id != -1 );
-
-	idmask [ elem ] |= ( 1 << id );	/* reserve ID */
-	id += elem * WBITS;
-	last_id = id;
-
-	return id;
-}
-
-/*! Release resource id */
-void k_free_id ( id_t id )
-{
-	ASSERT ( id > 0 && id < MAX_RES &&
-		 ( idmask [ id / WBITS ] & ( 1 << ( id % WBITS ) ) ) );
-
-	idmask [ id / WBITS ] &= ~ ( 1 << ( id % WBITS ) );
-}
-
-#undef	MAX_RES
-#undef	WBITS
-#undef	ID_ELEMS
-
 /*! print memory layout */
 void k_memory_info ()
 {

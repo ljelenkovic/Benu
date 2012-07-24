@@ -35,34 +35,8 @@
 
 
 extern MEM_ALLOC_T *k_mpool; /* defined in memory.c */
-extern list_t kobjects;
 
 void k_memory_init ();
 void k_memory_info ();
 
-/*! Object referenced in programs (kernel object reference + additional info) */
-struct _kobject_t_
-{
-	void	*kobject;
-		 /* pointer to kernel object, e.g. device */
-	uint	 flags;
-		 /* various flags */
-	void	*ptr;
-		 /* pointer for extra per process info */
-
-	list_h	 spec;
-		 /* list for object purposes */
-
-	list_h	 list;
-};
-
-/* -------------------------------------------------------------------------- */
-/*! kernel <--> user address translation (with segmentation) */
-
-id_t k_new_id ();
-void k_free_id ( id_t id );
-
 void k_memory_fault (); /* memory fault handler */
-
-void *kmalloc_kobject ( size_t obj_size );
-void *kfree_kobject ( kobject_t *kobj );

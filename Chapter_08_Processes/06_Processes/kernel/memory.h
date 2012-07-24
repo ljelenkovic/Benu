@@ -93,7 +93,7 @@ struct _kobject_t_
 };
 
 /* -------------------------------------------------------------------------- */
-/*! kernel <--> user address translation (with segmentation) */
+/*! kernel ids, objects */
 
 id_t k_new_id ();
 void k_free_id ( id_t id );

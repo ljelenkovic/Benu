@@ -20,14 +20,8 @@ projects on:
 - const, restrict keywords..., static
 
 
-Chapter 3
-04 Interrupts	lista
-03 FF, GMA + lista
-02 PIC		(02)
-01 Basic	(01) (primjer ispisa, makni u idućim koracima)
-
 Chapter 2
 04 Debugging
-03 DEBUG
+03 DEBUG		erno
 02 Console
 01 Source tree

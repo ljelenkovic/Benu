@@ -57,10 +57,7 @@ struct _kobject_t_
 };
 
 /* -------------------------------------------------------------------------- */
-/*! kernel <--> user address translation (with segmentation) */
-
-id_t k_new_id ();
-void k_free_id ( id_t id );
+/*! kernel ids, objects */
 
 void k_memory_fault (); /* memory fault handler */
 
