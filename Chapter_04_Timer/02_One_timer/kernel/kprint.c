@@ -1,4 +1,4 @@
-/*! Formated printing on console (using 'device_t' interface) */
+/*! Formated printing on console */
 #define _K_PRINT_C_
 
 #include <kernel/kprint.h> /* shares kprint with arch layer */

@@ -5,7 +5,6 @@
 #include "../io.h"
 #include <types/io.h>
 #include <lib/string.h>
-#include <kernel/errno.h>
 
 #define VIDEO		0x000B8000 /* video memory address */
 #define COLS		80 /* number of characters in a column */

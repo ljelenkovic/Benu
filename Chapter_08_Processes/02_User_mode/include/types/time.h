@@ -25,12 +25,7 @@ typedef uint clockid_t;
 #define CLOCK_REALTIME	1
 #define CLOCK_MONOTONIC	2
 
-typedef struct _timer_t_
-{
-	id_t   id;
-	void  *ptr;
-}
-timer_t;
+typedef descriptor_t timer_t;
 
 #define TIMER_ABSTIME	1
 

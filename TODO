@@ -1,27 +1,9 @@
 Internal notes, ideas, ... (from authors to authors)
 ====================================================
 
-ASSERT vs ASSERT_ERRNO_AND_EXIT
--------------------------------
-Internal kernel functions should have ASSERT
-Syscall function should have ASSERT_ERRNO_AND_EXIT
-
-Parameters should be checked on both k* and sys__* functions,
-on k* with ASSERT and on sys__* with ASSERT_ERRNO_AND_EXIT.
-
-k* function can be called from sys__* (when same parameters are checked twice),
-but also from other k* functions (thats why k* functions must have ASSERT).
-
 ---
 projects on:
 - security safe upgrade
 - error checking and returns on errors (such as "no memory" for even descriptor)
   (check *every* return value; make bulletproof system :) )
 - const, restrict keywords..., static
-
-
-Chapter 2
-04 Debugging
-03 DEBUG		erno
-02 Console
-01 Source tree

@@ -30,6 +30,7 @@ CMACROS += STACK_SIZE=$(STACK_SIZE)				\
 	PROG_START_ADDR=$(PROG_START_ADDR)			\
 	ASSERT_H=\<kernel/errno.h\>				\
 	MEM_ALLOCATOR=$(MEM_ALLOCATOR)
+
 #------------------------------------------------------------------------------
 CMACROS += $(OPTIONALS)
 #------------------------------------------------------------------------------

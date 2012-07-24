@@ -15,8 +15,6 @@ char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "
 
 /*!
  * First kernel function (after grub loads it to memory)
- * \param magic	Multiboot magic number
- * \param addr	Address where multiboot structure is saved
  */
 void k_startup ()
 {

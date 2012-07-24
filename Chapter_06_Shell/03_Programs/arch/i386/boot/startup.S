@@ -7,10 +7,6 @@
 /* stack, startup function */
 .extern k_stack, k_startup, arch_descriptors_init, arch_mb_magic, arch_mb_info
 
-#ifdef USE_SSE
-.extern arch_sse_supported
-#endif
-
 /* this code must be first in image for grub to find it easy */
 /*.section .startup_code*/
 .section .text
@@ -42,28 +38,6 @@ arch_startup:
 	/* copy multiboot parameters in arch_mb_magic and arch_mb_info */
 	movl	%eax, arch_mb_magic
 	movl	%ebx, arch_mb_info
-
-#ifdef USE_SSE /* Use SSE? Enable its use */
-	/* code copied from: http://wiki.osdev.org/SSE */
-
-	/* Checking for SSE */
-	movl	$0x1, %eax
-	cpuid
-	testl	$0x02000000, %edx
-	jz	.noSSE
-	/* SSE is available */
-	movl	$1, arch_sse_supported
-
-	/* enable SSE */
-	movl	%cr0,	%eax
-	and	$0xFFFB,%ax	/* clear co-processor emulation CR0.EM */
-	or	$0x2,	%ax	/* set co-processor monitoring  CR0.MP */
-	movl	%eax,	%cr0
-	movl	%cr4,	%eax
-	or	$0x600,	%ax	/* set CR4.OSFXSR and CR4.OSXMMEXCPT */
-	movl	%eax,	%cr4	/* at the same time */
-.noSSE:
-#endif
 
 	/* set up GDT, IDT */
 	call	arch_descriptors_init

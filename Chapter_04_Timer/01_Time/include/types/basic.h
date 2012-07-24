@@ -26,24 +26,3 @@ typedef	uint32	ssize_t;
 
 /*! identification for various objects */
 typedef int id_t;
-typedef int uid_t;
-typedef int mode_t;
-
-/*! generic parameter: can contain pointer or integer */
-typedef union _param_t_
-{
-	int    p_int;
-	void  *p_ptr;
-}
-param_t;
-
-/*! generic descriptor for user space, reference kernel level descriptor */
-typedef struct _descriptor_
-{
-	id_t   id;
-	       /* identification number of system resource */
-
-	void  *ptr;
-	       /* pointer to kernel descriptor (in kernel address space */
-}
-descriptor_t;
