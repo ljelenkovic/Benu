@@ -6,7 +6,6 @@
 #include "device.h"
 #include "memory.h"
 #include "kprint.h"
-#include <kernel/errno.h>
 #include <arch/interrupt.h>
 #include <lib/string.h>
 

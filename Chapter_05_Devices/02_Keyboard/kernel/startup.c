@@ -5,10 +5,8 @@
 #include "device.h"
 #include "memory.h"
 #include "kprint.h"
-#include <kernel/errno.h>
 #include <arch/interrupt.h>
 #include <arch/processor.h>
-#include <lib/string.h>
 #include <api/stdio.h>
 #include <api/prog_info.h>
 
@@ -49,11 +47,6 @@ void k_startup ()
 	k_stdout = k_device_open ( K_STDOUT, O_WRONLY );
 
 	kprintf ( "%s\n", system_info );
-
-	if ( strcmp ( U_STDIN, "i8042" ) == 0 )
-		kprintf ("For input (keyboard) focus QEMU simulator window!\n");
-	else if ( strcmp ( U_STDIN, "COM1" ) == 0 )
-		kprintf ("For input (keyboard) focus shell\n");
 
 	/* enable interrupts */
 	enable_interrupts ();

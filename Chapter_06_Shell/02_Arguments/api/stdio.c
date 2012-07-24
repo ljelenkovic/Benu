@@ -139,10 +139,7 @@ inline int goto_xy ( int x, int y )
 	return write ( _stdout, &cmd, sizeof (int) );
 }
 
-/*!
- * Formated output to console (lightweight version of 'printf')
- * int printf ( char *format, ... )
- */
+/*! Formated output to console (lightweight version of 'printf') */
 int printf ( char *format, ... )
 {
 	console_cmd_t cmd;
@@ -154,6 +151,20 @@ int printf ( char *format, ... )
 	size = vssprintf ( &cmd.cd.print.text[0], CONSOLE_MAXLEN, &format );
 
 	return write ( _stdout, &cmd, size );
+}
+
+/*! Formated output to error console */
+void warn ( char *format, ... )
+{
+	console_cmd_t cmd;
+	size_t size;
+
+	cmd.cmd = CONSOLE_PRINT;
+	cmd.cd.print.attr = CONSOLE_USER;
+
+	size = vssprintf ( &cmd.cd.print.text[0], CONSOLE_MAXLEN, &format );
+
+	write ( _stderr, &cmd, size );
 }
 
 /*! Change standard input device */

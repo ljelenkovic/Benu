@@ -8,10 +8,7 @@
 
 void *k_stdout; /* initialized in startup.c */
 
-/*!
- * Formated output to console (lightweight version of 'printf')
- * int kprintf ( char *format, ... )
- */
+/*! Formated output to console (lightweight version of 'printf') */
 int kprintf ( char *format, ... )
 {
 	console_cmd_t cmd;

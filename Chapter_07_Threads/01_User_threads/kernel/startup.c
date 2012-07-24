@@ -5,10 +5,10 @@
 #include "device.h"
 #include "memory.h"
 #include "kprint.h"
-#include <kernel/errno.h>
 #include <arch/interrupt.h>
 #include <arch/processor.h>
 #include <lib/string.h>
+#include <api/prog_info.h>
 
 char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "
 			"Version: " VERSION " (" PLATFORM ")";
