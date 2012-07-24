@@ -34,8 +34,8 @@ Type definitions:
 /*! message */
 typedef struct _kmsg_t_
 {
-	list_h list;
-	msg_t msg; /* message (variable length!) */
+	list_h  list;
+	msg_t   msg; /* message (variable length!) */
 }
 kmsg_t;
 
