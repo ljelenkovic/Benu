@@ -27,7 +27,7 @@ CMACROS += $(DEVICES) IC_DEV=$(IC_DEV) 					\
 # Misc
 
 CMACROS += STACK_SIZE=$(STACK_SIZE)				\
-	PROG_START_ADDR=$(PROG_START_ADDR)
+	LOAD_ADDR=$(LOAD_ADDR)
 
 #------------------------------------------------------------------------------
 CMACROS += $(OPTIONALS)

@@ -18,7 +18,7 @@ CMACROS = OS_NAME="\"$(OS_NAME)\"" PROJECT="\"$(PROJECT)\"" 		\
 #------------------------------------------------------------------------------
 # Misc
 
-CMACROS += STACK_SIZE=$(STACK_SIZE) PROG_START_ADDR=$(PROG_START_ADDR)
+CMACROS += STACK_SIZE=$(STACK_SIZE) LOAD_ADDR=$(LOAD_ADDR)
 
 #------------------------------------------------------------------------------
 

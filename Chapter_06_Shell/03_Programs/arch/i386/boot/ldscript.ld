@@ -5,7 +5,7 @@
 ENTRY(arch_startup)
 
 SECTIONS {
-	.code 0x100000 :
+	.code LOAD_ADDR :
 	{
 		kernel_code = .;
 

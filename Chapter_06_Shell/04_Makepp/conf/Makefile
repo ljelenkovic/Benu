@@ -42,7 +42,7 @@ CMACROS += MAX_RESOURCES=$(MAX_RESOURCES)
 
 CMACROS += KERNEL_STACK_SIZE=$(KERNEL_STACK_SIZE)		\
 	PROG_HEAP_SIZE=$(PROG_HEAP_SIZE)			\
-	PROG_START_ADDR=$(PROG_START_ADDR)
+	LOAD_ADDR=$(LOAD_ADDR)
 
 #------------------------------------------------------------------------------
 CMACROS += $(OPTIONALS)
