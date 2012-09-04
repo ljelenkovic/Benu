@@ -58,7 +58,7 @@ int sys__pthread_create ( void *p )
 
 			ASSERT_ERRNO_AND_EXIT (
 				sched_policy >= 0 && sched_policy < SCHED_NUM,
-				ENOMEM
+				ENOTSUP
 			);
 			ASSERT_ERRNO_AND_EXIT (
 				sched_priority >= THREAD_MIN_PRIO &&

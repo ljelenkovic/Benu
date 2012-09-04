@@ -8,7 +8,7 @@ Simple operating system for demonstration only (academic)
 Build through several steps, each bringing something new.
 System is "work in progress", improved/extended with (almost) every year.
 
-Name Benu, besides acronym, represents an Egyptian bird...
+Name "Benu", besides acronym, represents an Egyptian bird...
 
 Previous version (https://github.com/l30nard0/os4ec/) is used in academic year
 2011/2012 i course Operating System for Embedded Computers. This one, Benu, will
@@ -21,6 +21,16 @@ Full description (in Croatian, for os4ec) available in textbook at:
 
 This version (Benu) changed interface (among many other things) to POSIX.
 Documentation is not yet adapted for Benu.
+
+IMPORTANT!
+==========
+If running created system (built from Benu) in emulator other than QEMU, set
+standard input and output to vga_text mode -- in conf/config.ini set:
+K_INITIAL_STDOUT = vga_text_dev, K_STDOUT = VGA_TXT, U_STDIN = i8042,
+U_STDOUT = VGA_TXT, U_STDERR = VGA_TXT (uncomment this lines, comment other with
+*=COM1)
+(Buggy serial port implementation; works on QEMU but not with other emulators)
+
 
 
 Please report any bugs (and other problems) on site or via email.

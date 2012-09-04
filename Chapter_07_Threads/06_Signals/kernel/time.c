@@ -484,7 +484,7 @@ int sys__timer_create ( clockid_t clockid, sigevent_t *evp, timer_t *timerid )
 	SYS_ENTRY();
 
 	ASSERT_ERRNO_AND_EXIT (
-	clockid == CLOCK_REALTIME || clockid == CLOCK_REALTIME, EINVAL );
+	clockid == CLOCK_REALTIME || clockid == CLOCK_MONOTONIC, EINVAL );
 	ASSERT_ERRNO_AND_EXIT ( evp && timerid, EINVAL );
 
 	retval = ktimer_create ( clockid, evp, &ktimer, kthread_get_active() );

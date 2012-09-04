@@ -131,8 +131,6 @@ int shell ( char *args[] )
 		}
 
 		/* not shell command; start given program by calling kernel */
-		//rv = start_program ( argval[0], &thr, (void *) &argval[0],
-		//	0, THR_DEFAULT_PRIO );
 		rv = posix_spawn ( &thr, argval[0], NULL, NULL, argval, NULL );
 		if ( !rv )
 		{

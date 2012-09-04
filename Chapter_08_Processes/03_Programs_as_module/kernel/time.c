@@ -483,7 +483,7 @@ int sys__timer_create ( void *p )
 	timerid =	*( (timer_t **) p );
 
 	ASSERT_ERRNO_AND_EXIT (
-	clockid == CLOCK_REALTIME || clockid == CLOCK_REALTIME, EINVAL );
+	clockid == CLOCK_REALTIME || clockid == CLOCK_MONOTONIC, EINVAL );
 	ASSERT_ERRNO_AND_EXIT ( evp && timerid, EINVAL );
 
 	retval = ktimer_create ( clockid, evp, &ktimer, kthread_get_active() );

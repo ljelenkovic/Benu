@@ -14,7 +14,7 @@ static void update_field ( int pos, int num );
 /*! video memory */
 #define VIDEO	( (volatile char *) 0x000B8000 ) /* video memory address */
 #define COLS	80 /* number of characters in a column */
-#define ROWS	24 /* number of characters in a row */
+#define ROWS	25 /* number of characters in a row */
 #define ATTR	2  /* font: green char on black bacground */
 
 /*! i8253 ports and commands */
@@ -66,7 +66,7 @@ void clock ()
 	while (1)
 	{
 		while ( i8253_get () != COUNT_10MS ) /* busy waiting */
-			;//asm volatile ("":::"memory");
+			; /* asm volatile ("":::"memory"); */
 
 		hund++;
 
@@ -103,7 +103,7 @@ void clock ()
 		update_field ( HUND, hund );
 
 		while ( i8253_get () == COUNT_10MS ) /* busy waiting */
-			;//asm volatile ("":::"memory");
+			; /* asm volatile ("":::"memory"); */
 	}
 }
 

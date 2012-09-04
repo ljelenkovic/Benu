@@ -2,7 +2,7 @@
 
 #define VIDEO	( (volatile char *) 0x000B8000 ) /* video memory address */
 #define COLS	80 /* number of characters in a column */
-#define ROWS	24 /* number of characters in a row */
+#define ROWS	25 /* number of characters in a row */
 #define ATTR	7  /* font: white char on black bacground */
 
 /*! Print "Hello world!" */

@@ -379,14 +379,14 @@ static void *make_first_chunk ( void *addr, size_t size )
 	SET_BORDER_CHUNK ( border );
 
 	/* space between borders is first chunk */
-//	chunk = GET_CHUNK_HDR_FROM_ADDR ( addr + BORDER_CHUNK_SIZE );
+
 	chunk = GET_CHUNK_AFTER ( border );
 	SET_CHUNK_SIZE ( chunk, size - 2 * BORDER_CHUNK_SIZE );
 	SET_CHUNK_INUSE ( chunk ); /* mark chunk as in use */
 	SET_CHUNK_BINUSE ( chunk ); /* previous ("border") chunk is in use */
 
 	/* mark end of usable region */
-	//border = GET_CHUNK_HDR_FROM_ADDR ( addr + size - BORDER_CHUNK_SIZE );
+
 	border = GET_CHUNK_AFTER ( chunk );
 	SET_BORDER_CHUNK ( border );
 	SET_CHUNK_BINUSE ( border );

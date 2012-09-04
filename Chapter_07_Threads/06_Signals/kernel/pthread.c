@@ -37,24 +37,21 @@ int sys__pthread_create ( pthread_t *thread, pthread_attr_t *attr,
 
 	if ( attr )
 	{
-		if ( attr )
-		{
-			flags = attr->flags;
-			sched_policy = attr->sched_policy;
-			sched_priority = attr->sched_params.sched_priority;
-			stackaddr = attr->stackaddr;
-			stacksize = attr->stacksize;
+		flags = attr->flags;
+		sched_policy = attr->sched_policy;
+		sched_priority = attr->sched_params.sched_priority;
+		stackaddr = attr->stackaddr;
+		stacksize = attr->stacksize;
 
-			ASSERT_ERRNO_AND_EXIT ( sched_policy == SCHED_FIFO,
-						ENOTSUP );
-			ASSERT_ERRNO_AND_EXIT (
-				sched_priority >= THREAD_MIN_PRIO &&
-				sched_priority <= THREAD_MAX_PRIO,
-				ENOMEM
-			);
+		ASSERT_ERRNO_AND_EXIT ( sched_policy == SCHED_FIFO,
+					ENOTSUP );
+		ASSERT_ERRNO_AND_EXIT (
+			sched_priority >= THREAD_MIN_PRIO &&
+			sched_priority <= THREAD_MAX_PRIO,
+			ENOMEM
+		);
 
-			/* if ( flags & SOMETHING ) change attributes ... */
-		}
+		/* if ( flags & SOMETHING ) change attributes ... */
 	}
 
 	kthread = kthread_create ( start_routine, arg, flags,
