@@ -34,7 +34,7 @@ void kthreads_init ()
 
 	(void) kthread_create ( idle_thread, NULL, 0, SCHED_FIFO, 0, NULL, 0 );
 
-	/* initialize memory pool for threads stacks */
+	/* initialize memory pool for threads */
 	pi.heap = kmalloc ( PROG_HEAP_SIZE );
 	pi.heap_size = PROG_HEAP_SIZE;
 
