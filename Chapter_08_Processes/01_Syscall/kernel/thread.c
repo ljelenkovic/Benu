@@ -297,23 +297,22 @@ int kthread_exit ( kthread_t *kthread, void *exit_status, int force )
 
 	kthread_restore_state ( kthread );
 
-	if ( !kthread->ref_cnt )
+	q = &kthread->join_queue;
+
+	while ( (released = kthreadq_remove ( q, NULL )) != NULL )
 	{
+		/* save exit status to all waiting threads */
+		p = kthread_get_private_param ( released );
+		if ( p )
+			*p = exit_status;
+
+		kthread_move_to_ready ( released, LAST );
+		kthread->ref_cnt--;
+	}
+
+	if ( !kthread->ref_cnt )
 		kthread_remove_descriptor ( kthread );
-	}
-	else {
-		q = &kthread->join_queue;
 
-		while ( (released = kthreadq_remove ( q, NULL )) != NULL )
-		{
-			/* save exit status to all waiting threads */
-			p = kthread_get_private_param ( released );
-			if ( p )
-				*p = exit_status;
-
-			kthread_move_to_ready ( released, LAST );
-		}
-	}
 	if ( kthread == active_thread )
 	{
 		active_thread = NULL;
@@ -360,7 +359,7 @@ void kthread_collect_status ( kthread_t *waited, void **retval )
 	if ( retval )
 		*retval = waited->state.exit_status;
 
-	waited->ref_cnt--;
+	//waited->ref_cnt--;
 	if ( !waited->ref_cnt )
 		kthread_remove_descriptor ( waited );
 }
