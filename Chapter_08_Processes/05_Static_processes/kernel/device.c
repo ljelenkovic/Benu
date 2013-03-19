@@ -348,3 +348,17 @@ static int read_write ( void *p, int op )
 	else
 		EXIT2 ( EIO, EXIT_FAILURE );
 }
+
+
+/*!
+ * System power off
+ */
+int sys__power_off ( void *p )
+{
+	//power off using ACPI (from arch/*/drivers/acpi_power_off.c)
+	acpiPowerOff();
+
+	kprintf ( "\nPower off with ACPI failed!\n" );
+
+	EXIT ( ENOTSUP );
+}

@@ -309,3 +309,21 @@ static int read_write ( descriptor_t *desc, void *buf, size_t count, int op )
 	else
 		SYS_EXIT ( -retval, EXIT_FAILURE );
 }
+
+
+/*!
+ * System power off
+ */
+int sys__power_off ( void )
+{
+	int retval = -1;
+
+	SYS_ENTRY();
+
+	//power off using ACPI (from arch/*/drivers/acpi_power_off.c)
+	acpiPowerOff();
+
+	kprintf ( "\nPower off with ACPI failed!\n" );
+
+	SYS_EXIT ( retval, retval );
+}

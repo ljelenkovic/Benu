@@ -9,22 +9,22 @@ SECTIONS {
 	{
 		kernel_code = .;
 
-		*?/boot/startup.asm.o ( .text* )
+		*?/arch/i386/boot/startup.asm.o ( .text* )
 		*( .text* )
 
-		/* *( EXCLUDE_FILE ( *?/ARCH/syscall.asm.o *?/programs/?* )
+		/* *( EXCLUDE_FILE ( *?/arch/i386/syscall.asm.o *?/programs/?* )
 			.text* )*/
 
 		kernel_data = .;
 
 		*( .rodata* .data* )
-		/* *( EXCLUDE_FILE ( *?/ARCH/syscall.asm.o *?/programs/?* )
+		/* *( EXCLUDE_FILE ( *?/arch/i386/syscall.asm.o *?/programs/?* )
 			.rodata* .data* ) */
 	}
 	.kernel_bss :
 	{
 		*( .bss* COMMON* )
-		/* *( EXCLUDE_FILE ( *?/ARCH/syscall.asm.o *?/programs/?* )
+		/* *( EXCLUDE_FILE ( *?/arch/i386/syscall.asm.o *?/programs/?* )
 			.bss* COMMON* ) */
 
 		. = ALIGN (4096);

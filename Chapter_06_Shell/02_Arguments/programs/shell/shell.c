@@ -5,6 +5,7 @@
 #include <lib/string.h>
 #include <time.h>
 #include <kernel/memory.h>
+#include <kernel/device.h>
 
 typedef struct _cmd_t_
 {
@@ -24,6 +25,7 @@ static char s_stdin[MAXCMDLEN];
 static int help ();
 static int clear ();
 static int sysinfo ( char *args[] );
+static int power_off ( char *args[] );
 static int set ( char *args[] );
 
 static cmd_t sh_cmd[] =
@@ -31,6 +33,7 @@ static cmd_t sh_cmd[] =
 	{ help, "help", "help - list available commands" },
 	{ clear, "clear", "clear - clear screen" },
 	{ sysinfo, "sysinfo", "system information; usage: sysinfo [options]" },
+	{ power_off, "poweroff", "poweroff - use ACPI to power off" },
 	{ set, "set", "change shell settings; "
 		"usage: set stdin|stdout [device]" },
 	{ NULL, "" }
@@ -187,6 +190,15 @@ static int sysinfo ( char *args[] )
 
 	return 0;
 }
+
+static int power_off ( char *args[] )
+{
+	printf ( "Powering off\n\n" );
+	sys__power_off ();
+
+	return -1;
+}
+
 
 static int set ( char *args[] )
 {

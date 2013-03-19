@@ -10,7 +10,7 @@ SECTIONS {
 		kernel_code = .;
 
 		/* instructions */
-		*?/boot/startup.asm.o ( .text* )
+		*?/arch/i386/boot/startup.asm.o ( .text* )
 
 		*( .text* )
 	}
