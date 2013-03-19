@@ -9,7 +9,7 @@ SECTIONS {
 	{
 		kernel_code = .;
 
-		*?/ARCH/boot/startup.asm.o ( .text* )
+		*?/boot/startup.asm.o ( .text* )
 		*( .text* )
 
 		/* *( EXCLUDE_FILE ( *?/ARCH/syscall.asm.o *?/programs/?* )

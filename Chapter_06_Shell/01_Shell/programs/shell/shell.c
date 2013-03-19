@@ -24,12 +24,14 @@ static char s_stdin[MAXCMDLEN];
 static int help ();
 static int clear ();
 static int sysinfo ();
+static int power_off ();
 
 static cmd_t sh_cmd[] =
 {
 	{ help, "help", "help - list available commands" },
 	{ clear, "clear", "clear - clear screen" },
 	{ sysinfo, "sysinfo", "system information; usage: sysinfo [options]" },
+	{ power_off, "poweroff", "poweroff - use ACPI to power off" },
 	{ NULL, "" }
 };
 
@@ -183,4 +185,14 @@ static int sysinfo ()
 	printf ( "%s\n", info );
 
 	return 0;
+}
+
+static int power_off ()
+{
+	void acpiPowerOff (void); //defined in arch/i386/drivers/acpi.c
+
+	acpiPowerOff ();
+	printf ( "ACPI power off failed!\n" );
+
+	return -1;
 }
