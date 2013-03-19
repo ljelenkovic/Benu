@@ -193,6 +193,7 @@ int kthread_exit ( kthread_t *kthread, void *exit_status )
 			*p = exit_status;
 
 		kthread_move_to_ready ( released, LAST );
+		kthread->ref_cnt--;
 	}
 
 	/* defer removing thread resources until last moment (switch) */

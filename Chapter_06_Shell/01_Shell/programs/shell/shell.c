@@ -5,6 +5,7 @@
 #include <lib/string.h>
 #include <time.h>
 #include <kernel/memory.h>
+#include <kernel/device.h>
 
 typedef struct _cmd_t_
 {
@@ -189,10 +190,8 @@ static int sysinfo ()
 
 static int power_off ()
 {
-	void acpiPowerOff (void); //defined in arch/i386/drivers/acpi.c
-
-	acpiPowerOff ();
-	printf ( "ACPI power off failed!\n" );
+	printf ( "Powering off\n\n" );
+	sys__power_off ();
 
 	return -1;
 }
