@@ -64,7 +64,7 @@ elif [ $1 = "qemu" ]; then
 	echo Starting...
 	qemu-system-i386 -m 2 -no-kvm -cdrom $PROJECT.iso
 
-elif [ $1 = "clean" ]; then
+elif [ $1 = "cleanall" ]; then
 
 	echo Cleaning...
 	rm -rf *.o *.elf $PROJECT.iso cd
