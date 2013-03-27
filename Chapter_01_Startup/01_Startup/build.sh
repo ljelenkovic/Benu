@@ -63,6 +63,8 @@ elif [ $1 = "qemu" ]; then
 
 	echo Starting...
 	qemu-system-i386 -m 2 -no-kvm -cdrom $PROJECT.iso
+	#if using QEMU, for this simple example kernel could be run directly:
+	#qemu-system-i386 -m 2 -no-kvm -kernel $PROJECT.elf
 
 elif [ $1 = "cleanall" ]; then
 
