@@ -27,6 +27,11 @@ gcc -c clock.c $CFLAGS
 #link
 ld $LDFLAGS startup.o clock.o -o $PROJECT.elf
 
+#if an error occured => exit
+if [ ! $? -eq 0 ] ; then
+	exit
+fi
+
 #make iso image with grub boot loader
 
 #create cd directory structure

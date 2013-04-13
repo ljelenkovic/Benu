@@ -283,9 +283,9 @@ char *strstr (const char *s1, const char *s2)
  * \param base	Number base ('d', 'u', 'x' or 'X')
  * \param d	Number to convert
  */
-void itoa ( char *buf, int base, int d )
+void itoa ( char *buffer, int base, int d )
 {
-	char *p = buf;
+	char *p = buffer;
 	char *p1, *p2, firsthexchar;
 	unsigned long ud = d;
 	int divisor = 10;
@@ -295,7 +295,7 @@ void itoa ( char *buf, int base, int d )
 	if ( base == 'd' && d < 0 )
 	{
 		*p++ = '-';
-		buf++;
+		 buffer++;
 		ud = -d;
 	}
 	else if ( base == 'x' || base == 'X' )
@@ -330,7 +330,7 @@ void itoa ( char *buf, int base, int d )
 	*p = 0;
 
 	/* Reverse string */
-	p1 = buf;
+	p1 = buffer;
 	p2 = p - 1;
 	while ( p1 < p2 )
 	{
@@ -346,7 +346,7 @@ void itoa ( char *buf, int base, int d )
 /*! Formated output to console (lightweight version of 'printf') */
 int vssprintf ( char *str, size_t size, char **arg )
 {
-	char *format = *arg, buf[20], *p;
+	char *format = *arg, buffer[20], *p;
 	int c, i = 0;
 
 	if ( !format )
@@ -367,8 +367,8 @@ int vssprintf ( char *str, size_t size, char **arg )
 			case 'u':
 			case 'x':
 			case 'X':
-				itoa ( buf, c, *((int *) arg++) );
-				p = buf;
+				itoa ( buffer, c, *((int *) arg++) );
+				p = buffer;
 				if ( i + strlen (p) < size - 1 )
 					while ( *p )
 						str[i++] = *p++;

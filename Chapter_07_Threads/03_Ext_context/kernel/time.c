@@ -570,6 +570,9 @@ int sys__timer_delete ( timer_t *timerid )
 
 	retval = ktimer_delete ( ktimer );
 
+	kobj->kobject = NULL;
+	kfree_kobject ( kobj );
+
 	SYS_EXIT ( retval, retval );
 }
 

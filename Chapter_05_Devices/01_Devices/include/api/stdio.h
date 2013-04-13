@@ -5,8 +5,8 @@
 
 int open ( char *pathname, int flags, mode_t mode );
 int close ( int fd );
-ssize_t read ( int fd, void *buf, size_t count );
-ssize_t write ( int fd, void *buf, size_t count );
+ssize_t read ( int fd, void *buffer, size_t count );
+ssize_t write ( int fd, void *buffer, size_t count );
 
 extern inline int get_char ();
 extern inline int clear_screen ();

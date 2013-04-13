@@ -27,6 +27,11 @@ gcc -c hello.c $CFLAGS
 #link
 ld startup.o hello.o -o $PROJECT.elf $LDFLAGS
 
+#if an error occured => exit
+if [ ! $? -eq 0 ] ; then
+	exit
+fi
+
 #make iso image with grub boot loader
 
 #create cd directory structure

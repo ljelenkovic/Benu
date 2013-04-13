@@ -18,10 +18,16 @@ for chapter in * ; do
         if [ -e build.sh ] ; then
           ./build.sh cleanall
           ./build.sh $1
+          if [ ! $? -eq 0 ] ; then
+            exit
+          fi
           ./build.sh cleanall
         else
           make cleanall
           make $1 $2 $3
+          if [ ! $? -eq 0 ] ; then
+            exit
+          fi
           make cleanall
         fi
 

@@ -307,8 +307,8 @@ int sys__write ( void *p )
 static int read_write ( void *p, int op )
 {
 	descriptor_t *desc;
-	void *buf;
-	size_t count;
+	void *buffer;
+	size_t size;
 
 	kdevice_t *kdev;
 	kobject_t *kobj;
@@ -316,18 +316,18 @@ static int read_write ( void *p, int op )
 	kprocess_t *proc;
 
 	desc =  *( (descriptor_t **) p );	p += sizeof (descriptor_t *);
-	buf =   *( (char **) p );		p += sizeof (char *);
-	count = *( (size_t *) p );
+	buffer =   *( (char **) p );		p += sizeof (char *);
+	size = *( (size_t *) p );
 
 	proc = kthread_get_process (NULL);
 
 	ASSERT_ERRNO_AND_EXIT ( desc, EINVAL );
 	desc = U2K_GET_ADR ( desc, proc );
 	ASSERT_ERRNO_AND_EXIT ( desc, EINVAL );
-	ASSERT_ERRNO_AND_EXIT ( buf, EINVAL );
-	buf = U2K_GET_ADR ( buf, proc );
-	ASSERT_ERRNO_AND_EXIT ( buf, EINVAL );
-	ASSERT_ERRNO_AND_EXIT ( count > 0, EINVAL );
+	ASSERT_ERRNO_AND_EXIT ( buffer, EINVAL );
+	buffer = U2K_GET_ADR ( buffer, proc );
+	ASSERT_ERRNO_AND_EXIT ( buffer, EINVAL );
+	ASSERT_ERRNO_AND_EXIT ( size > 0, EINVAL );
 
 	kobj = desc->ptr;
 	ASSERT_ERRNO_AND_EXIT ( kobj, EINVAL );
@@ -339,9 +339,9 @@ static int read_write ( void *p, int op )
 	/* TODO check permission for requested operation from opening flags */
 
 	if ( op )
-		retval = k_device_recv ( buf, count, kobj->flags, kdev );
+		retval = k_device_recv ( buffer, size, kobj->flags, kdev );
 	else
-		retval = k_device_send ( buf, count, kobj->flags, kdev );
+		retval = k_device_send ( buffer, size, kobj->flags, kdev );
 
 	if ( retval >= 0 )
 		EXIT2 ( EXIT_SUCCESS, retval );

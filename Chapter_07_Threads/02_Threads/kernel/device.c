@@ -269,18 +269,18 @@ int sys__close ( descriptor_t *desc )
 	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
 
-static int read_write ( descriptor_t *desc, void *buf, size_t count, int op );
+static int read_write ( descriptor_t *desc, void *buffer, size_t size, int op );
 
-int sys__read ( descriptor_t *desc, void *buf, size_t count )
+int sys__read ( descriptor_t *desc, void *buffer, size_t size )
 {
-	return read_write ( desc, buf, count, TRUE );
+	return read_write ( desc, buffer, size, TRUE );
 }
-int sys__write ( descriptor_t *desc, void *buf, size_t count )
+int sys__write ( descriptor_t *desc, void *buffer, size_t size )
 {
-	return read_write ( desc, buf, count, FALSE );
+	return read_write ( desc, buffer, size, FALSE );
 }
 
-static int read_write ( descriptor_t *desc, void *buf, size_t count, int op )
+static int read_write ( descriptor_t *desc, void *buffer, size_t size, int op )
 {
 	kdevice_t *kdev;
 	kobject_t *kobj;
@@ -288,7 +288,7 @@ static int read_write ( descriptor_t *desc, void *buf, size_t count, int op )
 
 	SYS_ENTRY();
 
-	ASSERT_ERRNO_AND_EXIT ( desc && buf && count > 0, EINVAL );
+	ASSERT_ERRNO_AND_EXIT ( desc && buf && size > 0, EINVAL );
 
 	kobj = desc->ptr;
 	ASSERT_ERRNO_AND_EXIT ( kobj, EINVAL );
@@ -300,9 +300,9 @@ static int read_write ( descriptor_t *desc, void *buf, size_t count, int op )
 	/* TODO check permission for requested operation from opening flags */
 
 	if ( op )
-		retval = k_device_recv ( buf, count, kobj->flags, kdev );
+		retval = k_device_recv ( buffer, size, kobj->flags, kdev );
 	else
-		retval = k_device_send ( buf, count, kobj->flags, kdev );
+		retval = k_device_send ( buffer, size, kobj->flags, kdev );
 
 	if ( retval >= 0 )
 		SYS_EXIT ( EXIT_SUCCESS, retval );

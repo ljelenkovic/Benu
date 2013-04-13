@@ -34,7 +34,7 @@ static inline int *get_errno_ptr ()
 do {								\
 	if ( !( expr ) )					\
 	{							\
-  warn ("%s:%d::ASSERT\n", __FILE__, __LINE__);	\
+		warn ("%s:%d::ASSERT\n", __FILE__, __LINE__);	\
 		set_errno (errnum);				\
 		return EXIT_FAILURE;				\
 	 }							\

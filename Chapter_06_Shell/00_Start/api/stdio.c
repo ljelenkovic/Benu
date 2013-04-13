@@ -82,29 +82,29 @@ int close ( int fd )
 }
 
 /*! Read from device */
-ssize_t read ( int fd, void *buf, size_t count )
+ssize_t read ( int fd, void *buffer, size_t count )
 {
 	if ( 	fd < 0 || fd >= MAX_USER_DESCRIPTORS ||
-		!std_desc[fd].id || !std_desc[fd].ptr || !buf || !count )
+		!std_desc[fd].id || !std_desc[fd].ptr || !buffer || !count )
 	{
 		set_errno ( EBADF );
 		return EXIT_FAILURE;
 	}
 
-	return sys__read ( &std_desc[fd], buf, count );
+	return sys__read ( &std_desc[fd], buffer, count );
 }
 
 /*! Write from device */
-ssize_t write ( int fd, void *buf, size_t count )
+ssize_t write ( int fd, void *buffer, size_t count )
 {
 	if ( 	fd < 0 || fd >= MAX_USER_DESCRIPTORS ||
-		!std_desc[fd].id || !std_desc[fd].ptr || !buf || !count )
+		!std_desc[fd].id || !std_desc[fd].ptr || !buffer || !count )
 	{
 		set_errno ( EBADF );
 		return EXIT_FAILURE;
 	}
 
-	return sys__write ( &std_desc[fd], buf, count );
+	return sys__write ( &std_desc[fd], buffer, count );
 }
 
 /*! Get input from "standard input" */
