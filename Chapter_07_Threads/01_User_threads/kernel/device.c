@@ -288,7 +288,7 @@ static int read_write ( descriptor_t *desc, void *buffer, size_t size, int op )
 
 	SYS_ENTRY();
 
-	ASSERT_ERRNO_AND_EXIT ( desc && buf && size > 0, EINVAL );
+	ASSERT_ERRNO_AND_EXIT ( desc && buffer && size > 0, EINVAL );
 
 	kobj = desc->ptr;
 	ASSERT_ERRNO_AND_EXIT ( kobj, EINVAL );
