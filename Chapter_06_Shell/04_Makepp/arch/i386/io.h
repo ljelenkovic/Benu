@@ -55,6 +55,46 @@ static inline uint16 inw ( uint16 port )
 }
 
 /*!
+ * Write to 32-bit port
+ * \param port	Port number
+ * \param data	Data to be sent
+ */
+static inline void outl ( uint16 port, uint32 data )
+{
+	asm ( "outl %0, %1" : : "a" (data), "d" (port) );
+}
+
+/*!
+ * Read from 32-bit port
+ * \param port	Port number
+ * \return Read data
+ */
+static inline uint32 inl ( uint16 port )
+{
+	uint32 r;
+
+	asm volatile ( "inl %1, %0" : "=a" (r) : "d" (port) );
+
+	return r;
+}
+
+/*
+inline unsigned long inportl(unsigned short port)
+{
+   unsigned long result;
+   __asm__ __volatile__("inl %%dx, %%eax" : "=a" (result) : "dN" (port));
+   return result;
+}
+
+inline void outportl(unsigned short port, unsigned long data)
+{
+   __asm__ __volatile__("outl %%eax, %%dx" : : "d" (port), "a" (data));
+}
+*/
+
+
+
+/*!
  * Write string to 16-bit port
  * \param port	Port number
  * \param data	String to be sent

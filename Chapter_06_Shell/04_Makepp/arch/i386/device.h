@@ -10,3 +10,5 @@
 #include "drivers/i8042.h"
 
 #include "drivers/acpi_power_off.h"
+
+#include "drivers/pci.h"

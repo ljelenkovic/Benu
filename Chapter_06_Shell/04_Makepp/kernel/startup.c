@@ -29,6 +29,8 @@ void k_startup ()
 
 	/*! start with regular initialization */
 
+	pci_init ();
+
 	/* interrupts */
 	arch_init_interrupts ();
 
