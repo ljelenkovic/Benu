@@ -29,14 +29,16 @@ void k_startup ()
 
 	/*! start with regular initialization */
 
-	pci_init ();
-
 	/* interrupts */
 	arch_init_interrupts ();
 
 	/* detect memory faults (qemu do not detect segment violations!) */
 	arch_register_interrupt_handler ( INT_STF, k_memory_fault, NULL );
 	arch_register_interrupt_handler ( INT_GPF, k_memory_fault, NULL );
+
+#ifdef PCI
+	pci_init ();
+#endif
 
 	/* timer subsystem */
 	k_time_init ();
