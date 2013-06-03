@@ -145,6 +145,11 @@ debug_gdb: all
 	@echo Starting gdb ...
 	@gdb -s $(BINFILE) -ex 'target remote localhost:1234'
 
+qemu-net: all
+	@echo Starting qemu and network ...
+	@$(QEMU) -m 8 -no-kvm -cdrom $(CDIMAGE) -serial stdio \
+	-net nic,model=rtl8139,macaddr=52:54:00:12:34:56
+
 clean:
 	@echo Cleaning.
 	@-rm -f $(OBJECTS) $(DEPS) $(CDIMAGE) $(BINFILE)

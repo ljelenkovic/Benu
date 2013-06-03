@@ -36,10 +36,6 @@ void k_startup ()
 	arch_register_interrupt_handler ( INT_STF, k_memory_fault, NULL );
 	arch_register_interrupt_handler ( INT_GPF, k_memory_fault, NULL );
 
-#ifdef PCI
-	pci_init ();
-#endif
-
 	/* timer subsystem */
 	k_time_init ();
 

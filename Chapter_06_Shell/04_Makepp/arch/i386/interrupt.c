@@ -39,6 +39,11 @@ void arch_init_interrupts ()
 
 	for ( i = 0; i < INTERRUPTS; i++ )
 		list_init ( &ihandlers[i] );
+
+#ifdef PCI
+	int pci_init ();
+	pci_init ();
+#endif
 }
 
 /*!
