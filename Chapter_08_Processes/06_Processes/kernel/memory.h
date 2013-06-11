@@ -86,6 +86,9 @@ struct _kobject_t_
 	void	*ptr;
 		 /* pointer for extra per process info */
 
+	uint	 kobject_allocated;
+		 /* is kobject allocated? (free it when proces exits?)*/
+
 	list_h	 spec;
 		 /* list for object purposes */
 
@@ -104,3 +107,4 @@ void k_memory_fault (); /* memory fault handler */
 
 void *kmalloc_kobject ( kprocess_t *proc, size_t obj_size );
 void *kfree_kobject ( kprocess_t *proc, kobject_t *kobj );
+int   kfree_process_kobjects ( kprocess_t *proc );

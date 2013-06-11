@@ -432,6 +432,9 @@ int kthread_exit ( kthread_t *kthread, void *exit_status, int force )
 	if ( kthread->proc->thread_count == 0 && kthread->proc->pi )
 	{
 		/* last (non-kernel) thread - remove process */
+
+		kfree_process_kobjects ( kthread->proc );
+
 		kfree ( kthread->proc->pi );
 #ifdef DEBUG
 		ASSERT ( kthread->proc ==

@@ -119,23 +119,28 @@ void *kmalloc_kobject ( kprocess_t *proc, size_t obj_size )
 
 	ASSERT ( proc );
 
-	kobj = kmalloc ( sizeof (kobject_t) );
+	kobj = kmalloc ( sizeof (kobject_t) + obj_size );
 	ASSERT ( kobj );
 
-	kobj->kobject = NULL;
 	kobj->flags = 0;
 	kobj->ptr = NULL;
 
 	if ( obj_size )
 	{
-		kobj->kobject = kmalloc ( obj_size );
-		ASSERT ( kobj->kobject );
+		kobj->kobject = kobj + 1;
+		kobj->kobject_allocated = 1;
+	}
+	else {
+		kobj->kobject = NULL;
+		kobj->kobject_allocated = 0;
 	}
 
 	list_append ( &proc->kobjects, kobj, &kobj->list );
 
 	return kobj;
 }
+
+/*! Free space reserved by kernel object */
 void *kfree_kobject ( kprocess_t *proc, kobject_t *kobj )
 {
 	ASSERT ( proc && kobj );
@@ -146,13 +151,32 @@ void *kfree_kobject ( kprocess_t *proc, kobject_t *kobj )
 	ASSERT ( list_find_and_remove ( &proc->kobjects, &kobj->list ) );
 #endif
 
-	if ( kobj->kobject )
+	if ( kobj->kobject && kobj->kobject_allocated )
 		kfree ( kobj->kobject );
 
 	kfree ( kobj );
 
 	return EXIT_SUCCESS;
 }
+
+/*! Free space reserved by kernel objects associated with process */
+int kfree_process_kobjects ( kprocess_t *proc )
+{
+	ASSERT ( proc );
+
+	kobject_t *kobj;
+
+	while ( ( kobj = list_remove ( &proc->kobjects, 0, NULL ) ) != NULL )
+	{
+		if ( kobj->kobject && kobj->kobject_allocated )
+			kfree ( kobj->kobject );
+
+		kfree ( kobj );
+	}
+
+	return EXIT_SUCCESS;
+}
+
 
 /*! unique system wide id numbers */
 #define	WBITS		( sizeof(word_t) * 8 )

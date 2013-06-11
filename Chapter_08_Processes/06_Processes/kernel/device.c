@@ -282,7 +282,6 @@ int sys__close ( void *p )
 	kdev = kobj->kobject;
 	ASSERT_ERRNO_AND_EXIT ( kdev && kdev->id == desc->id, EINVAL );
 
-	kobj->kobject = NULL;
 	kfree_kobject ( proc, kobj );
 
 	/* remove descriptor from device list */
