@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# ./test_all.sh
+# ./test_all.sh qemu
+# ./test_all.sh qemu debug=yes
+# ./test_all.sh qemu debug=yes K_INIT_PROG=demo
+
 for chapter in * ; do
   if [ -d $chapter ] ; then
     #echo $chapter
@@ -24,7 +29,7 @@ for chapter in * ; do
           ./build.sh cleanall
         else
           make cleanall
-          make $1 $2 $3
+          make "$@"
           if [ ! $? -eq 0 ] ; then
             exit
           fi
