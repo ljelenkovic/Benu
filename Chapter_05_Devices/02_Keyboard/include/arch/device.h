@@ -1,6 +1,7 @@
 /*! Device - common interface  for device drivers */
 #pragma once
 
+#include <ARCH/device.h>
 #include <types/io.h>
 
 struct _device_t_;

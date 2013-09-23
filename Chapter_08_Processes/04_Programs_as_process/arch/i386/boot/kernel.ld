@@ -1,7 +1,5 @@
 /*! linker script for memory layout of kernel */
 
-/* OUTPUT_FORMAT("elf32-i386") */
-
 ENTRY(arch_startup)
 
 SECTIONS {

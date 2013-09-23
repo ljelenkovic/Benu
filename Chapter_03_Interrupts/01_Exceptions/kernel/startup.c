@@ -48,6 +48,13 @@ void k_startup ()
 	hello_world ();
 	segm_fault ();
 
+#if ( TURN_OFF == 0 )
 	kprintf ( "\nSystem halted!\n" );
 	halt ();
+#else
+	/* power off using ACPI */
+	kprintf ( "Powering off\n\n" );
+	void acpiPowerOff(void);
+	acpiPowerOff();
+#endif
 }

@@ -1,4 +1,4 @@
-/*! ACPI power off
+/*! ACPI power off (just for convenience and automation in testing)
  * From:
  * http://stackoverflow.com/questions/3145569/how-to-power-down-the-computer-from-a-freestanding-environment
  */

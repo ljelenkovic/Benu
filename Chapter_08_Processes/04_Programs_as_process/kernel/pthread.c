@@ -333,7 +333,7 @@ int sys__pthread_mutex_destroy ( void *p )
 	EXIT2 ( EXIT_SUCCESS, EXIT_SUCCESS );
 }
 
-int mutex_lock ( kpthread_mutex_t *kmutex, kthread_t *kthread );
+static int mutex_lock ( kpthread_mutex_t *kmutex, kthread_t *kthread );
 
 /*!
  * Lock mutex object
@@ -372,7 +372,7 @@ int sys__pthread_mutex_lock ( void *p )
 }
 
 /*! lock mutex; return 0 if locked, 1 if thread blocked, -1 if error */
-int mutex_lock ( kpthread_mutex_t *kmutex, kthread_t *kthread )
+static int mutex_lock ( kpthread_mutex_t *kmutex, kthread_t *kthread )
 {
 	if ( !kmutex->owner )
 	{
@@ -426,7 +426,11 @@ int sys__pthread_mutex_unlock ( void *p )
 	kmutex = kobj->kobject;
 	ASSERT_ERRNO_AND_EXIT ( kmutex && kmutex->id == mutex->id, EINVAL );
 
-	ASSERT_ERRNO_AND_EXIT ( kmutex->owner == kthread_get_active(), EPERM );
+	if ( kmutex->owner != kthread_get_active() )
+	{
+		SET_ERRNO ( EPERM );
+		return EXIT_FAILURE;
+	}
 
 	SET_ERRNO ( EXIT_SUCCESS );
 
@@ -584,7 +588,7 @@ int sys__pthread_cond_wait ( void *p )
 	return retval;
 }
 
-int cond_release ( void *p, int release_all );
+static int cond_release ( void *p, int release_all );
 
 /*!
  * Restart thread waiting on conditional variable
@@ -606,7 +610,7 @@ int sys__pthread_cond_broadcast ( void *p )
 	return cond_release ( p, TRUE );
 }
 
-int cond_release ( void *p, int release_all )
+static int cond_release ( void *p, int release_all )
 {
 	pthread_cond_t *cond;
 
@@ -1006,7 +1010,6 @@ int sys__mq_close ( void *p )
 	}
 
 	/* remove kernel object descriptor */
-	kobj->kobject = NULL;
 	kfree_kobject ( proc, kobj );
 
 	EXIT2 ( EXIT_SUCCESS, EXIT_SUCCESS );

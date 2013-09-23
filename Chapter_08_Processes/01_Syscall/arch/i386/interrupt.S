@@ -17,7 +17,7 @@
 .extern arch_sse_supported, arch_sse_mmx_fpu
 #endif
 
-/*.section .startup_code*/
+
 .section .text
 
 

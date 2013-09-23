@@ -1,4 +1,4 @@
-/*! startup.S - starting point of control after grub (boot loader) */
+/*! startup.S - starting point of control */
 
 #define ASM_FILE        1
 
@@ -11,11 +11,9 @@
 .extern arch_sse_supported
 #endif
 
-/* this code must be first in image for grub to find it easy */
-/*.section .startup_code*/
 .section .text
 
-/* entry point (required for grub) */
+/* entry point */
 .global arch_startup
 
 /* 32 bit alignment is required for following constants */

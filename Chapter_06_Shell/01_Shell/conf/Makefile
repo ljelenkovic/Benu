@@ -32,8 +32,9 @@ DEV_PTRS := $(subst $(space),$(comma),$(DEV_PTRS))
 CMACROS += $(DEVICES) DEVICES_DEV=$(DEV_VARS) DEVICES_DEV_PTRS=$(DEV_PTRS)   \
 	IC_DEV=$(IC_DEV) TIMER=$(TIMER)					     \
 	K_INITIAL_STDOUT=$(K_INITIAL_STDOUT) K_STDOUT="\"$(K_STDOUT)\""      \
-	U_STDIN="\"$(U_STDIN)\"" U_STDOUT="\"$(U_STDOUT)\"" \
-	U_STDERR="\"$(U_STDERR)\""
+	U_STDIN="\"$(U_STDIN)\"" U_STDOUT="\"$(U_STDOUT)\"" 		     \
+	U_STDERR="\"$(U_STDERR)\""					     \
+	TURN_OFF=$(TURN_OFF)
 
 CMACROS += MAX_RESOURCES=$(MAX_RESOURCES)
 
@@ -41,10 +42,11 @@ CMACROS += MAX_RESOURCES=$(MAX_RESOURCES)
 # Misc
 
 CMACROS += STACK_SIZE=$(STACK_SIZE)				\
-	LOAD_ADDR=$(LOAD_ADDR)			\
+	LOAD_ADDR=$(LOAD_ADDR)					\
 	ASSERT_H=\<kernel/errno.h\>				\
 	MEM_ALLOCATOR=$(MEM_ALLOCATOR)				\
-	MAX_USER_DESCRIPTORS=$(MAX_USER_DESCRIPTORS)
+	MAX_USER_DESCRIPTORS=$(MAX_USER_DESCRIPTORS)		\
+	PROG_START_FUNC=$(PROG_START_FUNC)
 
 #------------------------------------------------------------------------------
 CMACROS += $(OPTIONALS)

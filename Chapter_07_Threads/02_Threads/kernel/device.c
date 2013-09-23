@@ -258,7 +258,6 @@ int sys__close ( descriptor_t *desc )
 	kdev = kobj->kobject;
 	ASSERT_ERRNO_AND_EXIT ( kdev && kdev->id == desc->id, EINVAL );
 
-	kobj->kobject = NULL;
 	kfree_kobject ( kobj );
 
 	/* remove descriptor from device list */
@@ -288,7 +287,7 @@ static int read_write ( descriptor_t *desc, void *buffer, size_t size, int op )
 
 	SYS_ENTRY();
 
- ASSERT_ERRNO_AND_EXIT ( desc && buffer && size > 0, EINVAL );
+	ASSERT_ERRNO_AND_EXIT ( desc && buffer && size > 0, EINVAL );
 
 	kobj = desc->ptr;
 	ASSERT_ERRNO_AND_EXIT ( kobj, EINVAL );

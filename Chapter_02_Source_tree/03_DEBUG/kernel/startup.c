@@ -39,6 +39,13 @@ void k_startup ()
 	/* start desired program(s) */
 	hello_world ();
 
+#if ( TURN_OFF == 0 )
 	kprintf ( "\nSystem halted!\n" );
 	halt ();
+#else
+	/* power off using ACPI */
+	kprintf ( "Powering off\n\n" );
+	void acpiPowerOff(void);
+	acpiPowerOff();
+#endif
 }

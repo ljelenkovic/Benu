@@ -19,8 +19,8 @@ int hello_world ()
 
 	ASSERT_ERRNO_AND_RETURN ( TRUE, EINVAL );
 
-	//ASSERT ( TRUE );
-	ASSERT ( FALSE );
+	ASSERT ( TRUE );
+	//ASSERT ( FALSE );
 #endif
 
 	return 0;

@@ -496,7 +496,7 @@ int sys__timer_create ( void *p )
 
 	proc = kthread_get_process (NULL);
 	ASSERT_ERRNO_AND_EXIT (
-	clockid == CLOCK_REALTIME || clockid == CLOCK_MONOTONIC, EINVAL);
+	clockid == CLOCK_REALTIME || clockid == CLOCK_MONOTONIC, EINVAL );
 	ASSERT_ERRNO_AND_EXIT ( evp && timerid, EINVAL );
 	evp = U2K_GET_ADR ( evp, proc );
 	timerid = U2K_GET_ADR ( timerid, proc );

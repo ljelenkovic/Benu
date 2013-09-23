@@ -18,7 +18,10 @@ CMACROS = OS_NAME="\"$(OS_NAME)\"" PROJECT="\"$(PROJECT)\"" 		\
 #------------------------------------------------------------------------------
 # Misc
 
-CMACROS += STACK_SIZE=$(STACK_SIZE) LOAD_ADDR=$(LOAD_ADDR)
+CMACROS += TURN_OFF=$(TURN_OFF)
+
+CMACROS += STACK_SIZE=$(STACK_SIZE)					\
+	LOAD_ADDR=$(LOAD_ADDR)
 
 #------------------------------------------------------------------------------
 
@@ -27,9 +30,9 @@ all: $(CDIMAGE)
 #create ARCH symbolic link for selected platform (placed in arch/ directory)
 #(used only for #include <ARCH/*> purposes)
 prepare_src:
-	@-if [ ! -d $(BUILDDIR)/ARCH ]; then			\
-		mkdir -p $(BUILDDIR);				\
-		ln -s ../arch/$(PLATFORM) $(BUILDDIR)/ARCH ;	\
+	@-if [ ! -d $(BUILDDIR)/ARCH ]; then				\
+		mkdir -p $(BUILDDIR);					\
+		ln -s ../arch/$(PLATFORM) $(BUILDDIR)/ARCH ;		\
 	fi;
 
 # Linker flags

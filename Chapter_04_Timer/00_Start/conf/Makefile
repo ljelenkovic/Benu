@@ -20,15 +20,15 @@ CMACROS = OS_NAME="\"$(OS_NAME)\"" PROJECT="\"$(PROJECT)\"" 		\
 
 CMACROS += $(DEVICES) IC_DEV=$(IC_DEV) 					\
 	K_INITIAL_STDOUT=$(K_INITIAL_STDOUT) K_STDOUT=$(K_STDOUT)	\
-	U_STDOUT=$(U_STDOUT) U_STDERR=$(U_STDERR)
-
+	U_STDOUT=$(U_STDOUT) U_STDERR=$(U_STDERR)			\
+	TURN_OFF=$(TURN_OFF)
 
 #------------------------------------------------------------------------------
 # Misc
 
-CMACROS += STACK_SIZE=$(STACK_SIZE)				\
-	LOAD_ADDR=$(LOAD_ADDR)			\
-	ASSERT_H=\<kernel/errno.h\>				\
+CMACROS += STACK_SIZE=$(STACK_SIZE)					\
+	LOAD_ADDR=$(LOAD_ADDR)						\
+	ASSERT_H=\<kernel/errno.h\>					\
 	MEM_ALLOCATOR=$(MEM_ALLOCATOR)
 
 #------------------------------------------------------------------------------
@@ -40,9 +40,9 @@ all: $(CDIMAGE)
 #create ARCH symbolic link for selected platform (placed in arch/ directory)
 #(used only for #include <ARCH/*> purposes)
 prepare_src:
-	@-if [ ! -d $(BUILDDIR)/ARCH ]; then			\
-		mkdir -p $(BUILDDIR);				\
-		ln -s ../arch/$(PLATFORM) $(BUILDDIR)/ARCH ;	\
+	@-if [ ! -d $(BUILDDIR)/ARCH ]; then				\
+		mkdir -p $(BUILDDIR);					\
+		ln -s ../arch/$(PLATFORM) $(BUILDDIR)/ARCH ;		\
 	fi;
 
 # Linker flags

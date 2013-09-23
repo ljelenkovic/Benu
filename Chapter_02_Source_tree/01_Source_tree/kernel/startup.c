@@ -24,6 +24,13 @@ void k_startup ()
 	/* start desired program(s) */
 	hello_world ();
 
+#if ( TURN_OFF == 0 )
 	kconsole_print_word ( "System halted!" );
 	halt ();
+#else
+	/* power off using ACPI */
+	kconsole_print_word ( "Powering off" );
+	void acpiPowerOff(void);
+	acpiPowerOff();
+#endif
 }

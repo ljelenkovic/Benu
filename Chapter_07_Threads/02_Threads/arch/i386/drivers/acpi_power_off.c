@@ -1,7 +1,7 @@
-//From:
-// http://stackoverflow.com/questions/3145569/how-to-power-down-the-computer-from-a-freestanding-environment
+/*! ACPI power off (just for convenience and automation in testing) */
+/* from: http://stackoverflow.com/questions/3145569/how-to-power-down-the-computer-from-a-freestanding-environment */
 //
-// here is the slightly complicated ACPI power-off code
+/* here is the slightly complicated ACPI power-off code */
 //
 
 #define _ACPI_POWER_OFF_C_
@@ -143,7 +143,7 @@ static int acpiEnable (void)
 				//sleep(10);
 				}
 			if (i<300) {
-				LOG ( DEBUG, "enabled acpi.");
+				//LOG ( DEBUG, "enabled acpi.");
 				return 0;
 			} else {
 				LOG ( DEBUG, "couldn't enable acpi.");

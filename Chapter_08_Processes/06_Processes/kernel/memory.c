@@ -126,14 +126,9 @@ void *kmalloc_kobject ( kprocess_t *proc, size_t obj_size )
 	kobj->ptr = NULL;
 
 	if ( obj_size )
-	{
 		kobj->kobject = kobj + 1;
-		kobj->kobject_allocated = 1;
-	}
-	else {
+	else
 		kobj->kobject = NULL;
-		kobj->kobject_allocated = 0;
-	}
 
 	list_append ( &proc->kobjects, kobj, &kobj->list );
 
@@ -151,9 +146,6 @@ void *kfree_kobject ( kprocess_t *proc, kobject_t *kobj )
 	ASSERT ( list_find_and_remove ( &proc->kobjects, &kobj->list ) );
 #endif
 
-	if ( kobj->kobject && kobj->kobject_allocated )
-		kfree ( kobj->kobject );
-
 	kfree ( kobj );
 
 	return EXIT_SUCCESS;
@@ -167,12 +159,7 @@ int kfree_process_kobjects ( kprocess_t *proc )
 	kobject_t *kobj;
 
 	while ( ( kobj = list_remove ( &proc->kobjects, 0, NULL ) ) != NULL )
-	{
-		if ( kobj->kobject && kobj->kobject_allocated )
-			kfree ( kobj->kobject );
-
 		kfree ( kobj );
-	}
 
 	return EXIT_SUCCESS;
 }
@@ -286,8 +273,8 @@ void k_memory_info ()
 
 	for ( i = 0; mseg[i].type != MS_END && i < 20; i++ )
 	{
-		kprintf ( "%d\t%d\t%x\t%s\n", mseg[i].type, mseg[i].size,
-					     mseg[i].start, mseg[i].name );
+		kprintf ( "%d\t%x\t%x\t%s\n", mseg[i].type, mseg[i].size,
+					      mseg[i].start, mseg[i].name );
 	}
 }
 

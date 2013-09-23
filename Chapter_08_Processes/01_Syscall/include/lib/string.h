@@ -18,5 +18,8 @@ char *strcat ( char *dest, const char *src );
 char *strchr (const char *s, int c);
 char *strstr (const char *s1, const char *s2);
 
+char *strtok ( char *s, const char *delim );
+char *strtok_r ( char *s, const char *delim, char **last );
+
 void itoa ( char *buffer, int base, int d );
 int vssprintf ( char *str, size_t size, char **arg );

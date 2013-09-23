@@ -1,4 +1,4 @@
-/*! startup.S - starting point of control after grub (boot loader) */
+/*! startup.S - starting point of control */
 
 /*! Multiboot constants (basic) */
 #define MULTIBOOT_HEADER_MAGIC	0x1BADB002
@@ -7,10 +7,10 @@
 /* stack, startup function */
 .extern	print_hello
 
-/* this code must be first in image for grub to find it easy */
+
 .section .text
 
-/* entry point (required for grub) */
+/* entry point */
 .global arch_start
 
 /* 32 bit alignment is required for following constants */

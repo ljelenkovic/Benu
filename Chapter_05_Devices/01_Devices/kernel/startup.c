@@ -56,6 +56,11 @@ void k_startup ()
 	timer ();
 	/* segm_fault (); */
 
+#if ( TURN_OFF == 0 )
 	kprintf ( "\nSystem halted!\n" );
 	halt ();
+#else
+	kprintf ( "Powering off\n\n" );
+	sys__power_off ();
+#endif
 }

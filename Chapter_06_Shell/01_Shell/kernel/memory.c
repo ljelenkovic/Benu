@@ -56,33 +56,31 @@ void *kmalloc_kobject ( size_t obj_size )
 {
 	kobject_t *kobj;
 
-	kobj = kmalloc ( sizeof (kobject_t) );
+	kobj = kmalloc ( sizeof (kobject_t) + obj_size );
 	ASSERT ( kobj );
 
-	kobj->kobject = NULL;
 	kobj->flags = 0;
 	kobj->ptr = NULL;
 
 	if ( obj_size )
-	{
-		kobj->kobject = kmalloc ( obj_size );
-		ASSERT ( kobj->kobject );
-	}
+		kobj->kobject = kobj + 1;
+	else
+		kobj->kobject = NULL;
 
 	list_append ( &kobjects, kobj, &kobj->list );
 
 	return kobj;
 }
+
+/*! Free space reserved by kernel object */
 void *kfree_kobject ( kobject_t *kobj )
 {
+	ASSERT ( kobj );
 #ifndef DEBUG
 	list_remove ( &kobjects, 0, &kobj->list );
 #else /* DEBUG */
 	ASSERT ( list_find_and_remove ( &kobjects, &kobj->list ) );
 #endif
-
-	if ( kobj->kobject )
-		kfree ( kobj->kobject );
 
 	kfree ( kobj );
 

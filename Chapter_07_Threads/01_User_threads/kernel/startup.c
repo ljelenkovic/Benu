@@ -58,10 +58,14 @@ void k_startup ()
 	/* enable interrupts */
 	enable_interrupts ();
 
-	/* starting program routine (shell) */
-	kprintf ( "Starting program: timer\n" );
+	/* starting program routine */
 	prog_init ( NULL );
 
+#if ( TURN_OFF == 0 )
 	kprintf ( "\nSystem halted!\n" );
 	halt ();
+#else
+	kprintf ( "Powering off\n\n" );
+	sys__power_off ();
+#endif
 }

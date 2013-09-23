@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# ./test_all.sh
-# ./test_all.sh qemu
-# ./test_all.sh qemu debug=yes
-# ./test_all.sh qemu debug=yes K_INIT_PROG=demo
+#examples (run from base git respository directory!)
+# ./testing/test_all.sh
+# ./testing/test_all.sh qemu
+# ./testing/test_all.sh qemu debug=yes
+# ./testing/test_all.sh qemu debug=yes PROG_START_FUNC=run_all
 
 for chapter in * ; do
   if [ -d $chapter ] ; then

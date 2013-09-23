@@ -86,9 +86,6 @@ struct _kobject_t_
 	void	*ptr;
 		 /* pointer for extra per process info */
 
-	uint	 kobject_allocated;
-		 /* is kobject allocated? (free it when proces exits?)*/
-
 	list_h	 spec;
 		 /* list for object purposes */
 

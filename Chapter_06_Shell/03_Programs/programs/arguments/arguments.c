@@ -11,7 +11,7 @@ int arguments ( char *argv[] )
 		 arguments_PROG_HELP );
 
 	printf ( "Program arguments: " );
-	for ( i = 0; argv[i]; i++ )
+	for ( i = 0; argv && argv[i]; i++ )
 		printf ( "[%s] ", argv[i] );
 	printf ( "\n" );
 

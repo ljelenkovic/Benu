@@ -3,7 +3,7 @@
 
 #pragma once
 
-/* 'Instructions' to multiboot loader (grub) */
+/* 'Instructions' to multiboot loader */
 
 /* Align all boot modules on i386 page (4KB) boundaries. */
 #define MULTIBOOT_PAGE_ALIGN	0x00000001
@@ -20,7 +20,7 @@
 #include <types/basic.h>
 
 /* Flags to be set in the 'flags' member of the multiboot info structure
-   (boot loader (grub) sets this flags upon loading kernel). */
+   (boot loader sets this flags upon loading kernel). */
 
 /* This should be in %eax. */
 #define MULTIBOOT_BOOTLOADER_MAGIC	0x2BADB002

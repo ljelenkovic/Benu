@@ -27,7 +27,7 @@ CMACROS_K += $(CMACROS) ASSERT_H=\<kernel/errno.h\>
 
 #------------------------------------------------------------------------------
 # Memory allocators: 'gma' and/or 'first_fit'
-CMACROS_K += MEM_ALLOCATOR_FOR_KERNEL=$(MEM_ALLOCATOR_FOR_KERNEL)  \
+CMACROS_K += MEM_ALLOCATOR_FOR_KERNEL=$(MEM_ALLOCATOR_FOR_KERNEL) \
 	LOAD_ADDR=$(LOAD_ADDR)
 
 #------------------------------------------------------------------------------

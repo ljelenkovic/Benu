@@ -7,7 +7,7 @@
 /* Interrupt handlers function addresses, required for filling IDT */
 .globl arch_interrupt_handlers
 
-/*.section .startup_code*/
+
 .section .text
 
 /* Interrupt handlers

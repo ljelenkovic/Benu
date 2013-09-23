@@ -14,6 +14,8 @@
 char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "
 			"Version: " VERSION " (" PLATFORM ")";
 
+static void run_all ( char *argv[] );
+
 /*!
  * First kernel function (after grub loads it to memory)
  */
@@ -57,9 +59,30 @@ void k_startup ()
 
 	stdio_init (); /* initialize standard input & output devices */
 
-	kprintf ( "Starting shell\n" );
-	shell ();
+	/* starting program routine */
+	PROG_START_FUNC ( NULL );
 
+#if ( TURN_OFF == 0 )
 	kprintf ( "\nSystem halted!\n" );
 	halt ();
+#else
+	kprintf ( "Powering off\n\n" );
+	sys__power_off ();
+#endif
+}
+
+static void run_all ( char *argv[] )
+{
+	kprintf ( "\nStarting program: hello_world\n\n" );
+	hello_world (argv);
+
+	kprintf ( "\nStarting program: timer\n\n" );
+	timer (argv);
+#if 0
+	kprintf ( "\nStarting program: keyboard\n\n" );
+	keyboard (argv);
+
+	kprintf ( "\nStarting program: segm_fault\n\n" );
+	segm_fault (argv);
+#endif
 }

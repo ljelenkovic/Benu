@@ -109,6 +109,7 @@ int sys__suspend ( void *p )
 {
 	enable_interrupts ();
 	suspend ();
+	disable_interrupts ();
 
 	return 0;
 }

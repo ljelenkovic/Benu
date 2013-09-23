@@ -100,3 +100,4 @@ void k_memory_fault (); /* memory fault handler */
 
 void *kmalloc_kobject ( kprocess_t *proc, size_t obj_size );
 void *kfree_kobject ( kprocess_t *proc, kobject_t *kobj );
+int   kfree_process_kobjects ( kprocess_t *proc );

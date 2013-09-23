@@ -9,13 +9,13 @@
 
 /* syscall is from threads called as: int syscall ( id, arg1, arg2, ... );
  *
- * parameters are on thread stack (top to bottom):
+ * parameters are in thread descriptor (top to bottom):
  *	[return addres] [id] [arg1] [arg2] ...
  *
  * thread might be in its own address space - convert addresses if required
  */
 
-/*! Get syscall id from thread stack */
+/*! Get syscall id from thread descriptor */
 static inline uint arch_syscall_get_id ( context_t *cntx )
 {
 	return U2K_GET_INT ( (void *) (cntx->context.esp + 1), cntx->proc );
