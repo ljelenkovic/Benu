@@ -18,3 +18,6 @@
 
 /*! memory barrier */
 #define memory_barrier()	arch_memory_barrier()
+
+/*! power off, if supported */
+#define power_off()		arch_power_off()

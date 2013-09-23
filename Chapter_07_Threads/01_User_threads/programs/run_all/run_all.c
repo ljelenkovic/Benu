@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <lib/string.h>
 #include <time.h>
-#include <kernel/memory.h>
 
 char PROG_HELP[] = "Run all compiled programs";
 
@@ -23,7 +22,7 @@ int run_all ( char *args[] )
 {
 	int i, j;
 	char *progs_to_start[] = {
-		"hello", "timer", "args", "uthreads", NULL };
+		"keyboard", "hello", "timer", "args", "uthreads", NULL };
 
 	for ( j = 0; progs_to_start[j]; j++ )
 	for ( i = 0; prog[i].func; i++ )

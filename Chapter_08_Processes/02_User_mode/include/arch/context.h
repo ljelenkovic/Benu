@@ -1,6 +1,7 @@
 /*! Processor/thread context */
 #pragma once
 
+#include <types/basic.h>
 /*!
  * Context structures and operations: context_t
  */

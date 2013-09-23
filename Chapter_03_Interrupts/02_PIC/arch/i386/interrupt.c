@@ -11,9 +11,6 @@
 extern arch_ic_t IC_DEV;
 static arch_ic_t *icdev = &IC_DEV;
 
-void (*arch_irq_enable_func) ( unsigned int );
-void (*arch_irq_disable_func) ( unsigned int );
-
 /*! interrupt handlers */
 static void (*ihandler[INTERRUPTS]) ( unsigned int );
 
@@ -21,9 +18,6 @@ static void (*ihandler[INTERRUPTS]) ( unsigned int );
 void arch_init_interrupts ()
 {
 	icdev->init ();
-
-	arch_irq_enable_func = icdev->enable_irq;
-	arch_irq_disable_func = icdev->disable_irq;
 
 	memset ( ihandler, 0, sizeof(ihandler) );
 }
@@ -34,11 +28,11 @@ void arch_init_interrupts ()
  */
 void arch_irq_enable ( unsigned int irq )
 {
-	arch_irq_enable_func ( irq );
+	icdev->enable_irq ( irq );
 }
 void arch_irq_disable ( unsigned int irq )
 {
-	arch_irq_disable_func ( irq );
+	icdev->disable_irq ( irq );
 }
 
 /*! Register handler function for particular interrupt number */

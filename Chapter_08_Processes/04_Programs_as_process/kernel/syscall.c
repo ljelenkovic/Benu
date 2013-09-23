@@ -72,9 +72,7 @@ static int (*k_sysfunc[SYSFUNCS]) ( void *params ) =
 	sys__sigaction,
 	sys__pthread_sigmask,
 	sys__sigqueue,
-	sys__sigwaitinfo,
-
-	sys__suspend
+	sys__sigwaitinfo
 };
 
 /*!

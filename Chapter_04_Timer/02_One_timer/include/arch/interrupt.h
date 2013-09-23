@@ -17,8 +17,5 @@ void arch_unregister_interrupt_handler ( unsigned int irq_num, void *handler );
 void arch_irq_enable ( unsigned int irq );
 void arch_irq_disable ( unsigned int irq );
 
-#define INT_STF			12	/* Stack Fault */
-#define INT_GPF			13	/* General Protection Fault */
-
 #include <ARCH/interrupt.h>	/* for SOFT_IRQ */
 #define SOFTWARE_INTERRUPT	SOFT_IRQ

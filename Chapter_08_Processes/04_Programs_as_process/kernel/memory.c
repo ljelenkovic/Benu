@@ -28,6 +28,7 @@ void k_memory_init ()
 	int i;
 	char *name, *pos;
 
+	k_mpool = NULL;
 	mseg = arch_memory_init ();
 
 	/* initialize dynamic memory allocation subsystem */
@@ -231,7 +232,7 @@ void k_memory_info ()
 
 	kprintf ( "Memory segments\n"
 		 "===============\n"
-		 "Type\tsize\tstart addres\tstring\n"
+		 "Type\tsize\t\tstart addres\tstring\n"
 	);
 
 	for ( i = 0; mseg[i].type != MS_END && i < 20; i++ )
@@ -241,10 +242,10 @@ void k_memory_info ()
 	}
 }
 
-/*! Handle memory fault interrupt */
+/*! Handle memory fault interrupt (and others undefined) */
 void k_memory_fault ()
 {
-	LOG ( ERROR, "General Protection Fault!!!");
+	LOG ( ERROR, "Undefined fault (exception)!!!");
 
 	if ( arch_prev_mode () == KERNEL_MODE )
 	{

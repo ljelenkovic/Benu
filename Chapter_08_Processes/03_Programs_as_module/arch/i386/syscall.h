@@ -11,8 +11,6 @@
  *
  * parameters are on thread stack (top to bottom):
  *	[return addres] [id] [arg1] [arg2] ...
- *
- * thread might be in its own address space - convert addresses if required
  */
 
 /*! Get syscall id from thread stack */

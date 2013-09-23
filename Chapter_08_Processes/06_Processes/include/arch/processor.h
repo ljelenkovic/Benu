@@ -12,9 +12,13 @@
 
 /*! suspend processor until next interrupt */
 #define suspend()		arch_suspend()
+#define user_mode_suspend()	arch_user_mode_suspend()
 
 /*! raise software interrupt */
 #define raise_interrupt(p)	arch_raise_interrupt(p)
 
 /*! memory barrier */
 #define memory_barrier()	arch_memory_barrier()
+
+/*! power off, if supported */
+#define power_off()		arch_power_off()

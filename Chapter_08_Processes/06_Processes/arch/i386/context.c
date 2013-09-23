@@ -8,7 +8,7 @@
 #include <kernel/memory.h>
 
 /*! kernel (interrupt) stack (defined in memory.c) */
-extern uint8 k_stack [];
+extern uint8 system_stack [];
 
 /*! interrupt handler stack */
 void *arch_interrupt_stack;
@@ -26,7 +26,7 @@ void arch_context_init ()
 {
 	arch_thr_context_ss = GDT_DESCRIPTOR ( SEGM_K_DATA, GDT, PRIV_KERNEL );
 
-	arch_interrupt_stack = (void *) &k_stack [ KERNEL_STACK_SIZE ];
+	arch_interrupt_stack = (void *) &system_stack [ KERNEL_STACK_SIZE ];
 
 	arch_descriptors_init (); /* GDT, IDT, ... */
 }

@@ -6,7 +6,7 @@
 #include "syscall.h"
 #include "device.h"
 #include "memory.h"
-#include "kprint.h"
+#include <kernel/errno.h>
 #include <arch/interrupt.h>
 #include <lib/string.h>
 
@@ -14,7 +14,7 @@ char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "
 			"Version: " VERSION " (" PLATFORM ")";
 
 /*!
- * First kernel function (after grub loads it to memory)
+ * First kernel function (after boot loader loads it to memory)
  */
 void k_startup ()
 {
@@ -33,8 +33,8 @@ void k_startup ()
 	arch_register_interrupt_handler ( SOFTWARE_INTERRUPT, k_syscall, NULL );
 
 	/* detect memory faults (qemu do not detect segment violations!) */
-	arch_register_interrupt_handler ( INT_STF, k_memory_fault, NULL );
-	arch_register_interrupt_handler ( INT_GPF, k_memory_fault, NULL );
+	arch_register_interrupt_handler ( INT_MEM_FAULT, k_memory_fault, NULL );
+	arch_register_interrupt_handler ( INT_UNDEF_FAULT, k_memory_fault, NULL );
 
 	/* timer subsystem */
 	k_time_init ();
@@ -49,11 +49,6 @@ void k_startup ()
 
 	/* thread subsystem */
 	kthreads_init ();
-
-	if ( strcmp ( U_STDIN, "i8042" ) == 0 )
-		kprintf ("For input (keyboard) focus QEMU simulator window!\n");
-	else if ( strcmp ( U_STDIN, "COM1" ) == 0 )
-		kprintf ("For input (keyboard) focus shell\n");
 
 	/* complete initialization by starting first thread */
 	arch_return_to_thread ();

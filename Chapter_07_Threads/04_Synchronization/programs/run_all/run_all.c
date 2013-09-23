@@ -3,10 +3,9 @@
 #include <stdio.h>
 #include <lib/string.h>
 #include <time.h>
-#include <kernel/memory.h>
-#include <kernel/device.h>
 #include <pthread.h>
 #include <errno.h>
+#include <arch/processor.h>
 
 char PROG_HELP[] = "Run all compiled programs";
 
@@ -39,7 +38,7 @@ int run_all ( char *args[] )
 
 #if ( TURN_OFF == 1 )
 	printf ( "Powering off\n\n" );
-	sys__power_off ();
+	power_off ();
 #endif
 
 	return error;

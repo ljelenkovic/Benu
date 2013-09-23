@@ -6,7 +6,7 @@
 #include <arch/interrupt.h>
 #include <arch/processor.h>
 
-#define TEST	2
+#define TEST	1
 
 /* detect memory faults (qemu do not detect segment violations!) */
 
@@ -23,25 +23,25 @@ int segm_fault ()
 	printf ( "\nInterrupt test >>>\n" );
 
 	arch_register_interrupt_handler ( SOFTWARE_INTERRUPT, test1 );
+	arch_register_interrupt_handler ( SOFTWARE_INTERRUPT, test1 );
 
 	raise_interrupt ( SOFTWARE_INTERRUPT );
 
 	printf ( "Interrupt test <<<\n\n" );
 
 #elif TEST == 2
-	void *ptr;
+	void *ptr1, *ptr2;
 
-	ptr = malloc ( 1023 );
-	printf ( "malloc returned %x (1023)\n", ptr );
+	ptr1 = malloc ( 1023 );
+	printf ( "malloc returned %x (1023)\n", ptr1 );
 
-	if ( ptr )
-		free (ptr);
+	ptr2 = malloc ( 123 );
+	printf ( "malloc returned %x (123)\n", ptr2 );
 
-	ptr = malloc ( 123 );
-	printf ( "malloc returned %x (123)\n", ptr );
-
-	if ( ptr )
-		free (ptr);
+	if ( ptr1 )
+		free (ptr1);
+	if ( ptr2 )
+		free (ptr2);
 #else
 	unsigned int *p;
 	unsigned int i, j=0;

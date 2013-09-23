@@ -14,11 +14,13 @@
  */
 static inline uint32 arch_msb_index ( uint32 num )
 {
-	int r;
+/*	int r;
 
 	asm volatile ("bsrl %1, %0": "=r"(r): "rm"(num) );
 
 	return r;
+
+*/	return 31 - __builtin_clz (num);
 }
 
 /*!
@@ -28,11 +30,12 @@ static inline uint32 arch_msb_index ( uint32 num )
  */
 static inline uint32 arch_lsb_index ( uint32 num )
 {
-	int r;
+/*	int r;
 
 	asm volatile ("bsfl %1, %0": "=r"(r): "rm"(num) );
 
 	return r;
+*/	return __builtin_ffs (num) - 1;
 }
 
 /*!

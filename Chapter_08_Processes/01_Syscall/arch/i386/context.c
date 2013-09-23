@@ -8,7 +8,7 @@
 #include <kernel/memory.h>
 
 /*! kernel (interrupt) stack (defined in memory.c) */
-extern uint8 k_stack [];
+extern uint8 system_stack [];
 
 /*! interrupt handler stack */
 void *arch_interrupt_stack;
@@ -24,7 +24,7 @@ uint32 arch_sse_mmx_fpu;	/* where to save extended thread context */
 /*! Set up context (normal and interrupt=kernel) */
 void arch_context_init ()
 {
-	arch_interrupt_stack = (void *) &k_stack [ KERNEL_STACK_SIZE ];
+	arch_interrupt_stack = (void *) &system_stack [ KERNEL_STACK_SIZE ];
 
 	arch_descriptors_init (); /* GDT, IDT, ... */
 }

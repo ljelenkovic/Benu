@@ -8,11 +8,13 @@
 #define ROWS	25 /* number of characters in a row */
 #define ATTR	7  /* font: white char on black bacground */
 
+static volatile char *video = VIDEO;
+
 /*! Init console */
 int arch_console_init ()
 {
 	/* erase screen (set blank screen) */
-	memset ( VIDEO, 0, COLS * ROWS * 2 );
+	memset ( (void *) video, 0, COLS * ROWS * 2 );
 
 	return 0;
 }
@@ -24,20 +26,19 @@ int arch_console_init ()
 int arch_console_print_word ( char *word )
 {
 	static int row = 0;
-	char *video = VIDEO;
 	int i;
 
 	if ( word == NULL )
 		return -1;
 
 	/* erase line */
-	memset ( video + row * COLS * 2, 0, COLS * 2 );
+	memset ( (void *) ( video + row * COLS * 2 ), 0, COLS * 2 );
 
 	/* print word on new line */
 	for ( i = 0; word[i] != 0 && i < COLS; i++ )
 	{
-		*( video + row * COLS * 2 + i * 2 )     = word[i];
-		*( video + row * COLS * 2 + i * 2 + 1 ) = ATTR;
+		video [ row * COLS * 2 + i * 2 ]     = word[i];
+		video [ row * COLS * 2 + i * 2 + 1 ] = ATTR;
 	}
 
 	if ( row < ROWS )
@@ -45,8 +46,9 @@ int arch_console_print_word ( char *word )
 		row++;
 	}
 	else {
-		memmove ( video, video + COLS * 2, ROWS * COLS * 2 );
-		memset ( video + row * COLS * 2, 0, COLS * 2 );
+		memmove ( (void *) video, (void *) ( video + COLS * 2 ),
+			  ROWS * COLS * 2 );
+		memset ( (void *) video + row * COLS * 2, 0, COLS * 2 );
 	}
 
 	return 0;

@@ -4,36 +4,61 @@ Benu
 Operating System Increments for Education and Research
 (_Built for _education, _not (normal) _usage)
 
-Simple operating system for demonstration only (academic)
+Simple operating system for demonstration only (academic).
 Build through several steps, each bringing something new.
 System is "work in progress", improved/extended with (almost) every year.
 
-Name "Benu", besides acronym, represents an Egyptian bird...
+Name "Benu", besides acronym, represents an Egyptian bird ...
 
-Previous version (https://github.com/l30nard0/os4ec/) is used in academic year
-2011/2012 in course Operating System for Embedded Computers. This one will
-be used in next, 2012/2013 year.
+Compilers used:
+* for i386 - GNU gcc, GNU ld (GNU Binutils)
+* for arm - Sourcery CodeBench Lite Edition for ARM EABI
+Tested in QEMU ('qemu-system' package on ubuntu)
+
+
+Version history (by academic year):
+===================================
+* 2013/2014 (candidate): https://github.com/l30nard0/benu tag v0.3
+  - added support for arm platform
+  - tested only with Versatile PB926EJS on QEMU
+  - upgrades & fixes
+
+* 2012/2013: https://github.com/l30nard0/benu tag v0.1
+  - POSIX interface (signals, timers, threads, ...)
+
+* 2011/2012: http://sourceforge.net/projects/oszur12/
+  - small upgrades ...
+  - mirror on https://github.com/l30nard0/os4ec/
+
+* 2010/2011: http://sourceforge.net/projects/oszur11/
+  - code in English, switched to git repository
+  - rewritten (different increment structure)
+  - removed paging support (implementation not simple enough)
+
+* 2009/2010: http://code.google.com/p/oszur2010/
+  - supported only i386 platform
+  - code in Croatian, svn repository
+
 
 Full description (in Croatian) available in textbook at:
 	http://www.fer.unizg.hr/en/course/osfec
 	http://www.fer.unizg.hr/predmet/oszur
 
 
-This version (Benu) changed interface (among many other things) to POSIX.
-
 IMPORTANT!
 ==========
 If running created system (built from Benu) in emulator other than QEMU, set
 standard input and output to vga_text mode -- in conf/config.ini set:
-K_INITIAL_STDOUT = vga_text_dev, K_STDOUT = VGA_TXT, U_STDIN = i8042,
-U_STDOUT = VGA_TXT, U_STDERR = VGA_TXT (uncomment this lines, comment other with
-*=COM1)
+K_INITIAL_STDOUT = vga_text_dev
+K_STDOUT = VGA_TXT
+U_STDIN = i8042
+U_STDOUT = VGA_TXT
+U_STDERR = VGA_TXT
+(uncomment this lines, comment other with *=COM1)
 (Buggy serial port implementation; works on QEMU but not with other emulators)
 
 
-
 Please report any bugs (and other problems) on site or via email.
-
 Contact address: leonardo@zemris.fer.hr
 
 
@@ -42,4 +67,4 @@ DISCLAIMER
 Presented system has (probably) *many* bugs! Many concepts might not be
 adequate or good as might be (as are in some "real systems").
 *Please* do not use it for any other purpose other than education.
-Its not tested near enough to be used for anything more.
+It’s not tested near enough to be used for anything more.

@@ -14,7 +14,4 @@ extern inline int goto_xy ( int x, int y );
 int printf ( char *format, ... );
 void warn ( char *format, ... );
 
-int change_stdin ( char *new_stdin );
-int change_stdout ( char *new_stdout );
-
 int stdio_init ();

@@ -2,6 +2,13 @@
 
 #pragma once
 
+/* Constants */
+#define INT_STF			12	/* Stack Fault */
+#define INT_GPF			13	/* General Protection Fault */
+
+#define INT_MEM_FAULT		INT_STF
+#define INT_UNDEF_FAULT		INT_GPF
+
 #ifndef ASM_FILE
 
 #include <arch/interrupt.h>
@@ -23,5 +30,4 @@ arch_ic_t;
 /* Programmable Interrupt controllers (currently implemented only one, i8259) */
 #include <ARCH/drivers/i8259.h>
 
-/* Constants */
-#define INTERRUPTS		NUM_IRQS
+#define INTERRUPTS		(SOFT_IRQ + 1)

@@ -5,7 +5,7 @@
  * On stack are (top to bottom): [return address] [id] [arg1] [arg2] ...
  */
 
-#define ASM_FILE        1
+#define ASM_FILE	1
 
 #include "interrupt.h"
 

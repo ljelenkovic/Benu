@@ -6,7 +6,6 @@
 #include "syscall.h"
 #include "device.h"
 #include "memory.h"
-#include "kprint.h"
 #include <kernel/errno.h>
 #include <arch/interrupt.h>
 #include <arch/processor.h>
@@ -35,8 +34,8 @@ void k_startup ()
 	arch_register_interrupt_handler ( SOFTWARE_INTERRUPT, k_syscall, NULL );
 
 	/* detect memory faults (qemu do not detect segment violations!) */
-	arch_register_interrupt_handler ( INT_STF, k_memory_fault, NULL );
-	arch_register_interrupt_handler ( INT_GPF, k_memory_fault, NULL );
+	arch_register_interrupt_handler ( INT_MEM_FAULT, k_memory_fault, NULL );
+	arch_register_interrupt_handler ( INT_UNDEF_FAULT, k_memory_fault, NULL );
 
 	/* timer subsystem */
 	k_time_init ();
@@ -58,11 +57,6 @@ void k_startup ()
 		LOG ( ERROR, "\nAborting!\n" );
 		halt();
 	}
-
-	if ( strcmp ( U_STDIN, "i8042" ) == 0 )
-		kprintf ("For input (keyboard) focus QEMU simulator window!\n");
-	else if ( strcmp ( U_STDIN, "COM1" ) == 0 )
-		kprintf ("For input (keyboard) focus shell\n");
 
 	/* complete initialization by starting first thread */
 	arch_return_to_thread ();

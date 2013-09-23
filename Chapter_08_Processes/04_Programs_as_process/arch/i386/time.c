@@ -30,6 +30,7 @@ void arch_get_min_interval ( timespec_t *time )
 void arch_timer_init ()
 {
 	clock.tv_sec = clock.tv_nsec = 0;
+	alarm_handler = NULL;
 
 	timer->init ();
 
@@ -124,6 +125,7 @@ static void arch_timer_handler ()
 
 	if ( time_cmp ( &delay, &threshold ) <= 0 )
 	{
+		/* "delay" expired */
 		delay = timer->max_interval;
 		timer->set_interval ( &last_load );
 
@@ -135,7 +137,9 @@ static void arch_timer_handler ()
 		}
 	}
 	else {
-		if ( time_cmp ( &delay, &last_load ) < 0 )
+		if ( time_cmp ( &delay, &timer->min_interval ) < 0 )
+			last_load = timer->min_interval;
+		else if ( time_cmp ( &delay, &last_load ) < 0 )
 			last_load = delay;
 
 		timer->set_interval ( &last_load );

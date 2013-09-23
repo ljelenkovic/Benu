@@ -9,7 +9,7 @@
 
 /*! Thread creation/exit/wait/cancel ---------------------------------------- */
 
-int pthread_create ( pthread_t *thread, const pthread_attr_t *attr,
+int pthread_create ( pthread_t *thread, pthread_attr_t *attr,
 		     void *(*start_routine) (void *), void *arg )
 {
 	ASSERT_ERRNO_AND_RETURN ( start_routine, EINVAL );
@@ -72,7 +72,7 @@ int pthread_attr_setschedpolicy ( pthread_attr_t *attr, int policy )
 }
 
 int pthread_attr_setschedparam ( pthread_attr_t *attr,
-				 const struct sched_param *param )
+				 struct sched_param *param )
 {
 	ASSERT_ERRNO_AND_RETURN ( attr && param, EINVAL );
 	ASSERT_ERRNO_AND_RETURN ( param->sched_priority >= THREAD_MIN_PRIO &&
@@ -85,7 +85,7 @@ int pthread_attr_setschedparam ( pthread_attr_t *attr,
 
 /*! Set thread scheduling parameters */
 int pthread_setschedparam ( pthread_t thread, int policy,
-			    const struct sched_param *param )
+			    struct sched_param *param )
 {
 	ASSERT_ERRNO_AND_RETURN ( policy >= 0 && policy < SCHED_NUM, EINVAL );
 

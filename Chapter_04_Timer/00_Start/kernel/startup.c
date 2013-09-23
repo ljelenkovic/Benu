@@ -13,7 +13,7 @@ char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "
 			"Version: " VERSION " (" PLATFORM ")";
 
 /*!
- * First kernel function (after grub loads it to memory)
+ * First kernel function (after boot loader loads it to memory)
  */
 void k_startup ()
 {
@@ -33,8 +33,8 @@ void k_startup ()
 	arch_init_interrupts ();
 
 	/* detect memory faults (qemu do not detect segment violations!) */
-	arch_register_interrupt_handler ( INT_STF, k_memory_fault );
-	arch_register_interrupt_handler ( INT_GPF, k_memory_fault );
+	arch_register_interrupt_handler ( INT_MEM_FAULT, k_memory_fault );
+	arch_register_interrupt_handler ( INT_UNDEF_FAULT, k_memory_fault );
 
 	/* switch to default 'stdout' for kernel */
 	k_stdout = &K_STDOUT;
@@ -53,11 +53,16 @@ void k_startup ()
 
 #if ( TURN_OFF == 0 )
 	kprintf ( "\nSystem halted!\n" );
+#ifdef PL190
+	/* testing uart (arm) interrupts */
+	void uart0_echo_test_start ();
+	uart0_echo_test_start ();
+	suspend();
+#endif
 	halt ();
 #else
-	/* power off using ACPI */
+	/* power off (if supported, or just stop if not) */
 	kprintf ( "Powering off\n\n" );
-	void acpiPowerOff(void);
-	acpiPowerOff();
+	power_off ();
 #endif
 }

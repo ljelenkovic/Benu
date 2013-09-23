@@ -3,92 +3,165 @@
 #define _ARCH_
 #include <arch/memory.h>
 #include "descriptor.h"
-#include "boot/multiboot.h"
+#include <arch/multiboot.h>
 #include <arch/processor.h>
-#include <kernel/memory.h>
-#include <kernel/kprint.h>
+#include <kernel/errno.h>
 
 /*! kernel (interrupt) stack */
-uint8 k_stack [ KERNEL_STACK_SIZE ];
+uint8 system_stack [ KERNEL_STACK_SIZE ];
 
 /*! Multiboot magic number and address where multiboot structure is saved */
 unsigned long arch_mb_magic, arch_mb_info;
 
 #define ALIGN_TO	4096 /* align segments to it */
 
-/*! Set up context (normal and interrupt=kernel) */
+static mseg_t *arch_memseg_from_script ();
+
+/*!
+ * Set up context (normal and interrupt=kernel)
+ *
+ * Create memory map:
+ * - find place for heap
+ */
 mseg_t *arch_memory_init ()
 {
-	extern char kernel_code, k_kernel_end;
+	extern char kernel_code_addr, kernel_end_addr;
 	multiboot_info_t *mbi;
-	multiboot_module_t *mod;
+	multiboot_memory_map_t *mmap, *iter;
 	mseg_t *mseg;
-	uint max;
-	int i, j;
+	uint32 mmap_end, mmap_size;
+	uint32 heap_id, heap_start, heap_end;
+	int mmap_cnt, mseg_cnt, i;
 
-	/* Am I booted by a Multiboot-compliant boot loader? */
-	if (arch_mb_magic != MULTIBOOT_BOOTLOADER_MAGIC)
+	/* Is system booted by a Multiboot-compliant boot loader? */
+	if ( arch_mb_magic != MULTIBOOT_BOOTLOADER_MAGIC )
 	{
-		kprintf ( "Boot loader is not multiboot-compliant!\n" );
-		halt();
+		/* no Multiboot information! get them "hard way" :) */
+		return arch_memseg_from_script ();
 	}
+	else {
+		mbi = (void *) arch_mb_info; /* from multiboot info structure */
 
-	/* from multiboot info */
-	mbi = (void *) arch_mb_info;
+		mmap = NULL;
 
-	max = (uint) &k_kernel_end;
-
-	/* first run on modules - check size */
-	if ( mbi->flags & MULTIBOOT_INFO_MODS )
-	{
-		mod = (void *) mbi->mods_addr;
-		for ( i = 0; i < mbi->mods_count; i++, mod++ )
-			if ( max < mod->mod_end )
-				max = mod->mod_end;
-	}
-
-	if ( max % ALIGN_TO )
-		max += ALIGN_TO - ( max % ALIGN_TO );
-
-	/* reserve space for segment descriptors */
-	mseg = (void *) max;
-	max += ( 2 + mbi->mods_count + 2 ) * sizeof (mseg_t);
-
-	/* kernel segment - implicitly from kernel linker script */
-	mseg[0].type = MS_KERNEL;
-	mseg[0].name = NULL;
-	mseg[0].start = &kernel_code;
-	mseg[0].size = ( (uint) &k_kernel_end ) - (uint) &kernel_code;
-	/* modules */
-	mseg[1].type = MS_MODULE;
-	mseg[1].name = NULL;
-	mseg[1].start = ( (void *) &k_kernel_end ) + 1;
-	mseg[1].size = max - (uint) &k_kernel_end ;
-	/* kernel heap */
-	mseg[2].type = MS_KHEAP;
-	mseg[2].name = NULL;
-	mseg[2].start = (void *) max;
-	mseg[2].size = mbi->mem_upper * 1024 - (max - 0x100000);
-
-	/* limit access to range: [ 0, mseg[2].start + mseg[2].size ] */
-	arch_update_segments ( NULL, max + mseg[2].size, PRIV_KERNEL);
-
-	/* second run on modules - add each as separate segment */
-	j = 3;
-	if ( mbi->flags & MULTIBOOT_INFO_MODS )
-	{
-		mod = (void *) mbi->mods_addr;
-
-		for ( i = 0; i < mbi->mods_count; i++, mod++, j++ )
+		/* if memory map is available use it */
+		if ( mbi->flags & MULTIBOOT_INFO_MEM_MAP )
 		{
-			mseg[j].type = MS_MODULE;
-			mseg[j].name = (char *) mod->cmdline;
-			mseg[j].start = (void *) mod->mod_start;
-			mseg[j].size = mod->mod_end - mod->mod_start;
-		}
-	}
+			/* find largest available segment */
+			iter = (void *) mbi->mmap_addr;
+			mmap_end = (uint32)(mbi->mmap_addr + mbi->mmap_length);
+			mmap_cnt = 0;
+			mmap_size = 0;
+			heap_id = 0;
+			while ( iter && (uint32) iter < mmap_end )
+			{
+				mmap_cnt++;
 
-	mseg[j].type = MS_END;
+				if ( iter->type == MULTIBOOT_MEMORY_AVAILABLE
+				     && mmap_size < (uint32)
+				     ( iter->len & 0x0ffffffff ) )
+				{
+					heap_id = mmap_cnt;
+					mmap = iter;
+					mmap_size = (uint32)
+						( iter->len & 0x0ffffffff );
+				}
+
+				iter = (void *) iter + iter->size
+					+ sizeof (iter->size);
+			}
+		}
+
+		if ( !mmap )
+			return arch_memseg_from_script ();
+
+		heap_start = (uint32) ( mmap->addr & 0x0ffffffff );
+		heap_end = heap_start + (uint32) ( mmap->len & 0x0ffffffff );
+
+		/* if this segment contains/intersect with kernel code/data,
+		 * reduce it */
+		if ( heap_start >= (uint32) &kernel_code_addr &&
+		     heap_start < (uint32) &kernel_end_addr )
+			heap_start = (uint32) &kernel_end_addr;
+
+		if ( heap_end >= (uint32) &kernel_code_addr &&
+		     heap_end < (uint32) &kernel_end_addr )
+			heap_end = (uint32) &kernel_code_addr;
+
+		if ( heap_start >= heap_end )
+		{
+			LOG ( ERROR, "No space for heap!\n" );
+			halt ();
+		}
+
+		/*
+		 * TODO: check if some other data is saved in segment
+		 * [heap_start, heap_end]
+		 */
+
+		/* "map" "mmap" segmets to "mseg" */
+		mseg_cnt = mmap_cnt + 1;
+		if ( heap_start != (uint32) ( mmap->addr & 0x0ffffffff ) )
+			mseg_cnt++;
+
+		mseg = (void *) heap_start;
+		heap_start += mseg_cnt * sizeof (mseg_t);
+
+		iter = (void *) mbi->mmap_addr;
+		mmap_end = (uint32) (mbi->mmap_addr + mbi->mmap_length);
+		for ( i = 0; i < mmap_cnt; i++ )
+		{
+			mseg[i].type = iter->type;
+			mseg[i].name = "mmap segment";
+			mseg[i].start = (void *) (uint32)
+					( iter->addr & 0x0ffffffff );
+			mseg[i].size = (uint32) ( iter->len & 0x0ffffffff );
+
+			iter = (void *) iter + iter->size + sizeof (iter->size);
+		}
+
+		i = mmap_cnt;
+		if ( mseg_cnt == mmap_cnt + 1 )
+		{
+			mseg[heap_id].type = MS_KHEAP;
+			mseg[heap_id].name = "heap";
+		}
+		else {
+			mseg[i].type = MS_KHEAP;
+			mseg[i].name = "heap";
+			mseg[i].start = (void *) heap_start;
+			mseg[i].size = heap_end - heap_start;
+			i++;
+		}
+
+		mseg[i].type = MS_END;
+
+		return mseg;
+	}
+}
+
+/*! Create memory map from linker script and available memory (QEMU_MEM) */
+static mseg_t *arch_memseg_from_script ()
+{
+	mseg_t *mseg;
+	extern char kernel_code_addr, kernel_end_addr;
+
+	mseg = (void *) &kernel_end_addr;
+
+	/* kernel segment - from kernel linker script */
+	mseg[0].type = MS_KERNEL;
+	mseg[0].name = "kernel";
+	mseg[0].start = &kernel_code_addr;
+	mseg[0].size = (uint)&kernel_end_addr - (uint)&kernel_code_addr
+			+ 3 * sizeof (mseg_t);
+
+	/* kernel heap */
+	mseg[1].type = MS_KHEAP;
+	mseg[1].name = "heap";
+	mseg[1].start = &kernel_end_addr + 3 * sizeof (mseg_t);
+	mseg[1].size = ( QEMU_MEM << 20 ) - (uint) mseg[1].start;
+
+	mseg[2].type = MS_END;
 
 	return mseg;
 }

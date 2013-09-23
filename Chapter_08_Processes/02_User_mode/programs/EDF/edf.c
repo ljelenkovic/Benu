@@ -6,6 +6,8 @@
 #include <arch/processor.h>
 
 char PROG_HELP[] = "EDF scheduling demonstration example.";
+char EXTRA_INFO[] = "\n(manual loop calibration requied for optimal display of"
+" EDF\n loop last differently in debug than in optimized version)\n\n";
 
 #define THR_NUM	4
 #define TEST_DURATION	20 /* seconds */
@@ -86,8 +88,9 @@ int edf ( char *args[] )
 	int i;
 	timespec_t sleep;
 
-	printf ( "Example program: [%s:%s]\n%s\n\n", __FILE__, __FUNCTION__,
+	printf ( "Example program: [%s:%s]\n%s\n", __FILE__, __FUNCTION__,
 		 PROG_HELP );
+	printf ( EXTRA_INFO );
 
 	end = FALSE;
 

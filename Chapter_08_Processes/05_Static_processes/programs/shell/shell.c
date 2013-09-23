@@ -21,23 +21,17 @@ cmd_t;
 #define PROG_LIST_SIZE	1000
 #define INFO_SIZE	1000
 
-static char s_stdout[MAXCMDLEN];
-static char s_stdin[MAXCMDLEN];
-
 static int help ();
 static int clear ();
 static int sysinfo ( char *args[] );
-static int power_off ( char *args[] );
-static int set ( char *args[] );
+static int turn_off ( char *args[] );
 
 static cmd_t sh_cmd[] =
 {
 	{ help, "help", "help - list available commands" },
 	{ clear, "clear", "clear - clear screen" },
 	{ sysinfo, "sysinfo", "system information; usage: sysinfo [options]" },
-	{ power_off, "poweroff", "poweroff - use ACPI to power off" },
-	{ set, "set", "change shell settings; "
-		"usage: set stdin|stdout [device]" },
+	{ turn_off, "poweroff", "poweroff - use ACPI to power off" },
 	{ NULL, "" }
 };
 
@@ -55,9 +49,6 @@ int shell ( char *args[] )
 
 	t.tv_sec = 0;
 	t.tv_nsec = 100000000; /* 100 ms */
-
-	strcpy ( s_stdout, U_STDOUT );
-	strcpy ( s_stdin, U_STDIN );
 
 	while (1)
 	{
@@ -183,69 +174,10 @@ static int sysinfo ( char *args[] )
 	return 0;
 }
 
-static int power_off ( char *args[] )
+static int turn_off ( char *args[] )
 {
 	printf ( "Powering off\n\n" );
 	syscall ( POWER_OFF, NULL, 0, NULL );
 
 	return -1;
-}
-
-
-static int set ( char *args[] )
-{
-	if ( args[1] == NULL ||
-		( strcmp ( args[1], "stdin"  ) &&
-		  strcmp ( args[1], "stdout" )		)	)
-	{
-		printf ( "'set' usage: set stdin|stdout [device]\n" );
-	}
-	else if ( args[2] == NULL )
-	{
-		/* print current configuration */
-		printf ( "console: stdout = %s, stdin = %s\n",
-			s_stdout, s_stdin );
-	}
-	else if ( strcmp ( args[1], "stdin" ) == 0 )
-	{
-		if ( strcmp ( args[2], s_stdin ) == 0 )
-		{
-			printf ( "Given stdin (%s) is already in use!\n",
-				 args[2] );
-		}
-		else if ( change_stdin ( args[2] ) )
-		{
-			printf ( "Error in changing stdin to %s\n", args[2] );
-		}
-		else {
-			printf ("stdin changed to %s (for console)\n", args[2]);
-			printf ("(stdin for programs is still %s)\n", U_STDIN );
-
-			strcpy ( s_stdin, args[2] );
-		}
-	}
-	else if ( strcmp ( args[1], "stdout" ) == 0 )
-	{
-		if ( strcmp ( args[2], s_stdout ) == 0 )
-		{
-			printf ( "Given stdout (%s) is already in use!\n",
-				 args[2] );
-		}
-		else if ( change_stdout ( args[2] ) )
-		{
-			printf ( "Error in changing stdout to %s\n", args[2] );
-		}
-		else {
-			printf("stdout changed to %s (for console)\n", args[2]);
-			printf("(stdout for programs is still %s)\n", U_STDOUT);
-
-			strcpy ( s_stdout, args[2] );
-		}
-	}
-	else {
-		/* must not get here */
-		printf ( "Internal shell error!\n" );
-	}
-
-	return 0;
 }

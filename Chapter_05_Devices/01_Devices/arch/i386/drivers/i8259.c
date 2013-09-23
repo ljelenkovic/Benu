@@ -92,6 +92,7 @@ static void i8259_at_exit ( unsigned int irq )
 	}
 }
 
+#ifdef DEBUG
 /*! Interrupts descriptions */
 static char *arch_int_desc[] =
 {
@@ -165,5 +166,11 @@ static char *i8259_interrupt_description ( unsigned int n )
 	else
 		return "Unknown interrupt number";
 }
+#else
+static char *i8259_interrupt_description ( unsigned int n )
+{
+	return "Descriptions unavailable in this build";
+}
+#endif
 
 #endif /* I8259 */

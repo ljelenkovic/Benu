@@ -28,7 +28,7 @@ for chapter in * ; do
             exit
           fi
           ./build.sh cleanall
-        else
+        elif [ -e Makefile ] ; then
           make cleanall
           make "$@"
           if [ ! $? -eq 0 ] ; then

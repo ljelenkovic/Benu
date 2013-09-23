@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <lib/string.h>
 #include <time.h>
-#include <kernel/memory.h>
 
 char PROG_HELP[] = "Run all compiled programs";
 

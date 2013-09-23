@@ -7,7 +7,6 @@
 #include "kprint.h"
 #include <arch/interrupt.h>
 #include <arch/processor.h>
-#include <lib/string.h>
 #include <api/stdio.h>
 #include <api/prog_info.h>
 
@@ -15,7 +14,7 @@ char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "
 			"Version: " VERSION " (" PLATFORM ")";
 
 /*!
- * First kernel function (after grub loads it to memory)
+ * First kernel function (after boot loader loads it to memory)
  */
 void k_startup ()
 {
@@ -33,8 +32,8 @@ void k_startup ()
 	arch_init_interrupts ();
 
 	/* detect memory faults (qemu do not detect segment violations!) */
-	arch_register_interrupt_handler ( INT_STF, k_memory_fault, NULL );
-	arch_register_interrupt_handler ( INT_GPF, k_memory_fault, NULL );
+	arch_register_interrupt_handler ( INT_MEM_FAULT, k_memory_fault, NULL );
+	arch_register_interrupt_handler ( INT_UNDEF_FAULT, k_memory_fault, NULL );
 
 	/* timer subsystem */
 	k_time_init ();
@@ -47,11 +46,6 @@ void k_startup ()
 
 	kprintf ( "%s\n", system_info );
 
-	if ( strcmp ( U_STDIN, "i8042" ) == 0 )
-		kprintf ("For input (keyboard) focus QEMU simulator window!\n");
-	else if ( strcmp ( U_STDIN, "COM1" ) == 0 )
-		kprintf ("For input (keyboard) focus shell\n");
-
 	/* enable interrupts */
 	enable_interrupts ();
 
@@ -59,15 +53,16 @@ void k_startup ()
 
 	/* start desired program(s) */
 	hello_world ();
+	keyboard ();
 	timer ();
-	/* keyboard (); */
 	/* segm_fault (); */
 
 #if ( TURN_OFF == 0 )
 	kprintf ( "\nSystem halted!\n" );
 	halt ();
 #else
+	/* power off (if supported, or just stop if not) */
 	kprintf ( "Powering off\n\n" );
-	sys__power_off ();
+	power_off ();
 #endif
 }

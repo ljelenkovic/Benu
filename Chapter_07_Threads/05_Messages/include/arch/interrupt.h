@@ -36,8 +36,5 @@ int arch_prev_mode ();
 #define KERNEL_MODE		0
 #define USER_MODE		-1
 
-#define INT_STF			12	/* Stack Fault */
-#define INT_GPF			13	/* General Protection Fault */
-
 #include <ARCH/interrupt.h>	/* for SOFT_IRQ */
 #define SOFTWARE_INTERRUPT	SOFT_IRQ

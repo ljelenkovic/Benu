@@ -5,4 +5,3 @@
 #include <types/basic.h>
 
 void k_syscall ( uint irqn );
-int sys__suspend ( void *p );

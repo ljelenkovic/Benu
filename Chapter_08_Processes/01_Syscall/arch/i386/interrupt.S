@@ -1,5 +1,5 @@
 /*! interrupts.S - low level (arch) interrupt handling */
-#define ASM_FILE        1
+#define ASM_FILE	1
 
 #include "descriptor.h"
 

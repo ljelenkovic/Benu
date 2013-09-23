@@ -5,7 +5,7 @@
 
 /* Memory segments */
 enum {
-	MS_KERNEL = 1,
+	MS_KERNEL = 3,
 	MS_KHEAP,
 	MS_PROGRAM,
 	MS_MODULE,

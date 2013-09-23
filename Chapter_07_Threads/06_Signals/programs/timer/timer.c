@@ -56,11 +56,12 @@ int timer ( char *args[] )
 	timer_create ( CLOCK_REALTIME, &evp, &timer2 );
 	timer_settime ( &timer2, 0, &t2, NULL );
 
-	t.tv_sec = 25;
+	t.tv_sec = 26;
 	t.tv_nsec = 0;
 
 	while ( TIME_IS_SET (&t) )
-		clock_nanosleep ( CLOCK_REALTIME, 0, &t, &t );
+		if ( clock_nanosleep ( CLOCK_REALTIME, 0, &t, &t ) )
+			printf ( "Interrupted sleep?\n" );
 
 	clock_gettime ( CLOCK_REALTIME, &t );
 	printf ( "System time: %d:%d\n", t.tv_sec, t.tv_nsec / 100000000 );

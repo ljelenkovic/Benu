@@ -92,10 +92,10 @@ typedef struct _arch_uart_t_
 
 	int     port;
 
-	uint8   inbuff[BUFFER_SIZE];
-	int     inf, inl, insz;
-	uint8   outbuff[BUFFER_SIZE];
-	int     outf, outl, outsz;
+	uint8   *inbuff;
+	int     inbufsz, inf, inl, insz;
+	uint8   *outbuff;
+	int     outbufsz, outf, outl, outsz;
 }
 arch_uart_t;
 

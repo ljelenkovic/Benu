@@ -1,16 +1,16 @@
 Comments on 'Coding style'
--------------------------
+--------------------------
 
-Primary objective of used coding style is code readability. For that spaces and
+Primary objective of used coding style is readability. For that spaces and
 tabulators are used. Tabulator length is 8 spaces, but is not replaced by
 spaces.
 
 Lines are broken at 80th column. Sometimes, less spaces are used to fit line
-within 80 columns. Variable and function names are not short. Instead their name
+within 80 columns. Names of variables and function are not short, instead their name
 should give basic description on their purpose. Little more description is
 placed before function code (in .c file).
 
-There is no enforced coding rule style: everything is formated for easy reading.
+There is no enforced coding rule style: everything is formatted for easy reading.
 Proposed style is best presented on examples.
 
 Clean code (using "strict" style) example:

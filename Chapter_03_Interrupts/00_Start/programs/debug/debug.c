@@ -37,7 +37,7 @@ int debug ()
 
 	ASSERT_ERRNO_AND_RETURN ( TRUE, EINVAL );
 
-	//ASSERT ( TRUE );
+	ASSERT ( TRUE );
 	//ASSERT ( FALSE );
 #endif
 	return 0;

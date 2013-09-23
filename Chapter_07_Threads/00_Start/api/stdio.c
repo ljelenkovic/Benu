@@ -164,21 +164,3 @@ void warn ( char *format, ... )
 
 	write ( _stderr, &cmd, size );
 }
-
-/*! Change standard input device */
-int change_stdin ( char *new_stdin )
-{
-	close ( _stdin );
-	_stdin = open ( new_stdin, O_RDONLY | CONSOLE_ASCII, 0 );
-
-	return EXIT_SUCCESS;
-}
-
-/*! Change standard output device */
-int change_stdout ( char *new_stdout )
-{
-	close ( _stdout );
-	_stdout = open ( new_stdout, O_WRONLY | CONSOLE_ASCII, 0 );
-
-	return EXIT_SUCCESS;
-}

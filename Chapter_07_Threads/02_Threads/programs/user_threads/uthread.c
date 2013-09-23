@@ -5,6 +5,7 @@
 #include "uthread.h"
 
 #include <malloc.h>
+#include <errno.h>
 
 static int next_id;
 static list_t active;
@@ -27,6 +28,7 @@ uthread_t *create_uthread ( void (func) (void *), void *param )
 
 	thread = malloc ( sizeof (uthread_t) );
 	thread->stack = malloc (DEFAULT_THREAD_STACK_SIZE);
+	ASSERT ( thread && thread->stack );
 
 	thread->id = next_id;
 
@@ -41,7 +43,7 @@ uthread_t *create_uthread ( void (func) (void *), void *param )
 
 void uthread_exit ()
 {
-	uthread_t *cur_thread, *new_thread, tmp;
+	uthread_t *cur_thread, *new_thread;
 
 	/* active thread is exiting */
 	cur_thread = list_remove ( &active, FIRST, NULL );
@@ -50,7 +52,6 @@ void uthread_exit ()
 	/* freeing it, but using it still - till the end of this function
 	   (parameters are on stack!) */
 
-	tmp = *cur_thread;
 	free ( cur_thread );
 
 	/* pick next ready thread */
@@ -58,7 +59,7 @@ void uthread_exit ()
 	/* make it active */
 	list_append ( &active, new_thread, &new_thread->list );
 	/* switch to it */
-	arch_switch_to_thread ( &tmp.context, &new_thread->context );
+	arch_switch_to_thread ( NULL, &new_thread->context );
 }
 
 void uthread_yield ()

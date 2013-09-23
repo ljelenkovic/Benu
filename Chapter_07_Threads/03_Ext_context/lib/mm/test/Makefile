@@ -1,5 +1,5 @@
 
-PLATFORM = i386
+PLATFORM ?= i386
 
 INCLUDES := ../../../include ../../../arch
 

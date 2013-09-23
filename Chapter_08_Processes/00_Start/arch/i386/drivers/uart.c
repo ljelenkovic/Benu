@@ -203,31 +203,13 @@ static void uart_interrupt_handler ( int irq_num, void *device )
 	/* TODO: do something with rcv, snd, brk ? */
 }
 
-/*! Read data from UART to software buffer */
-static void uart_read ( arch_uart_t *up )
-{
-	while ( inb ( up->port + LSR ) & LSR_DATA_READY )
-	{
-		up->inbuff[up->inl] = inb ( up->port + RBR );
-		INC_MOD ( up->inl, BUFFER_SIZE );
-
-		up->insz++;
-		if ( up->insz > BUFFER_SIZE )
-		{
-			/* overwrite oldest char in buffer */
-			up->insz--;
-			INC_MOD ( up->inf, BUFFER_SIZE );
-		}
-	}
-}
-
 /*! If there is data in software buffer send them to UART */
 static void uart_write ( arch_uart_t *up )
 {
 	while ( up->outsz > 0 && inb ( up->port + LSR ) & LSR_THR_EMPTY )
 	{
 		outb ( up->port + THR, up->outbuff[up->outf] );
-		INC_MOD ( up->outf, BUFFER_SIZE );
+		INC_MOD ( up->outf, up->outbufsz );
 		up->outsz--;
 	}
 }
@@ -272,17 +254,20 @@ static int uart_send ( void *data, size_t size, uint flags, device_t *dev )
 				return EXIT_FAILURE;
 		}
 	}
+	/*else {
+		send raw data;
+	}*/
 
 	/* first, copy to software buffer */
-	while ( size > 0 && up->outsz < BUFFER_SIZE )
+	while ( size > 0 && up->outsz < up->outbufsz )
 	{
 		if ( *d == 0 && flags == CONSOLE_PRINT )
+		{
+			size = 0;
 			break;
-
+		}
 		up->outbuff[up->outl] = *d++;
-
-		INC_MOD ( up->outl, BUFFER_SIZE );
-
+		INC_MOD ( up->outl, up->outbufsz );
 		up->outsz++;
 		size--;
 	}
@@ -291,6 +276,19 @@ static int uart_send ( void *data, size_t size, uint flags, device_t *dev )
 	uart_write ( up );
 
 	return size; /* 0 if all sent, otherwise not send part length */
+}
+
+/*! Read data from UART to software buffer */
+static void uart_read ( arch_uart_t *up )
+{
+	/* While UART is not empty and software buffer is not full */
+	while ( ( inb ( up->port + LSR ) & LSR_DATA_READY )
+		&& up->insz < up->inbufsz )
+	{
+		up->inbuff[up->inl] = inb ( up->port + RBR );
+		INC_MOD ( up->inl, up->inbufsz );
+		up->insz++;
+	}
 }
 
 /*! Read from UART (using software buffer) */
@@ -325,9 +323,7 @@ static int uart_recv ( void *data, size_t size, uint flags, device_t *dev )
 	while ( i < size && up->insz > 0 )
 	{
 		d[i] = up->inbuff[up->inf];
-
-		INC_MOD ( up->inf, BUFFER_SIZE );
-
+		INC_MOD ( up->inf, up->inbufsz );
 		up->insz--;
 		i++;
 	}
@@ -335,6 +331,9 @@ static int uart_recv ( void *data, size_t size, uint flags, device_t *dev )
 	return i; /* bytes read */
 }
 
+/*! uart0 device & parameters */
+static uint8 com1_inbuf[BUFFER_SIZE];
+static uint8 com1_outbuf[BUFFER_SIZE];
 
 /*! COM1 device & parameters */
 static arch_uart_t com1_params = (arch_uart_t)
@@ -342,8 +341,10 @@ static arch_uart_t com1_params = (arch_uart_t)
 	.uart_type = UNDEFINED,
 	.params = UART_DEFAULT_SETTING,
 	.port = COM1_BASE,
-	.inf = 0, .inl = 0, .insz = 0,
-	.outf = 0, .outl = 0, .outsz = 0
+	.inbuff = com1_inbuf,
+	.inbufsz=BUFFER_SIZE, .inf = 0, .inl = 0, .insz = 0,
+	.outbuff = com1_outbuf,
+	.outbufsz=BUFFER_SIZE, .outf = 0, .outl = 0, .outsz = 0
 };
 
 /*! uart as device_t */

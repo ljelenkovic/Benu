@@ -4,7 +4,7 @@
 #include <types/pthread.h>
 
 /*! POSIX thread interface */
-int pthread_create ( pthread_t *thread, const pthread_attr_t *attr,
+int pthread_create ( pthread_t *thread, pthread_attr_t *attr,
 		     void *(*start_routine) (void *), void *arg );
 void pthread_exit ( void *retval );
 int pthread_join ( pthread_t thread, void **retval );
@@ -16,10 +16,10 @@ int pthread_attr_destroy ( pthread_attr_t *attr );
 /*! Scheduling parameters */
 int pthread_attr_setschedpolicy ( pthread_attr_t *attr, int policy);
 int pthread_attr_setschedparam ( pthread_attr_t *attr,
-				 const struct sched_param *param );
+				 struct sched_param *param );
 
 int pthread_setschedparam ( pthread_t thread, int policy,
-			    const struct sched_param *param );
+			    struct sched_param *param );
 int pthread_getschedparam ( pthread_t thread, int *policy,
 			    struct sched_param *param );
 
@@ -29,7 +29,7 @@ int edf_wait ();
 int edf_exit ();
 
 /*! Create process */
-int posix_spawn ( pid_t *pid, const char *path, void *file_actions,
+int posix_spawn ( pid_t *pid, char *path, void *file_actions,
 		  void *attrp, char *argv[], char *envp[] );
 
 /*! Mutex */
@@ -52,7 +52,7 @@ int pthread_condattr_init ( pthread_condattr_t *attr );
 int pthread_condattr_destroy ( pthread_condattr_t *attr );
 int pthread_attr_setschedpolicy ( pthread_attr_t *attr, int policy );
 int pthread_attr_setschedparam ( pthread_attr_t *attr,
-				 const struct sched_param *param );
+				 struct sched_param *param );
 /*! Semaphore */
 int sem_init ( sem_t *sem, int pshared, int value );
 int sem_destroy ( sem_t *sem );

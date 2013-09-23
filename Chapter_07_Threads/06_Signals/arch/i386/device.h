@@ -4,7 +4,7 @@
 
 #include <types/io.h>
 
-/* Headers for all devices (headers that contain required constants!) */
+/* Include headers of devices with device specific flags and constants */
 
 /* keyboard special keys identifications */
 #include "drivers/i8042.h"

@@ -63,7 +63,7 @@ void arch_switch_to_thread ( context_t *from, context_t *to )
 /* switch from one thread to another with cleanup of first */
 void arch_switch_to_thread_with_cleanup ( void *from, context_t *to )
 {
-	extern uint8 k_stack[];
+	extern uint8 system_stack[];
 
 	asm volatile (
 	"movl	%0, %%eax	\n\t"	/* save from */
@@ -86,6 +86,6 @@ void arch_switch_to_thread_with_cleanup ( void *from, context_t *to )
 
 		:: "m" (from), 				/* %0 */
 		   "m" (to),				/* %1 */
-		   "i" (k_stack + KERNEL_STACK_SIZE)	/* %2 */
+		   "i" (system_stack + KERNEL_STACK_SIZE)	/* %2 */
 	);
 }

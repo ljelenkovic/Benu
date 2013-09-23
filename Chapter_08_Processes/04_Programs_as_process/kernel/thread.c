@@ -780,7 +780,7 @@ int kthread_info ()
 static void idle_thread ( void *param )
 {
 	while (1)
-		syscall ( SUSPEND, NULL );
+		user_mode_suspend();
 }
 
 /*! Change thread scheduling parameters ------------------------------------- */

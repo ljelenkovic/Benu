@@ -60,7 +60,7 @@ static inline uint16 inw ( uint16 port )
  * \param data	String to be sent
  * \param size	Size of Data
  */
-static inline void outsw ( uint16 port, const void *data, uint16 size )
+static inline void outsw ( uint16 port, void *data, uint16 size )
 {
 	asm volatile (	"cld\n\t"
 			"rep outsw\n\t"

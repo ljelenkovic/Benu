@@ -58,8 +58,6 @@ enum {
 	SIGQUEUE,
 	SIGWAITINFO,
 
-	SUSPEND,
-
 	SYSFUNCS
 };
 

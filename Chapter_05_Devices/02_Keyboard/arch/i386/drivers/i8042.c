@@ -36,15 +36,15 @@ static int i8042_insert_keystroke ( int c );
 
 
 /*! circular buffer for last few keystrokes */
-static int32 keyb_buffer[KEYB_BUFF_SIZE];
-static int buf_first;
-static int buf_last;
-static int buf_size;
+static volatile int32 keyb_buffer[KEYB_BUFF_SIZE];
+static volatile int buf_first;
+static volatile int buf_last;
+static volatile int buf_size;
 
 /*! which special keys (Shift, Ctrl, Alt) are pressed */
-static int32 spec_keys_down;
+static volatile int32 spec_keys_down;
 
-static uint32 keyb_flags; /*! echo any key pressed? */
+static volatile uint32 keyb_flags; /*! echo any key pressed? */
 
 static void (*kernel_interrupt_callback_function)(void) = NULL;
 

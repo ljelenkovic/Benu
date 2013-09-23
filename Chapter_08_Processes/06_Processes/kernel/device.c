@@ -6,6 +6,7 @@
 #include <kernel/errno.h> /* shares errno with arch layer */
 #include "memory.h"
 #include <arch/interrupt.h>
+#include <arch/processor.h>
 #include <lib/string.h>
 
 static list_t devices;
@@ -354,8 +355,8 @@ static int read_write ( void *p, int op )
  */
 int sys__power_off ( void *p )
 {
-	//power off using ACPI (from arch/*/drivers/acpi_power_off.c)
-	acpiPowerOff();
+	/* power off is supported */
+	arch_power_off();
 
 	kprintf ( "\nPower off with ACPI failed!\n" );
 

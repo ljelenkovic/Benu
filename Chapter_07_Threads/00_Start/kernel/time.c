@@ -305,17 +305,18 @@ static void ktimer_schedule ()
 
 			/* potential problem: if more timers activate at same
 			 * time, first that activate might cause other timers to
-			 * wait very LONG, since activation might require time
-			 * resume its execution before other timers are
-			 * processed!
+			 * wait very LONG: in handler of that alarm we can
+			 * enable interrupts and busy wait for some time to pass
 			 * fix: set alarm right here for next timer in list
 			 */
-			if ( (next = list_get ( &ktimers, FIRST )) )
+			next = list_get ( &ktimers, FIRST );
+			if ( next != NULL )
 			{
 				ref_time = next->itimer.it_value;
 				time_sub ( &ref_time, &time );
 				arch_timer_set ( &ref_time, ktimer_schedule );
 			}
+			/* evade this behaviour! */
 
 			ktimer_process_event ( &first->evp );
 

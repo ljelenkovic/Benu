@@ -314,12 +314,14 @@ static void ktimer_schedule ()
 			 * processed!
 			 * fix: set alarm right here for next timer in list
 			 */
-			if ( (next = list_get ( &ktimers, FIRST )) )
+			next = list_get ( &ktimers, FIRST );
+			if ( next != NULL )
 			{
 				ref_time = next->itimer.it_value;
 				time_sub ( &ref_time, &time );
 				arch_timer_set ( &ref_time, ktimer_schedule );
 			}
+			/* evade this behaviour! */
 
 			if ( first->owner == NULL )
 			{

@@ -19,8 +19,8 @@
 
 #ifdef ARCH_MUL_DIV_32
 #define mul_div_32	arch_mul_div_32
-#else
-#define REQUIRE_MUL_DIV_32
+//#else
+//#define REQUIRE_MUL_DIV_32
 #endif
 
 /*! use generic implementations for unimplemented functions in arch layer */
@@ -30,7 +30,7 @@
 
 #define REQUIRE_BITS_GENERIC
 
-#include <lib/bits_generic.h>
+#include <types/bits_generic.h>
 
 #endif
 

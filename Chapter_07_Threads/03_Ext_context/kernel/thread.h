@@ -74,19 +74,11 @@ extern inline void kthread_set_private_param (kthread_t *kthread, void *qdata);
 extern inline void *kthread_get_private_param ( kthread_t *kthread );
 
 /*! errno and return value */
-extern inline void kthread_set_errno1 ( kthread_t *kthread, int error_number );
+extern inline void kthread_set_errno ( kthread_t *kthread, int error_number );
 extern inline int kthread_get_errno ( kthread_t *kthread );
 extern inline int *kthread_get_errno_ptr ( kthread_t *kthread );
 extern inline void kthread_set_syscall_retval (kthread_t *kthread, int ret_val);
 extern inline int kthread_get_syscall_retval (kthread_t *kthread);
-#if 0 /* debug set_errno (from where it is called from) */
-#define kthread_set_errno(kthread,errno)			\
-do {	LOG ( DEBUG, "set errno %x %d", kthread, errno );	\
-	kthread_set_errno1 ( kthread, errno );			\
-} while(0)
-#else
-#define kthread_set_errno(kthread,errno)  kthread_set_errno1(kthread,errno)
-#endif
 
 /*! display active & ready threads info on console */
 int kthread_info ();

@@ -682,7 +682,7 @@ inline void *kthread_get_private_param ( kthread_t *kthread )
 
 
 /*! errno and return value */
-inline void kthread_set_errno1 ( kthread_t *kthread, int error_number )
+inline void kthread_set_errno ( kthread_t *kthread, int error_number )
 {
 	if ( !kthread )
 		kthread = active_thread;

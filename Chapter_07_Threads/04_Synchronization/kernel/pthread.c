@@ -276,10 +276,8 @@ int sys__pthread_mutex_destroy ( pthread_mutex_t *mutex )
 	kmutex->ref_cnt--;
 
 	/* additional cleanup here (e.g. if mutex is shared leave it) */
-	if ( kmutex->ref_cnt && ( kmutex->flags & PTHREAD_PROCESS_SHARED ) )
-		kobj->kobject = NULL; /* leave kpthread_mutex_t object */
-	else
-		k_free_id ( kmutex->id );
+	if ( kmutex->ref_cnt )
+		SYS_EXIT ( EBUSY, EXIT_FAILURE );
 
 	kfree_kobject ( kobj );
 
@@ -448,10 +446,8 @@ int sys__pthread_cond_destroy ( pthread_cond_t *cond )
 	kcond->ref_cnt--;
 
 	/* additional cleanup here (e.g. if cond.var. is shared leave it) */
-	if ( kcond->ref_cnt && ( kcond->flags & PTHREAD_PROCESS_SHARED ) )
-		kobj->kobject = NULL;
-	else
-		k_free_id ( kcond->id );
+	if ( kcond->ref_cnt )
+		SYS_EXIT ( EBUSY, EXIT_FAILURE );
 
 	kfree_kobject ( kobj );
 
@@ -648,10 +644,8 @@ int sys__sem_destroy ( sem_t *sem )
 	ksem->ref_cnt--;
 
 	/* additional cleanup here (e.g. if semaphore is shared leave it) */
-	if ( ksem->ref_cnt && ( ksem->flags & PTHREAD_PROCESS_SHARED ) )
-		kobj->kobject = NULL; /* leave kpthread_mutex_t object */
-	else
-		k_free_id ( ksem->id );
+	if ( ksem->ref_cnt )
+		SYS_EXIT ( EBUSY, EXIT_FAILURE );
 
 	kfree_kobject ( kobj );
 

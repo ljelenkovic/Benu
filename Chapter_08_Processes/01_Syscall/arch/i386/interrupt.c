@@ -3,7 +3,6 @@
 #define _ARCH_INTERRUPTS_C_
 #include "interrupt.h"
 
-#include "io.h"
 #include <arch/processor.h>
 #include <arch/context.h>
 #include <kernel/errno.h>
@@ -13,9 +12,6 @@
 /*! Interrupt controller device */
 extern arch_ic_t IC_DEV;
 static arch_ic_t *icdev = &IC_DEV;
-
-void (*arch_irq_enable_func) ( unsigned int );
-void (*arch_irq_disable_func) ( unsigned int );
 
 /*! interrupt handlers */
 static list_t ihandlers[INTERRUPTS];
@@ -42,9 +38,6 @@ void arch_init_interrupts ()
 
 	icdev->init ();
 
-	arch_irq_enable_func = icdev->enable_irq;
-	arch_irq_disable_func = icdev->disable_irq;
-
 	for ( i = 0; i < INTERRUPTS; i++ )
 		list_init ( &ihandlers[i] );
 }
@@ -55,11 +48,11 @@ void arch_init_interrupts ()
  */
 void arch_irq_enable ( unsigned int irq )
 {
-	arch_irq_enable_func ( irq );
+	icdev->enable_irq ( irq );
 }
 void arch_irq_disable ( unsigned int irq )
 {
-	arch_irq_disable_func ( irq );
+	icdev->disable_irq ( irq );
 }
 
 /*! Register handler function for particular interrupt number */

@@ -55,7 +55,7 @@ int timer ()
 	timer_create ( CLOCK_REALTIME, &evp, &timer2 );
 	timer_settime ( &timer2, 0, &t2, NULL );
 
-	t.tv_sec = 25;
+	t.tv_sec = 26;
 	t.tv_nsec = 0;
 
 	while ( TIME_IS_SET (&t) )

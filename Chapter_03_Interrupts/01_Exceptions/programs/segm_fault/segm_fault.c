@@ -22,6 +22,7 @@ int segm_fault ()
 	printf ( "\nInterrupt test >>>\n" );
 
 	arch_register_interrupt_handler ( SOFTWARE_INTERRUPT, test1 );
+	arch_register_interrupt_handler ( SOFTWARE_INTERRUPT, test1 );
 
 	raise_interrupt ( SOFTWARE_INTERRUPT );
 

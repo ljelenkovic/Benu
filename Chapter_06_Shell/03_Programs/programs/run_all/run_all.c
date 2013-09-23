@@ -4,7 +4,6 @@
 #include <api/prog_info.h>
 #include <lib/string.h>
 #include <time.h>
-#include <kernel/memory.h>
 
 typedef struct _cmd_t_
 {
