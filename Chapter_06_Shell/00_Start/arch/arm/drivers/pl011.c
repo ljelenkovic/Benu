@@ -12,7 +12,7 @@
 
 static int  uart_init (uint flags, void *params, device_t *dev );
 static int  uart_destroy ( uint flags, void *params, device_t *dev );
-static void uart_interrupt_handler ( int irq_num, void *dev );
+static int  uart_interrupt_handler ( int irq_num, void *dev );
 static void uart_write ( arch_uart_t *up );
 static int  uart_send ( void *data, size_t size, uint flags, device_t *dev );
 static void uart_read ( arch_uart_t *up );
@@ -65,7 +65,7 @@ static int uart_destroy ( uint flags, void *params, device_t *dev )
 }
 
 /*! Interrupt handler for UART device */
-static void uart_interrupt_handler ( int irq_num, void *dev )
+static int uart_interrupt_handler ( int irq_num, void *dev )
 {
 	volatile unsigned int *uart_icr;
 	device_t *uart = dev;
@@ -85,6 +85,8 @@ static void uart_interrupt_handler ( int irq_num, void *dev )
 	/* "synchronize" UART with software buffer */
 	uart_write ( uart->params );
 	uart_read ( uart->params );
+
+	return 0;
 }
 
 

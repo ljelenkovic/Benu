@@ -6,7 +6,7 @@
 
 /*! Example error numbers */
 enum {
-_EFIRST_ = 0,
+ERESERVED = 1,
 
 /* names from <errno.h> */
 E2BIG		/* Argument list too long */,

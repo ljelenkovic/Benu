@@ -16,7 +16,7 @@ struct _device_t_
 	int     irq_num;
 		/* which IRQ is using? (if any, -1 otherwise) */
 
-	void  (*irq_handler) ( int irq_num, void *device );
+	int   (*irq_handler) ( int irq_num, void *device );
 		/* interrupt handler function (test if device is interrupt
 		 * source and handle it if it is) */
 

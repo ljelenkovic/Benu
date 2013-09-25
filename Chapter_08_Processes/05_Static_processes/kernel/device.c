@@ -11,6 +11,8 @@
 
 static list_t devices;
 
+static void k_device_interrupt_handler ( unsigned int inum, void *device );
+
 /*! Initialize initial device as console for system boot messages */
 void kdevice_set_initial_stdout ()
 {
@@ -82,8 +84,8 @@ int k_device_init ( kdevice_t *kdev, int flags, void *params, void *callback )
 	if ( retval == EXIT_SUCCESS && kdev->dev.irq_handler )
 	{
 		(void) arch_register_interrupt_handler ( kdev->dev.irq_num,
-							 kdev->dev.irq_handler,
-							 &kdev->dev );
+							 k_device_interrupt_handler,
+							 kdev );
 		arch_irq_enable ( kdev->dev.irq_num );
 	}
 
@@ -187,6 +189,21 @@ void k_device_close ( kdevice_t *kdev )
 		kdev->flags &= ~DEV_OPEN;
 
 	/* FIXME: restore flags; use list kdev->descriptors? */
+}
+
+/* common device interrupt handler wrapper */
+static void k_device_interrupt_handler ( unsigned int inum, void *device )
+{
+	kdevice_t *kdev = device;
+	int status = ERESERVED;
+
+	ASSERT ( inum && device && kdev->dev.irq_num == inum );
+	/* TODO: check if kdev is in "devices" list */
+
+	if ( kdev->dev.irq_handler )
+		status = kdev->dev.irq_handler ( inum, &kdev->dev );
+
+	/* handle return status if required */
 }
 
 /* /dev/null emulation */

@@ -26,7 +26,7 @@ static int i8042_init( uint flags, void *kernel_callback_function, device_t *d);
 static int i8042_destroy ( uint flags, void *params, device_t *d );
 static int i8042_send ( void *data, size_t size, uint flags, device_t *d );
 static int i8042_get ( void *data, size_t size, uint flags, device_t *d );
-static void i8042_interrupt_handler ( int irq_num, void *device );
+static int i8042_interrupt_handler ( int irq_num, void *device );
 
 static void i8042_send_cmd ( int cmd );
 static void i8042_set_leds ();
@@ -118,7 +118,7 @@ static int i8042_get ( void *data, size_t size, uint flags, device_t *d )
 }
 
 /*! Keyboard interrupt handler - read new keystrokes and process them */
-static void i8042_interrupt_handler ( int irq_num, void *device )
+static int i8042_interrupt_handler ( int irq_num, void *device )
 {
 	int32 c;
 	int new_keystrokes = FALSE;
@@ -138,6 +138,8 @@ static void i8042_interrupt_handler ( int irq_num, void *device )
 
 	if ( new_keystrokes && kernel_interrupt_callback_function )
 		kernel_interrupt_callback_function ();
+
+	return new_keystrokes;
 }
 
 /*! Insert keystroke into keyboard software buffer */

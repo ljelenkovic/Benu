@@ -146,7 +146,7 @@ int uart_destroy ( uint flags, void *params, device_t *dev )
 }
 
 /*! Interrupt handler for UART device */
-static void uart_interrupt_handler ( int irq_num, void *device )
+static int uart_interrupt_handler ( int irq_num, void *device )
 {
 	device_t *dev;
 	arch_uart_t *up;
@@ -162,7 +162,7 @@ static void uart_interrupt_handler ( int irq_num, void *device )
 		iir = inb ( up->port + IIR );
 
 		if ( !( iir & IIR_INT_PENDING ) )
-			return; /* no interrupt pending from this device */
+			return 0; /* no interrupt pending from this device */
 
 		if ( iir & IIR_TIMEOUT )
 			brk = TRUE;
@@ -201,6 +201,7 @@ static void uart_interrupt_handler ( int irq_num, void *device )
 	}
 
 	/* TODO: do something with rcv, snd, brk ? */
+	return 0;
 }
 
 /*! If there is data in software buffer send them to UART */
