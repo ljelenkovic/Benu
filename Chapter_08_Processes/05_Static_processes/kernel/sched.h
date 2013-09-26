@@ -125,14 +125,14 @@ struct _ksched_t_
 	     /* initialize scheduler */
 
 	int  (*schedule) ( ksched_t *ksched );
-	     /* initialize scheduler */
+	     /* schedule - pick next active thread */
 
 	int  (*thread_add) ( ksched_t *ksched, kthread_t *kthread,
 			     int sched_priority, sched_supp_t *sched_param );
 	/* actions when thread is created or when it switch to this scheduler */
 
 	int  (*thread_remove) ( ksched_t *ksched, kthread_t *kthread );
-	/* actions when thread is created or when it switch to this scheduler */
+	/* actions when thread is removed from this scheduler */
 
 	int  (*thread_activate) ( ksched_t *ksched, kthread_t *kthread );
 	     /* actions when thread is to become active */
