@@ -22,11 +22,4 @@ do {					\
 	asm volatile ( "b .\n\t" );	\
 } while (0)
 
-#define arch_suspend()			asm ("" : : : "memory") /* not supp. */
-
-#define arch_raise_interrupt(p)		asm volatile (	"svc %0\n\t" ::	\
-							"i" (p):"memory")
-
-#define arch_memory_barrier()		asm ("" : : : "memory")
-
 #define arch_power_off()		arch_halt()
