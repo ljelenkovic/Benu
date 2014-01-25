@@ -1,9 +1,9 @@
 
-PLATFORM ?= i386
+ARCH ?= i386
 
 INCLUDES := ../../../include ../../../arch
 
-CMACROS := PLATFORM="\"$(PLATFORM)\"" DEBUG MEM_TEST
+CMACROS := ARCH="\"$(ARCH)\"" DEBUG MEM_TEST
 
 CC = gcc
 

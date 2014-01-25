@@ -194,7 +194,7 @@ void k_device_close ( kdevice_t *kdev )
 static void k_device_interrupt_handler ( unsigned int inum, void *device )
 {
 	kdevice_t *kdev = device;
-	int status = ERESERVED;
+	int status = EXIT_SUCCESS;
 
 	ASSERT ( inum && device && kdev->dev.irq_num == inum );
 	/* TODO: check if kdev is in "devices" list */
@@ -202,7 +202,7 @@ static void k_device_interrupt_handler ( unsigned int inum, void *device )
 	if ( kdev->dev.irq_handler )
 		status = kdev->dev.irq_handler ( inum, &kdev->dev );
 
-	/* handle return status if required */
+	if ( status ) {} /* handle return status if required */
 }
 
 /* /dev/null emulation */

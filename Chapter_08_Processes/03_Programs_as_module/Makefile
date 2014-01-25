@@ -4,9 +4,9 @@
 # valid command line defines: debug=yes, optimize=yes
 
 #default target
-PLATFORM ?= i386
+ARCH ?= i386
 
-CONFIG_INI = arch/$(PLATFORM)/config.ini
+CONFIG_INI = arch/$(ARCH)/config.ini
 THIS_MAKEFILE = Makefile
 CONFIG_FILES = $(CONFIG_INI) $(THIS_MAKEFILE)
 
@@ -19,7 +19,7 @@ CDIMAGE = $(BUILDDIR)/$(PROJECT).iso
 
 CMACROS += OS_NAME="\"$(OS_NAME)\"" PROJECT="\"$(PROJECT)\"" 		\
 	   NAME_MAJOR="\"$(NAME_MAJOR)\"" NAME_MINOR="\"$(NAME_MINOR)\""\
-	   PLATFORM="\"$(PLATFORM)\"" AUTHOR="\"$(AUTHOR)\"" 		\
+	   ARCH="\"$(ARCH)\"" AUTHOR="\"$(AUTHOR)\"" 		\
 	   VERSION="\"$(VERSION)\""
 
 
@@ -68,7 +68,7 @@ all: $(CDIMAGE)
 prepare_src:
 	@-if [ ! -d $(BUILDDIR)/ARCH ]; then				\
 		mkdir -p $(BUILDDIR);					\
-		ln -s ../arch/$(PLATFORM) $(BUILDDIR)/ARCH ;		\
+		ln -s ../arch/$(ARCH) $(BUILDDIR)/ARCH ;		\
 	fi;
 
 

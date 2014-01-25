@@ -11,7 +11,7 @@
 #include <api/prog_info.h>
 
 char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "
-			"Version: " VERSION " (" PLATFORM ")";
+			"Version: " VERSION " (" ARCH ")";
 
 static void run_all ( char *argv[] );
 

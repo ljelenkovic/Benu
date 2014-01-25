@@ -10,7 +10,7 @@
 #include <types/io.h>
 
 char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "
-			"Version: " VERSION " (" PLATFORM ")";
+			"Version: " VERSION " (" ARCH ")";
 
 /*!
  * First kernel function (after boot loader loads it to memory)

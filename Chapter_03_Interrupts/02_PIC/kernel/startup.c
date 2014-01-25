@@ -13,7 +13,7 @@
 uint8 system_stack [ STACK_SIZE ];
 
 char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "
-			"Version: " VERSION " (" PLATFORM ")";
+			"Version: " VERSION " (" ARCH ")";
 
 static void k_memory_fault ();
 

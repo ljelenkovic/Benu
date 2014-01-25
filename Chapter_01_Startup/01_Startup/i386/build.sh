@@ -8,8 +8,8 @@ PROJECT=hello.elf
 #Compile if required
 if [ $# -eq 0 ] || ( [ $1 = "qemu" ] && [ ! -e $PROJECT ] ); then
 
-CFLAGS="-O3 -m32 -Wall -ffreestanding -nostdlib -fno-stack-protector"
-LDFLAGS="-O3 -melf_i386 -e arch_start -Ttext=0x100000"
+CFLAGS="-m32 -Wall -ffreestanding -nostdlib -fno-stack-protector"
+LDFLAGS="-melf_i386 -e arch_start -Ttext=0x100000"
 
 #compile
 gcc -c startup.S $CFLAGS

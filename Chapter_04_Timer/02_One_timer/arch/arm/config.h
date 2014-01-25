@@ -8,9 +8,9 @@ enum {
 };
 
 /* choose platform */
-#define ARM_PLATFORM	PB926EJS
+#define ARM_SYSTEM	PB926EJS
 
-#if ( ARM_PLATFORM == PB926EJS )
+#if ( ARM_SYSTEM == PB926EJS )
 
 /*! Platform: Versatile PB926EJ-S tested with QEMU */
 
