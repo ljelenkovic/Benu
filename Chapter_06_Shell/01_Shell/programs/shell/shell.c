@@ -22,14 +22,12 @@ cmd_t;
 static int help ();
 static int clear ();
 static int sysinfo ();
-static int turn_off ();
 
 static cmd_t sh_cmd[] =
 {
 	{ help, "help", "help - list available commands" },
 	{ clear, "clear", "clear - clear screen" },
 	{ sysinfo, "sysinfo", "system information; usage: sysinfo [options]" },
-	{ turn_off, "poweroff", "poweroff - use ACPI to power off" },
 	{ NULL, "" }
 };
 
@@ -39,11 +37,12 @@ int shell ()
 {
 	char cmd[MAXCMDLEN + 1];
 	int i, key;
-	timespec_t t;
-	int argnum;
-	char *argval[MAXARGS + 1];
+	timespec_t t __attribute__ ((unused));
+	struct pollfd fds = { 0 /* stdin */, POLLRDNORM, 0 };
 
+	//printf ( "\x1b[37m" ); /* test escape sequence: white text */
 	printf ( "\n*** Simple shell interpreter ***\n\n" );
+	//printf ( "\x1b[32m" ); /* test escape sequence: green text */
 	help ();
 
 	t.tv_sec = 0;
@@ -60,13 +59,15 @@ int shell ()
 		/* get command - get chars until new line is received */
 		while ( i < MAXCMDLEN )
 		{
-			key = get_char ();
-
-			if ( !key )
+			if ( !poll ( &fds, 1, 0 ) ) /* is anything pressed? */
 			{
 				nanosleep ( &t, NULL );
 				continue;
 			}
+
+			key = getchar ();
+			if ( !key ) /* not ascii? */
+				continue;
 
 			if ( key == '\n' || key == '\r')
 			{
@@ -95,27 +96,22 @@ int shell ()
 		printf ( "\n" );
 
 		/* parse command line */
-		argnum = 0;
-		for(i = 0; i < MAXCMDLEN && cmd[i]!=0 && argnum < MAXARGS; i++)
+		for ( i = 0; i < MAXCMDLEN; i++ )
 		{
-			if ( cmd[i] == ' ' || cmd[i] == '\t')
-				continue;
+			if ( cmd[i] == 0 || cmd[i] == ' ' || cmd[i] == '\t'
+				|| cmd[i] == '\n' || cmd[i] == '\r'
+			)
+				break;
 
-			argval[argnum++] = &cmd[i];
-			while ( cmd[i] && cmd[i] != ' ' && cmd[i] != '\t'
-				&& i < MAXCMDLEN )
-				i++;
-
-			cmd[i] = 0;
 		}
-		argval[argnum] = NULL;
+		cmd[i] = 0;
 
 		/* match command to shell command */
 		for ( i = 0; sh_cmd[i].func != NULL; i++ )
 		{
-			if ( strcmp ( argval[0], sh_cmd[i].name ) == 0 )
+			if ( strcmp ( cmd, sh_cmd[i].name ) == 0 )
 			{
-				if ( sh_cmd[i].func ( argval ) )
+				if ( sh_cmd[i].func () )
 					printf ( "\nProgram returned error!\n" );
 
 				goto new_cmd;
@@ -126,18 +122,18 @@ int shell ()
 		/* match command to program */
 		for ( i = 0; prog[i].func != NULL; i++ )
 		{
-			if ( strcmp ( argval[0], prog[i].name ) == 0 )
+			if ( strcmp ( cmd, prog[i].name ) == 0 )
 			{
 
-				if ( prog[i].func ( argval ) )
+				if ( prog[i].func () )
 					printf ( "Program returned error!\n" );
 
 				goto new_cmd;
 			}
 		}
 
-		if ( strcmp ( argval[0], "quit" ) == 0 ||
-			strcmp ( argval[0], "exit" ) == 0 )
+		if ( strcmp ( cmd, "quit" ) == 0 ||
+			strcmp ( cmd, "exit" ) == 0 )
 			break;
 
 		/* not program kernel or shell knows about it - report error! */
@@ -168,7 +164,9 @@ static int help ()
 
 static int clear ()
 {
-	return clear_screen ();
+	printf ( "\x1b[2J" );
+
+	return 0;
 }
 
 static int sysinfo ()
@@ -180,12 +178,4 @@ static int sysinfo ()
 	printf ( "%s\n", info );
 
 	return 0;
-}
-
-static int turn_off ()
-{
-	printf ( "Powering off\n\n" );
-	power_off ();
-
-	return -1;
 }

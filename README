@@ -6,20 +6,28 @@ Operating System Increments for Education and Research
 
 Simple operating system for demonstration only (academic).
 Build through several steps, each bringing something new.
-System is "work in progress", improved/extended with (almost) every year.
+System is "work in progress", improved/extended (almost) every year.
+Benu goal is to teach you OS, and to inspire you to create your own OS!
 
 Name "Benu", besides acronym, represents an Egyptian bird ...
 
-Compilers used:
+Tools required for building:
 * for i386 - GNU gcc, GNU ld (GNU Binutils)
-* for arm - Sourcery CodeBench Lite Edition for ARM EABI
+
+* for ARM - package for Ubuntu: gcc-arm-none-eabi
+          - if using Sourcery CodeBench Lite Edition for ARM EABI:
+            add -lm to LDFLAGS (Chapter_*/*/arch/arm/config.ini)
+
 Tested in QEMU ('qemu-system' package on ubuntu)
 
 
 Version history (by academic year):
 ===================================
-* 2013/2014 (candidate): https://github.com/l30nard0/benu tag v0.3
-  - added support for arm platform
+* 2014/2015: https://github.com/l30nard0/benu tag v0.5
+  - "cosmetic" changes, upgrades & fixes
+
+* 2013/2014: https://github.com/l30nard0/benu tag v0.4
+  - added support for ARM platform
   - tested only with Versatile PB926EJS on QEMU
   - upgrades & fixes
 
@@ -48,7 +56,7 @@ Full description (in Croatian) available in textbook at:
 IMPORTANT!
 ==========
 If running created system (built from Benu) in emulator other than QEMU, set
-standard input and output to vga_text mode -- in conf/config.ini set:
+standard input and output to vga_text mode -- in i386/config.ini set:
 K_INITIAL_STDOUT = vga_text_dev
 K_STDOUT = VGA_TXT
 U_STDIN = i8042
@@ -58,13 +66,53 @@ U_STDERR = VGA_TXT
 (Buggy serial port implementation; works on QEMU but not with other emulators)
 
 
-Please report any bugs (and other problems) on site or via email.
+Please report any bugs (and other problems) on site (github) or via email.
 Contact address: leonardo@zemris.fer.hr
 
 
 DISCLAIMER
 ==========
-Presented system has (probably) *many* bugs! Many concepts might not be
-adequate or good as might be (as are in some "real systems").
-*Please* do not use it for any other purpose other than education.
-It’s not tested near enough to be used for anything more.
+Presented system has (probably) *many* bugs! (What is an OS without bugs? :) )
+Many concepts might not be adequate or good as might be (as are in some
+"real systems").
+*Please* do not use it for any other purpose other than experimentation or
+education. It’s not tested near enough to be used for anything more.
+
+
+Using "Sourcery CodeBench Lite Edition for ARM EABI"
+=====================================================
+Some changes in arch/*/config.ini are required.
+In arch/arm/config.ini, change part from:
+
+# Compiling and linking: common parameters
+
+to:
+
+LDFLAGS += -L$(LIB1)
+
+with:
+
+# Compiling and linking: common parameters
+#------------------------------------------------------------------------------
+LINK = arm-none-eabi-ld
+LDSCRIPT = $(BUILDDIR)/ARCH/boot/ldscript.ld
+LDFLAGS = -marmelf -lgcc -lm
+#------------------------------------------------------------------------------
+# set paths to libraries when using Sourcery_CodeBench_Lite_for_ARM_EABI
+# e.g. if tools are in /opt/Sourcery_CodeBench_Lite_for_ARM_EABI/:
+# LIB1 := /opt/Sourcery_CodeBench_Lite_for_ARM_EABI/lib/gcc/arm-none-eabi/4.7.3/
+# LIB2 := /opt/Sourcery_CodeBench_Lite_for_ARM_EABI/arm-none-eabi/lib
+LIB1 :=
+LIB2 :=
+ifeq ($(strip $(LIB1)),)
+# try to find paths manually with this simple guesses
+TOOLPATH := $(shell command -v arm-none-eabi-gcc;)
+ifeq ($(strip $(TOOLPATH)),)
+$(error "Can't find: arm-none-eabi-gcc")
+endif
+DIR := $(shell dirname "$(shell dirname "$(TOOLPATH)")")
+LIB1 := $(DIR)/arm-none-eabi/lib
+LIB2 := $(DIR)/lib/gcc/arm-none-eabi/
+LIB2 := $(LIB2)$(shell ls "$(LIB2)")
+endif
+LDFLAGS += -L$(LIB1) -L$(LIB2)

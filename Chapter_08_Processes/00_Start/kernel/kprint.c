@@ -11,13 +11,15 @@ void *k_stdout; /* initialized in startup.c */
 /*! Formated output to console (lightweight version of 'printf') */
 int kprintf ( char *format, ... )
 {
-	console_cmd_t cmd;
 	size_t size;
+	char buffer[CONSOLE_MAXLEN];
 
-	cmd.cmd = CONSOLE_PRINT;
-	cmd.cd.print.attr = CONSOLE_KERNEL;
+	k_device_send ( "\x1b[31m", 6, 0, k_stdout ); /* red color for text */
 
-	size = vssprintf ( &cmd.cd.print.text[0], CONSOLE_MAXLEN, &format );
+	size = vssprintf ( buffer, CONSOLE_MAXLEN, &format );
+	k_device_send ( buffer, size, 0, k_stdout );
 
-	return k_device_send ( &cmd, size, 0, k_stdout );
+	k_device_send ( "\x1b[39m", 6, 0, k_stdout ); /* default color for text */
+
+	return size;
 }

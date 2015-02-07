@@ -35,7 +35,6 @@ int sys__pthread_create ( void *p )
 	uint flags = 0;
 	int sched_policy = SCHED_FIFO;
 	int sched_priority = THREAD_DEF_PRIO;
-	sched_supp_t *sched_supp = NULL;
 	void *stackaddr = NULL;
 	size_t stacksize = 0;
 
@@ -52,7 +51,6 @@ int sys__pthread_create ( void *p )
 			flags = attr->flags;
 			sched_policy = attr->sched_policy;
 			sched_priority = attr->sched_params.sched_priority;
-			sched_supp = &attr->sched_params.supp;
 			stackaddr = attr->stackaddr;
 			stacksize = attr->stacksize;
 
@@ -71,7 +69,7 @@ int sys__pthread_create ( void *p )
 	}
 
 	kthread = kthread_create ( start_routine, arg, flags,
-				   sched_policy, sched_priority, sched_supp,
+				   sched_policy, sched_priority,
 				   stackaddr, stacksize,
 				   kthread_get_process(NULL)
  				 );
@@ -391,7 +389,7 @@ static int mutex_lock ( kpthread_mutex_t *kmutex, kthread_t *kthread )
 		}
 
 		kthread_set_errno ( kthread, EXIT_SUCCESS );
-		kthread_enqueue ( kthread, &kmutex->queue );
+		kthread_enqueue ( kthread, &kmutex->queue, 0, NULL, NULL );
 
 		return 1;
 	}
@@ -569,7 +567,7 @@ int sys__pthread_cond_wait ( void *p )
 	SET_ERRNO ( EXIT_SUCCESS );
 
 	/* move thread in conditional variable queue */
-	kthread_enqueue ( NULL, &kcond->queue );
+	kthread_enqueue ( NULL, &kcond->queue, 0, NULL, NULL );
 
 	/* save reference to mutex object */
 	kthread_set_private_param ( NULL, kobj_mutex );
@@ -651,7 +649,7 @@ static int cond_release ( void *p, int release_all )
 			kobj_mutex = kthread_get_private_param ( kthread );
 			kmutex = kobj_mutex->kobject;
 
-			kthread_enqueue ( kthread, &kmutex->queue );
+			kthread_enqueue(kthread, &kmutex->queue, 0, NULL, NULL);
 		}
 	}
 
@@ -792,7 +790,7 @@ int sys__sem_wait ( void *p )
 		ksem->last_lock = kthread;
 	}
 	else {
-		kthread_enqueue ( kthread, &ksem->queue );
+		kthread_enqueue ( kthread, &ksem->queue, 1, NULL, NULL );
 		kthreads_schedule ();
 	}
 
@@ -1089,7 +1087,7 @@ static int kmq_send ( void *p, kthread_t *sender )
 			return EAGAIN;
 
 		/* block thread */
-		kthread_enqueue ( sender, &kq_queue->send_q );
+		kthread_enqueue ( sender, &kq_queue->send_q, 1, NULL, NULL );
 		kthreads_schedule ();
 
 		return EAGAIN;
@@ -1214,7 +1212,7 @@ static int kmq_receive ( void *p, kthread_t *receiver )
 			return -EAGAIN;
 
 		/* block thread */
-		kthread_enqueue ( receiver, &kq_queue->recv_q );
+		kthread_enqueue ( receiver, &kq_queue->recv_q, 1, NULL, NULL );
 		kthreads_schedule ();
 
 		return -EAGAIN;

@@ -44,9 +44,6 @@ void k_memory_info ();
 /*! Program, loaded as module */
 struct _kprog_t_
 {
-	char	      *prog_name;
-		      /* point to multiboot module name */
-
 	prog_info_t  *pi;
 	              /* defined as header of program */
 
@@ -78,6 +75,7 @@ struct _kobject_t_
 
 id_t k_new_id ();
 void k_free_id ( id_t id );
+int k_check_id ( id_t id );
 
 void k_memory_fault (); /* memory fault handler */
 

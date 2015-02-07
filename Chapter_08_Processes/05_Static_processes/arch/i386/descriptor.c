@@ -35,9 +35,10 @@ static void GDT_init ()
 	GDTR_t gdtr;
 
 	/* initial update of segment descriptors */
-	arch_update_segments ( NULL, (size_t) 0xffffffff, PRIV_USER );
-	arch_update_segments ( NULL, (size_t) 0xffffffff, PRIV_KERNEL );
-
+	arch_upd_segm_descr (SEGM_K_CODE, NULL, (size_t) 0xffffffff, PRIV_KERNEL);
+	arch_upd_segm_descr (SEGM_K_DATA, NULL, (size_t) 0xffffffff, PRIV_KERNEL);
+	arch_upd_segm_descr (SEGM_T_CODE, NULL, (size_t) 0xffffffff, PRIV_USER);
+	arch_upd_segm_descr (SEGM_T_DATA, NULL, (size_t) 0xffffffff, PRIV_USER);
 	arch_upd_segm_descr ( SEGM_TSS, &tss, sizeof(tss_t) - 1, PRIV_KERNEL );
 
 	gdtr.gdt = gdt;
@@ -100,22 +101,8 @@ static void IDT_init ()
 	asm ( "lidt %0" : : "m" (idtr) );
 }
 
-/*! Update kernel or user segment descriptors in GDT */
-void arch_update_segments ( void *adr, size_t size, int priv )
-{
-	if ( priv == PRIV_USER )
-	{
-	arch_upd_segm_descr ( SEGM_T_CODE, adr, size, PRIV_USER );
-	arch_upd_segm_descr ( SEGM_T_DATA, adr, size, PRIV_USER );
-	}
-	else {
-	arch_upd_segm_descr ( SEGM_K_CODE, adr, size, PRIV_KERNEL );
-	arch_upd_segm_descr ( SEGM_K_DATA, adr, size, PRIV_KERNEL );
-	}
-}
-
 /*! Update segment descriptor with starting address, size and privilege level */
-static void arch_upd_segm_descr ( int id, void *start_addr, size_t size,
+void arch_upd_segm_descr ( int id, void *start_addr, size_t size,
 				  int priv_level )
 {
 	uint32 addr = (uint32) start_addr;

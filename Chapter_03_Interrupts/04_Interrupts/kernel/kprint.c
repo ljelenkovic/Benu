@@ -11,9 +11,15 @@ console_t *k_stdout; /* initialized in startup.c */
 /*! Formated output to console (lightweight version of 'printf') */
 int kprintf ( char *format, ... )
 {
-	char text[CONSOLE_MAXLEN];
+	size_t size;
+	char buffer[CONSOLE_MAXLEN];
 
-	vssprintf ( text, CONSOLE_MAXLEN, &format );
+	k_stdout->print ( "\x1b[31m" ); /* red color for text */
 
-	return k_stdout->print ( CONSOLE_KERNEL, text );
+	size = vssprintf ( buffer, CONSOLE_MAXLEN, &format );
+	k_stdout->print ( buffer );
+
+	k_stdout->print ( "\x1b[39m" ); /* default color for text */
+
+	return size;
 }

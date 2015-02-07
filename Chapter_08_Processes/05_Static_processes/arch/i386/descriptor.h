@@ -24,7 +24,7 @@
 
 void arch_descriptors_init ();
 void arch_tss_update ( void *context );
-void arch_update_segments ( void *adr, size_t size, int priv );
+void arch_upd_segm_descr (int id, void *start, size_t size, int priv);
 
 #endif
 
@@ -215,6 +215,5 @@ __attribute__((__packed__)) tss_t;
 
 static void GDT_init ();
 static void IDT_init ();
-static void arch_upd_segm_descr (int id, void *start, size_t size, int priv);
 
 #endif /* _ARCH_DESCRIPTORS_C_ */

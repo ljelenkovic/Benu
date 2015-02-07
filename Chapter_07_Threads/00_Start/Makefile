@@ -40,15 +40,15 @@ CMACROS += $(DEVICES) DEVICES_DEV=$(DEV_VARS) DEVICES_DEV_PTRS=$(DEV_PTRS)   \
 	IC_DEV=$(IC_DEV) TIMER=$(TIMER)					     \
 	K_INITIAL_STDOUT=$(K_INITIAL_STDOUT) K_STDOUT="\"$(K_STDOUT)\""      \
 	U_STDIN="\"$(U_STDIN)\"" U_STDOUT="\"$(U_STDOUT)\"" 		     \
-	U_STDERR="\"$(U_STDERR)\""					     \
-	TURN_OFF=$(TURN_OFF)
+	U_STDERR="\"$(U_STDERR)\""
 
 CMACROS += MAX_RESOURCES=$(MAX_RESOURCES)
 
 #------------------------------------------------------------------------------
 # Misc
 
-CMACROS += KERNEL_STACK_SIZE=$(KERNEL_STACK_SIZE)		\
+CMACROS += SYSTEM_MEMORY=$(SYSTEM_MEMORY)			\
+	KERNEL_STACK_SIZE=$(KERNEL_STACK_SIZE)			\
 	PROG_HEAP_SIZE=$(PROG_HEAP_SIZE)			\
 	LOAD_ADDR=$(LOAD_ADDR)
 
@@ -58,13 +58,13 @@ CMACROS += $(OPTIONALS)
 
 all: $(BINFILE)
 
-#create ARCH symbolic link for selected platform (placed in arch/ directory)
-#(used only for #include <ARCH/*> purposes)
-prepare_src:
-	@-if [ ! -d $(BUILDDIR)/ARCH ]; then				\
-		mkdir -p $(BUILDDIR);					\
-		ln -s ../arch/$(ARCH) $(BUILDDIR)/ARCH ;		\
-	fi;
+# Create $(BUILDDIR) and ARCH symbolic link for selected platform source
+# (used for #include <ARCH/*> purposes)
+BDIR_RDY = $(BUILDDIR)/.null
+$(BDIR_RDY):
+	@mkdir -p $(BUILDDIR)
+	@ln -s ../arch/$(ARCH) $(BUILDDIR)/ARCH
+	@touch $(BDIR_RDY)
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -88,7 +88,7 @@ DEPS_K := $(OBJS_K:.o=.d)
 KDIRS_CREATED = $(BUILD_K)/.null
 
 # create required directories in $(BUILD_K) directory (including $(BUILD_K))
-$(KDIRS_CREATED):
+$(KDIRS_CREATED): $(BDIR_RDY)
 	@-if [ ! -e $(BUILD_K) ]; then mkdir -p $(BUILD_K); fi;
 	@-$(foreach DIR,$(DIRS_K), if [ ! -e $(BUILD_K)/$(DIR) ]; \
 		then mkdir -p $(BUILD_K)/$(DIR); fi; )
@@ -108,9 +108,9 @@ $(BUILD_K)/%.asm.o: %.S $(CONFIG_FILES) $(KDIRS_CREATED)
 		$(foreach INC,$(INCLUDES_K),-I$(INC)) \
 		$(foreach MACRO,$(CMACROS_K),-D $(MACRO))
 
-# preprocessed linker script (konstants)
+# preprocessed linker script (constants)
 LDSCRIPT_PP := $(BUILD_K)/ldscript.ld
-$(LDSCRIPT_PP): $(LDSCRIPT) $(CONFIG_FILES)
+$(LDSCRIPT_PP): $(LDSCRIPT) $(CONFIG_FILES) $(KDIRS_CREATED)
 	@$(CC_K) -E -P -x c -o $@ $< $(CFLAGS_K)		\
 		$(foreach INC,$(INCLUDES_K),-I$(INC)) 		\
 		$(foreach MACRO,$(CMACROS_K),-D $(MACRO))
@@ -134,6 +134,11 @@ CMACROS_U += $(CMACROS) ASSERT_H=\<api/errno.h\>		\
 PROGRAM_HEADERS := $(BUILDDIR)/$(PROG_HEADERS)
 
 #------------------------------------------------------------------------------
+
+UDIR_RDY = $(BUILD_U)/.null
+$(UDIR_RDY): $(BDIR_RDY)
+	@-if [ ! -e $(BUILD_U) ]; then mkdir -p $(BUILD_U); fi;
+	@touch $(UDIR_RDY)
 
 # Programs compilation through template ----------------------------------------
 
@@ -169,7 +174,7 @@ DEPS_U	+= $$($(1)_DEPS)
 $(1)_DIRS_CREATED := $$($(1)_BUILDDIR)/.null
 
 #create directories for objects
-$$($(1)_DIRS_CREATED):
+$$($(1)_DIRS_CREATED): $(UDIR_RDY)
 	@if [ ! -e $$($(1)_BUILDDIR) ]; then mkdir -p $$($(1)_BUILDDIR); fi;
 	@$$(foreach DIR,$$($(1)_BDIRS), if [ ! -e $$(DIR) ]; \
 		then mkdir -p $$(DIR); fi; )
@@ -194,7 +199,7 @@ endef
 # "Call" above template for each program to be included
 $(foreach prog,$(CCPROGRAMS),$(eval $(call PROGRAM_TEMPLATE,$(prog))))
 
-$(PROGRAM_HEADERS): $(FILES_U)
+$(PROGRAM_HEADERS): $(FILES_U) $(UDIR_RDY)
 	@-if [ ! -e $(BUILD_U) ]; then mkdir -p $(BUILD_U); fi;
 	@-rm -f $(PROGRAM_HEADERS)
 	@$(foreach prog,$(PROGRAMS), \
@@ -213,15 +218,10 @@ OBJECTS = $(OBJS_K) $(OBJS_U)
 DEPS = $(DEPS_K) $(DEPS_U)
 
 # OS image
-$(BINFILE): prepare_src $(OBJECTS) $(LDSCRIPT_PP)
+$(BINFILE): $(OBJECTS) $(LDSCRIPT_PP)
 	@echo [linking $@]
 	@$(LINK) -o $@ $(OBJECTS) -T $(LDSCRIPT_PP) $(LDFLAGS)
 
-
-#find qemu emulator requested in config.ini (QEMU)
-#ifeq ($(strip $(shell command -v $(QEMU);)),)
-#	QEMU = echo "Error: $(QEMU) not found!"; exit ;
-#endif
 
 # starting compiled system in 'qemu' emulator
 qemu: all

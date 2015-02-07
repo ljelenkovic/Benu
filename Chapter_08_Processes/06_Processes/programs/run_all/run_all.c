@@ -33,7 +33,7 @@ int run_all ( char *args[] )
 
 	char progs_to_start[] = {
 		"hello timer args uthreads threads semaphores "
-		"monitors messages signals rr edf" };
+		"monitors messages signals rr" };
 	progname = progs_to_start;
 
 #endif
@@ -76,11 +76,6 @@ int run_all ( char *args[] )
 
 		progname = strtok ( NULL, " " );
 	}
-
-#if ( TURN_OFF == 1 )
-	printf ( "Powering off\n\n" );
-	syscall ( POWER_OFF, NULL, 0, NULL );
-#endif
 
 	return 0;
 }

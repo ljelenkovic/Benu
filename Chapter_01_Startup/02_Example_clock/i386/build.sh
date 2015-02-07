@@ -2,13 +2,15 @@
 
 # usage: ./build.sh [qemu|clean]
 #
+# uncomment next line for trace information
+# set -x
 
 PROJECT=clock.elf
 
 #Compile if required
-if [ $# -eq 0 ] || ( [ $1 = "qemu" ] && [ ! -e $PROJECT ] ); then
+if [ $# -eq 0 ] || [ $1 = "qemu" ]; then
 
-CFLAGS="-m32 -Wall -ffreestanding -nostdlib -fno-stack-protector"
+CFLAGS="-m32 -march=i386 -Wall -Werror -ffreestanding -nostdlib -fno-stack-protector"
 LDFLAGS="-melf_i386 -e arch_start -Ttext=0x100000"
 
 #compile

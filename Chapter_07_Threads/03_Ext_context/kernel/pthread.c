@@ -42,8 +42,10 @@ int sys__pthread_create ( pthread_t *thread, pthread_attr_t *attr,
 		stackaddr = attr->stackaddr;
 		stacksize = attr->stacksize;
 
-		ASSERT_ERRNO_AND_EXIT ( sched_policy == SCHED_FIFO,
-					ENOTSUP );
+		ASSERT_ERRNO_AND_EXIT (
+			sched_policy >= 0 && sched_policy < SCHED_NUM,
+			ENOTSUP
+		);
 		ASSERT_ERRNO_AND_EXIT (
 			sched_priority >= THREAD_MIN_PRIO &&
 			sched_priority <= THREAD_MAX_PRIO,
@@ -165,7 +167,7 @@ int sys__pthread_setschedparam ( pthread_t *thread, int policy,
 	ASSERT_ERRNO_AND_EXIT ( kthread_get_id (kthread) == thread->id, ESRCH );
 	ASSERT_ERRNO_AND_EXIT ( kthread_is_alive (kthread), ESRCH );
 
-	ASSERT_ERRNO_AND_EXIT ( policy == SCHED_FIFO, ENOTSUP );
+	ASSERT_ERRNO_AND_EXIT ( policy >= 0 && policy < SCHED_NUM, EINVAL );
 
 	if ( param )
 	{

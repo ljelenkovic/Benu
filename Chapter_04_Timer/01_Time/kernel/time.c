@@ -3,7 +3,7 @@
 
 #include "time.h"
 
-#include "kprint.h"
+#include <kernel/kprint.h>
 #include <kernel/errno.h>
 #include <arch/time.h>
 #include <arch/processor.h>

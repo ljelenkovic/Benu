@@ -205,6 +205,16 @@ static void k_device_interrupt_handler ( unsigned int inum, void *device )
 	if ( status ) {} /* handle return status if required */
 }
 
+static int k_device_status ( int flags, kdevice_t *kdev )
+{
+	ASSERT ( kdev );
+
+	if ( kdev->dev.status )
+		return kdev->dev.status ( flags, &kdev->dev );
+	else
+		return -1;
+}
+
 /* /dev/null emulation */
 static int do_nothing ()
 {
@@ -222,6 +232,7 @@ device_t dev_null = (device_t)
 	.destroy =	NULL,
 	.send =		do_nothing,
 	.recv =		do_nothing,
+	.status =	do_nothing,
 
 	.flags = 	DEV_TYPE_SHARED,
 	.params = 	NULL,
@@ -324,4 +335,68 @@ static int read_write ( descriptor_t *desc, void *buffer, size_t size, int op )
 		SYS_EXIT ( EXIT_SUCCESS, retval );
 	else
 		SYS_EXIT ( -retval, EXIT_FAILURE );
+}
+
+int sys__device_status ( descriptor_t *desc, int flags )
+{
+	kdevice_t *kdev;
+	kobject_t *kobj;
+	int status, rflags = 0;
+
+	SYS_ENTRY();
+
+	ASSERT_ERRNO_AND_EXIT ( desc, EINVAL );
+
+	kobj = desc->ptr;
+	ASSERT_ERRNO_AND_EXIT ( kobj, EINVAL );
+	ASSERT_ERRNO_AND_EXIT ( list_find ( &kobjects, &kobj->list ),
+				EINVAL );
+	kdev = kobj->kobject;
+	ASSERT_ERRNO_AND_EXIT ( kdev && kdev->id == desc->id, EINVAL );
+
+	status = k_device_status ( flags, kdev );
+
+	/* TODO only DEV_IN_READY and DEV_OUT_READY are set in device drivers */
+	if ( ( flags & ( POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI ) ) )
+		if ( ( status & DEV_IN_READY ) )
+			rflags |= POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI;
+	if ( ( flags & ( POLLOUT | POLLWRNORM | POLLWRBAND | POLLPRI ) ) )
+		if ( ( status & DEV_OUT_READY ) )
+			rflags |= POLLOUT | POLLWRNORM | POLLWRBAND | POLLPRI;
+
+	SYS_EXIT ( EXIT_SUCCESS, rflags );
+}
+
+/*!
+ * poll - input/output multiplexing
+ * \param fds set of file descriptors
+ * \param nfds number of file descriptors in fds
+ * \param timeout minimum time in ms to wait for any event defined by fds
+ *        (in current implementation this parameter is ignored)
+ * \param std_desc address of file descriptor array from user space
+ * \return number of file descriptors with changes in revents, -1 on errors
+ */
+int sys__poll ( struct pollfd fds[], nfds_t nfds, int timeout,
+	descriptor_t *std_desc )
+{
+	int changes = 0, i;
+	short revents;
+
+	SYS_ENTRY();
+
+	ASSERT_ERRNO_AND_EXIT ( fds && nfds > 0 && std_desc, EINVAL );
+
+	for ( i = 0; i < nfds; i++ )
+	{
+		revents = sys__device_status (
+			&std_desc[fds[i].fd], fds[i].events
+		);
+		ASSERT_ERRNO_AND_EXIT ( revents != -1, EINVAL );
+
+		fds[i].revents = revents;
+		if ( revents )
+			changes++;
+	}
+
+	SYS_EXIT ( EXIT_SUCCESS, changes );
 }

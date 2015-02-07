@@ -14,6 +14,8 @@
 /*! ready threads */
 static sched_ready_t ready;
 
+#define UINT_SIZE	( 8 * sizeof(uint) )
+
 /*! initialize data structure for ready threads */
 void ksched_init ()
 {
@@ -22,7 +24,7 @@ void ksched_init ()
 	ready.prio_levels = PRIO_LEVELS;
 	ready.rq = kmalloc ( ready.prio_levels * sizeof(kthread_q) );
 
-	ready.mask_len = (ready.prio_levels + sizeof(uint) - 1) / sizeof(uint);
+	ready.mask_len = (ready.prio_levels + UINT_SIZE - 1) / UINT_SIZE;
 	ready.mask = kmalloc ( ready.mask_len * sizeof(uint) );
 
 	/* queue for ready threads is empty */
@@ -54,8 +56,8 @@ void kthread_move_to_ready ( kthread_t *kthread, int where )
 		kthreadq_prepend ( &ready.rq[prio], kthread );
 
 	/* mark that list as not empty */
-	i = prio / sizeof (uint);
-	j = prio % sizeof (uint);
+	i = prio / UINT_SIZE;
+	j = prio % UINT_SIZE;
 	ready.mask[i] |= (uint) ( 1 << j );
 }
 
@@ -75,8 +77,8 @@ kthread_t *kthread_remove_from_ready ( kthread_t *kthread )
 	/* no more ready threads in list? */
 	if ( kthreadq_get ( &ready.rq[prio] ) == NULL )
 	{
-		i = prio / sizeof (uint);
-		j = prio % sizeof (uint);
+		i = prio / UINT_SIZE;
+		j = prio % UINT_SIZE;
 
 		ready.mask[i] &= ~( (uint) ( 1 << j ) );
 	}
@@ -84,7 +86,7 @@ kthread_t *kthread_remove_from_ready ( kthread_t *kthread )
 	return kthread;
 }
 
-/*! Find and return priority of highest priority thread in ready list */
+/*! Find and return highest priority thread in ready list */
 static kthread_t *get_first_ready ()
 {
 	int i, first;
@@ -93,7 +95,7 @@ static kthread_t *get_first_ready ()
 	{
 		if ( ready.mask[i] )
 		{
-			first = i * sizeof(uint) + msb_index (ready.mask[i]);
+			first = i * UINT_SIZE + msb_index (ready.mask[i]);
 			return kthreadq_get ( &ready.rq[first] );
 		}
 	}
@@ -115,6 +117,10 @@ void kthreads_schedule ()
 
 	/* must exist an thread to return to, 'curr' or first from 'ready' */
 	ASSERT ( ( curr && kthread_is_active ( curr ) ) || next );
+
+	if ( !sys__feature ( FEATURE_SCHEDULER, FEATURE_GET, 0 ) &&
+		curr && kthread_is_active ( curr ) )
+		return;/*scheduler disabled, don't switch from current thread */
 
 	if ( !curr || !kthread_is_active ( curr ) ||
 		kthread_get_prio ( curr ) < kthread_get_prio ( next ) )

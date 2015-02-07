@@ -140,7 +140,22 @@ inline int kthread_suspend ( kthread_t *kthread, void *wakeup_action,
  * Thread exit/cancel thread
  * \param kthread Thread descriptor
  */
+int kthread_exit2 ( kthread_t *kthread, void *exit_status );
+
 int kthread_exit ( kthread_t *kthread, void *exit_status )
+{
+	ASSERT ( kthread );
+
+	if ( kthread == active_thread )
+	{
+		/* switch to bootup stack before destroying this thread */
+		arch_thread_exit_with_stack_switch ( kthread, exit_status );
+		ASSERT ( FALSE ); /* there is no return to here! */
+	}
+	return kthread_exit2 ( kthread, exit_status );
+}
+
+int kthread_exit2 ( kthread_t *kthread, void *exit_status )
 {
 	kthread_t *released;
 	kthread_q *q;
@@ -196,8 +211,15 @@ int kthread_exit ( kthread_t *kthread, void *exit_status )
 		kthread->ref_cnt--;
 	}
 
-	/* defer removing thread resources until last moment (switch) */
-	kthread->flags |= THR_FLAG_DELETE;
+	/* remove thread resources */
+
+	/* release thread stack */
+	if ( kthread->stack )
+		kfree ( kthread->stack );
+
+	kthread->ref_cnt--;
+	if ( !kthread->ref_cnt )
+		kthread_remove_descriptor ( kthread );
 
 	if ( kthread == active_thread )
 		kthreads_schedule ();
@@ -252,33 +274,12 @@ void kthread_switch_to_thread ( kthread_t *from, kthread_t *to )
 {
 	ASSERT ( to == active_thread );
 
-	if ( from && ( from->flags & THR_FLAG_DELETE ) )
-	{
-		/* delete thread resources with switch */
-
-		from->flags &= ~THR_FLAG_DELETE;
-		arch_switch_to_thread_with_cleanup ( from,
-						     kthread_get_context (to) );
-	}
-	else {
-		arch_switch_to_thread (
-		/* from */	( from ? kthread_get_context ( from ) : NULL ),
-		/* to */	kthread_get_context ( to )
-		);
-	}
+	arch_switch_to_thread (
+	/* from */	( from ? kthread_get_context ( from ) : NULL ),
+	/* to */	kthread_get_context ( to )
+	);
 }
 
-/*! release finished thread stack just before switching to another thread */
-void kthread_cleanup ( kthread_t *kthread )
-{
-	/* release thread stack */
-	if ( kthread->stack )
-		kfree ( kthread->stack );
-
-	kthread->ref_cnt--;
-	if ( !kthread->ref_cnt )
-		kthread_remove_descriptor ( kthread );
-}
 
 /*! operations on thread queues (blocked threads) --------------------------- */
 
@@ -471,17 +472,15 @@ inline int kthread_is_suspended (kthread_t *kthread, void **func, void **param)
 	if ( !kthread )
 		kthread = active_thread;
 
+	if ( func )
+		*func = kthread->cancel_suspend_handler;
+	if ( param )
+		*param = kthread->cancel_suspend_param;
+
 	if ( kthread->state == THR_STATE_SUSPENDED )
-	{
-		if ( func )
-			*func = kthread->cancel_suspend_handler;
-		if ( param )
-			*param = kthread->cancel_suspend_param;
-
 		return TRUE;
-	}
-
-	return FALSE;
+	else
+		return FALSE;
 }
 
 /*! check if thread descriptor is valid, i.e. is in all thread list */
@@ -647,7 +646,7 @@ int kthread_setschedparam (kthread_t *kthread, int policy, sched_param_t *param)
 
 	ASSERT_AND_RETURN_ERRNO ( kthread, EINVAL );
 	ASSERT_AND_RETURN_ERRNO ( kthread_is_alive (kthread), ESRCH );
-	ASSERT_AND_RETURN_ERRNO ( policy == SCHED_FIFO, ENOTSUP );
+	ASSERT_AND_RETURN_ERRNO ( policy >= 0 && policy < SCHED_NUM, EINVAL );
 
 	if ( param )
 	{

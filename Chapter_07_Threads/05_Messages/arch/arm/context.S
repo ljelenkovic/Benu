@@ -1,8 +1,8 @@
 /*! context switching */
 
-.extern kthread_cleanup, system_stack
+.extern system_stack
 .global arch_switch_to_thread
-.global arch_switch_to_thread_with_cleanup
+.global arch_thread_exit_with_stack_switch
 
 .section .text
 .align	4
@@ -49,11 +49,10 @@ return:
 
 _system_stack_:		.word	system_stack + KERNEL_STACK_SIZE
 
-arch_switch_to_thread_with_cleanup:
-	/* r0 = from, r1 = to */
+arch_thread_exit_with_stack_switch:
+	/* r0 = kthread, r1 = exit_status */
 	/* temporary switch to bootup stack (thread's own will be destroyed) */
 	ldr	sp, _system_stack_
-	push	{r1}			/* "to" is required after */
-	bl	kthread_cleanup		/* cleanup "from" */
-	pop	{r1}
-	b 	restore			/* "real" switch */
+
+	/* call kthread_exit2 function */
+	b	kthread_exit2 /* there is no return to here */

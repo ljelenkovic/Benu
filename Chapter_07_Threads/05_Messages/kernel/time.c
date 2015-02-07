@@ -5,7 +5,7 @@
 
 #include "thread.h"
 #include "memory.h"
-#include "kprint.h"
+#include <kernel/kprint.h>
 #include <kernel/errno.h>
 #include <arch/time.h>
 #include <arch/interrupt.h>
@@ -77,22 +77,29 @@ static void kclock_wake_thread ( sigval_t sigval )
 {
 	kthread_t *kthread;
 	ktimer_t *ktimer;
-	int retval = 0;
 
 	kthread = sigval.sival_ptr;
 	ASSERT ( kthread );
-	ASSERT ( kthread_check_kthread ( kthread ) ); /* is this valid thread */
-	ASSERT ( kthread_is_suspended ( kthread, NULL, NULL ) );
 
-	ktimer = kthread_get_private_param ( kthread );
-	timespec_t *remain = ktimer->param;
-	if ( remain )
-		TIME_RESET ( remain ); /* timer expired */
+	if ( kthread_check_kthread ( kthread ) &&
+		kthread_is_suspended ( kthread, NULL, NULL ) )
+	{
+		ktimer = kthread_get_private_param ( kthread );
+		timespec_t *remain = ktimer->param;
+		if ( remain )
+			TIME_RESET ( remain ); /* timer expired */
 
-	kthread_move_to_ready ( kthread, LAST );
+		kthread_move_to_ready ( kthread, LAST );
 
-	retval += ktimer_delete ( ktimer );
-	ASSERT ( retval == EXIT_SUCCESS );
+		ktimer_delete ( ktimer );
+	}
+	else {
+		/*
+		 * FIXME I think this shouldn't happen, but am unsure.
+		 * Maybe some race condition is still present?
+		 */
+		//LOG ( DEBUG, "Bug maybe!" );
+	}
 
 	kthreads_schedule ();
 }
@@ -185,6 +192,14 @@ int ktimer_delete ( ktimer_t *ktimer )
 {
 	ASSERT ( ktimer );
 
+	/* check for object status first */
+	if ( !k_check_id ( ktimer->id ) )
+	{
+		/* FIXME Maybe this should not happen! */
+		//LOG ( DEBUG, "Bug possibly!" );
+		return ENOENT;
+	}
+
 	/* remove from active timers (if it was there) */
 	if ( TIMER_IS_ARMED ( ktimer ) )
 	{
@@ -274,6 +289,9 @@ static void ktimer_schedule ()
 	ktimer_t *first, *next;
 	timespec_t time, ref_time;
 	int resched = 0;
+
+	if ( !sys__feature ( FEATURE_TIMERS, FEATURE_GET, 0 ) )
+		return;
 
 	kclock_gettime ( CLOCK_REALTIME, &time );
 	/* should have separate "scheduler" for each clock */

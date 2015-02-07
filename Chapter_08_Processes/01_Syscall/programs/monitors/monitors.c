@@ -13,7 +13,7 @@ static timespec_t eat, think;
 static int terminate_simulation;
 
 static int stick[PHNUM];
-static char phs[PHNUM];
+static char phs[PHNUM+1];
 
 static pthread_mutex_t m;
 static pthread_cond_t q[PHNUM];
@@ -85,6 +85,7 @@ int monitors ( char *args[] )
 		phs[i] = 'O';
 		pthread_cond_init ( &q[i], NULL );
 	}
+	phs[PHNUM] = '\0';
 
 	for ( i = 0; i < PHNUM; i++ )
 		pthread_create ( &thread[i], NULL, philosopher, (void *) i );

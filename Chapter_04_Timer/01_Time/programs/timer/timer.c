@@ -24,9 +24,13 @@ int timer ()
 	printf ( "Example program: [%s:%s]\n%s\n\n", __FILE__, __FUNCTION__,
 		 timer_PROG_HELP );
 
+	clock_gettime ( CLOCK_REALTIME, &t0 );
+	printf ( "System time: %d:%d\n", t0.tv_sec, t0.tv_nsec/100000000 );
+
 	t.tv_sec = 10;
 	t.tv_nsec = 555555555;
 	clock_settime ( CLOCK_REALTIME, &t );
+	printf ( "System time set to: %d:%d\n", t.tv_sec, t.tv_nsec/100000000 );
 
 	clock_gettime ( CLOCK_REALTIME, &t0 );
 	printf ( "System time: %d:%d\n", t0.tv_sec, t0.tv_nsec/100000000 );

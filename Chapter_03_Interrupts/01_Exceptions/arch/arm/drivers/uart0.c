@@ -11,10 +11,8 @@
 #define UART0_DR	(UART0_BASE + 0x00)
 
 static void uart0_putchar ( char c );
-static int uart0_init ();
-static int uart0_clear ();
-static int uart0_gotoxy ( int x, int y );
-static int uart0_printf ( int attr, char *text );
+static int uart0_init ( int flags );
+static int uart0_printf ( char *text );
 
 
 /*!
@@ -36,37 +34,16 @@ static void uart0_putchar ( char c )
 }
 
 /*! Init console */
-int uart0_init ()
+int uart0_init ( int flags )
 {
-	return 0;
-}
-
-/*!
- * Clear console
- * (just go to new line - send \n on serial port)
- */
-int uart0_clear ()
-{
-	uart0_putchar ( '\n' );
-	return 0;
-}
-
-/*!
- * Move cursor to specified location
- * (just go to new line - send \n on serial port)
- */
-static int uart0_gotoxy ( int x, int y )
-{
-	uart0_putchar ( '\n' );
 	return 0;
 }
 
 /*!
  * Print text string on console, starting at current cursor position
- * \param attr Attributes to apply (ignored)
  * \param text String to print
  */
-static int uart0_printf ( int attr, char *text )
+static int uart0_printf ( char *text )
 {
 	if ( text == NULL )
 		return 0;
@@ -83,8 +60,6 @@ static int uart0_printf ( int attr, char *text )
 console_t uart0 = (console_t)
 {
 	.init	= uart0_init,
-	.clear	= uart0_clear,
-	.gotoxy	= uart0_gotoxy,
 	.print	= uart0_printf
 };
 
@@ -97,8 +72,6 @@ static int _do_nothing_ ()
 console_t dev_null = (console_t)
 {
 	.init	= (void *) _do_nothing_,
-	.clear	= (void *) _do_nothing_,
-	.gotoxy	= (void *) _do_nothing_,
 	.print	= (void *) _do_nothing_
 };
 

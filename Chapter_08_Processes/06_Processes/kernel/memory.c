@@ -3,7 +3,7 @@
 
 #include "memory.h"
 
-#include "kprint.h"
+#include <kernel/kprint.h>
 #include "thread.h"
 #include <kernel/errno.h>
 #include <arch/processor.h>
@@ -18,17 +18,16 @@ MEM_ALLOC_T *k_mpool = NULL;
 /*! Memory segments */
 static mseg_t *mseg = NULL;
 
-/*! List of programs loaded as modules */
-list_t progs;
-#define PNAME "prog_name="
+/*! List of programs */
+list_t kprogs;
 
 /*! Initial memory layout created in arch layer */
 void k_memory_init ()
 {
-	int i, j;
-	kprog_t *prog;
-	char *name;
+	int i;
+	kprog_t *kprog;
 
+	k_mpool = NULL;
 	mseg = arch_memory_init ();
 
 	/* initialize dynamic memory allocation subsystem */
@@ -43,34 +42,20 @@ void k_memory_init ()
 
 	ASSERT ( k_mpool );
 
-	list_init ( &progs );
+	list_init ( &kprogs );
 
-	/* look into each segment marked as module, add programs to 'progs' */
+	/* look into each segment marked as program and add it to 'progs' */
 	for ( i = 0; mseg[i].type != MS_END; i++ )
 	{
-		if ( mseg[i].type != MS_MODULE )
+		if ( mseg[i].type != MS_PROGRAM )
 			continue;
 
-		/*
-		 * Is this segment a program?
-		 * Programs have 'prog_name' in command line
-		 */
-		name = strstr ( mseg[i].name, PNAME );
-		if ( name )
-		{
-			prog = kmalloc ( sizeof (kprog_t) );
+		kprog = kmalloc ( sizeof (kprog_t) );
 
-			name += strlen ( PNAME );
-			for(j = 0; j < MAX_PROG_NAME_LEN && name[j] != ' '; j++)
-				prog->prog_name[j] = name[j];
-			prog->prog_name[j] = 0;
+		kprog->m = &mseg[i];
+		kprog->prog = &((module_program_t *) mseg[i].start)->prog;
 
-			prog->pi = (void *) mseg[i].start;
-
-			prog->m = &mseg[i];
-
-			list_append ( &progs, prog, &prog->list );
-		}
+		list_append ( &kprogs, kprog, &kprog->list );
 	}
 }
 
@@ -177,10 +162,12 @@ static id_t last_id = 0;
 id_t k_new_id ()
 {
 	id_t id = -1;
-	uint elem, n;
+	uint elem, n, start;
 	word_t mask;
 
-	last_id = ( last_id + 1 < MAX_RES ? last_id + 1 : 1 ); /* skip 0 */
+	last_id++;
+	if ( last_id == MAX_RES )
+		last_id = 1; /* skip 0 */
 
 	elem = last_id / WBITS;
 	mask = idmask [elem] | ( ( 1 << (last_id % WBITS) ) - 1 );
@@ -189,9 +176,10 @@ id_t k_new_id ()
 	if ( ~mask ) /* current 'elem' has free ids from last_id forward */
 	{
 		id = lsb_index ( ~mask );
+		ASSERT ( id != -1 );
 	}
 	else {
-		n = elem + 1;
+		n = start = ( elem + 1 ) % ID_ELEMS;
 		do {
 			if ( ~idmask[n] )
 			{
@@ -201,7 +189,7 @@ id_t k_new_id ()
 			}
 			n = ( n + 1 ) % ID_ELEMS;
 		}
-		while ( n != elem + 1 );
+		while ( n != start );
 	}
 
 	ASSERT ( id != -1 );
@@ -222,9 +210,59 @@ void k_free_id ( id_t id )
 	idmask [ id / WBITS ] &= ~ ( 1 << ( id % WBITS ) );
 }
 
+/*! Check if "id" is used (if object is alive) */
+int k_check_id ( id_t id )
+{
+	if (
+		id < 1 || id >= MAX_RES ||
+		( idmask [ id / WBITS ] & ( 1 << ( id % WBITS ) ) ) == 0
+	)
+		return 0;
+	else
+		return 1;
+
+}
+
 #undef	MAX_RES
 #undef	WBITS
 #undef	ID_ELEMS
+
+
+/* use bitmap to find free memory block for thread stack */
+void *kprocess_stack_alloc ( kprocess_t *kproc )
+{
+	int i, j, m;
+
+	m = ( kproc->smap_size + sizeof(uint)*8 - 1 ) / (sizeof(uint)*8);
+
+	/* find first 0 in stack mask */
+	for ( i = 0; i < m; i++ )
+	{
+		if ( kproc->smap[i] != (uint) -1 )
+			break;
+	}
+	if ( i == m )
+		return NULL;
+
+	j = lsb_index (~kproc->smap[i]);
+
+	kproc->smap[i] |= 1<<j;
+
+	return kproc->stack + kproc->thread_stack_size * j;
+}
+/* free thread stack */
+void kprocess_stack_free ( kprocess_t *kproc, void *stack )
+{
+	int i, j;
+
+	j = ( (uint) stack - (uint) kproc->stack ) / kproc->thread_stack_size;
+	i = j / (sizeof(uint) * 8);
+	j %= (sizeof(uint) * 8);
+
+	kproc->smap[i] &= ~(1<<j);
+}
+
+
 
 /*!
  * Give list of all programs
@@ -235,27 +273,27 @@ void k_free_id ( id_t id )
 int k_list_programs ( char *buffer, size_t buf_size )
 {
 	size_t cur_size;
-	kprog_t *prog;
+	kprog_t *kprog;
 	char hdr[] = "List of programs:\n";
 
 	buffer[0] = 0; /* set empty string */
 	cur_size = 0;
-	prog = list_get ( &progs, FIRST );
+	kprog = list_get ( &kprogs, FIRST );
 
 	if ( strlen ( hdr ) > buf_size )
 		return ENOMEM;
 	strcpy ( buffer, hdr );
 
-	while ( prog )
+	while ( kprog )
 	{
-		cur_size += strlen ( prog->prog_name );
+		cur_size += strlen ( kprog->prog->name );
 
 		if ( cur_size > buf_size )
 			return ENOMEM;
 
-		strcat ( buffer, prog->prog_name );
+		strcat ( buffer, kprog->prog->name );
 		strcat ( buffer, " " );
-		prog = list_get_next ( &prog->list );
+		kprog = list_get_next ( &kprog->list );
 	}
 
 	return EXIT_SUCCESS;
@@ -273,8 +311,8 @@ void k_memory_info ()
 
 	for ( i = 0; mseg[i].type != MS_END && i < 20; i++ )
 	{
-		kprintf ( "%d\t%x\t%x\t%s\n", mseg[i].type, mseg[i].size,
-					      mseg[i].start, mseg[i].name );
+		kprintf ( "%d\t%x\t%x\n", mseg[i].type, mseg[i].size,
+					      mseg[i].start );
 	}
 }
 

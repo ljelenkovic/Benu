@@ -1,6 +1,7 @@
 /*! simple shell interpreter */
 
 #include <stdio.h>
+#include <errno.h>
 #include <lib/string.h>
 #include <time.h>
 #include <kernel/memory.h>
@@ -26,29 +27,31 @@ cmd_t;
 static int help ();
 static int clear ();
 static int sysinfo ( char *args[] );
-static int turn_off ( char *args[] );
 
 static cmd_t sh_cmd[] =
 {
 	{ help, "help", "help - list available commands" },
 	{ clear, "clear", "clear - clear screen" },
 	{ sysinfo, "sysinfo", "system information; usage: sysinfo [options]" },
-	{ turn_off, "poweroff", "poweroff - use ACPI to power off" },
 	{ NULL, "" }
 };
 
 static cmd_t prog[] = PROGRAMS_FOR_SHELL;
 
+
 int shell ( char *args[] )
 {
 	char cmd[MAXCMDLEN + 1];
 	int i, key, rv;
-	timespec_t t;
+	timespec_t t __attribute__ ((unused));
 	int argnum;
 	char *argval[MAXARGS + 1];
 	pthread_t thr;
+	struct pollfd fds = { 0 /* stdin */, POLLRDNORM, 0 };
 
+	//printf ( "\x1b[37m" ); /* test escape sequence: white text */
 	printf ( "\n*** Simple shell interpreter ***\n\n" );
+	//printf ( "\x1b[32m" ); /* test escape sequence: green text */
 	help ();
 
 	t.tv_sec = 0;
@@ -65,13 +68,15 @@ int shell ( char *args[] )
 		/* get command - get chars until new line is received */
 		while ( i < MAXCMDLEN )
 		{
-			key = get_char ();
-
-			if ( !key )
+			if ( !poll ( &fds, 1, 0 ) ) /* is anything pressed? */
 			{
 				nanosleep ( &t, NULL );
 				continue;
 			}
+
+			key = getchar ();
+			if ( !key ) /* not ascii? */
+				continue;
 
 			if ( key == '\n' || key == '\r')
 			{
@@ -179,7 +184,9 @@ static int help ()
 
 static int clear ()
 {
-	return clear_screen ();
+	printf ( "\x1b[2J" );
+
+	return 0;
 }
 
 static int sysinfo ( char *args[] )
@@ -191,12 +198,4 @@ static int sysinfo ( char *args[] )
 	printf ( "%s\n", info );
 
 	return 0;
-}
-
-static int turn_off ( char *args[] )
-{
-	printf ( "Powering off\n\n" );
-	power_off ();
-
-	return -1;
 }

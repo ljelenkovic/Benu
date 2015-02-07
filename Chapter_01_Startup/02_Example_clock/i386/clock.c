@@ -9,7 +9,8 @@ static inline void outb ( uint16 port, uint8 data );
 static inline uint8 inb ( uint16 port );
 static void i8253_set ( uint cnt );
 static uint i8253_get ();
-static void update_field ( int pos, int num );
+static void init_display ();
+static inline void update_field ( int pos, int num );
 
 /*! video memory */
 #define VIDEO	( (volatile char *) 0x000B8000 ) /* video memory address */
@@ -24,7 +25,7 @@ static void update_field ( int pos, int num );
 #define	I8253_CMD_LATCH	0x04
 
 #define	I8253_FREQ	1193181 /* counter frequency */
-#define COUNT_10MS	( ( I8253_FREQ + 99 ) / 100 )
+#define COUNT_10MS	( I8253_FREQ / 100 )
 
 /*! Clock format: hh:mm:ss:hs, positions of each element: */
 #define HOURS	0
@@ -33,18 +34,13 @@ static void update_field ( int pos, int num );
 #define HUND	9
 
 #define CLOCK_POS	( VIDEO + ( ( ROWS / 2 ) * COLS + COLS / 2 - 6 ) * 2 )
-static volatile char *video = CLOCK_POS;
 
 /*! Emulate clock (at the center of the screen) */
 void clock ()
 {
-	int i;
 	int hours, mins, secs, hund;
 
-	/* erase screen (set blank screen) */
-	for ( i = 0; i < COLS * ROWS; i++ )
-		*( VIDEO + i * 2 ) = *( VIDEO + i * 2 + 1 ) = 0;
-
+	init_display ();
 	/* initial clock */
 	hours = mins = secs = hund = 0;
 
@@ -52,14 +48,6 @@ void clock ()
 	update_field ( MINS, mins );
 	update_field ( SECS, secs );
 	update_field ( HUND, hund );
-
-	video [ 2 * 2 ] = ':';
-	video [ 5 * 2 ] = ':';
-	video [ 8 * 2 ] = ':';
-
-	video [ 2 * 2 + 1 ] = ATTR;
-	video [ 5 * 2 + 1 ] = ATTR;
-	video [ 8 * 2 + 1 ] = ATTR;
 
 	/* reset counter */
 	i8253_set ( COUNT_10MS );
@@ -109,8 +97,28 @@ void clock ()
 }
 
 /*! Set 2 digit number on console at requested position */
-static void update_field ( int pos, int num )
+static void init_display ()
 {
+	volatile char *video = VIDEO;
+	int i;
+
+	/* erase screen (set blank screen) */
+	for ( i = 0; i < COLS * ROWS; i++ )
+	{
+		video[i*2] = 0;
+		video[i*2+1] = ATTR;
+	}
+
+	video = CLOCK_POS;
+	video [ 2 * 2 ] = ':';
+	video [ 5 * 2 ] = ':';
+	video [ 8 * 2 ] = ':';
+}
+
+/*! Set 2 digit number on console at requested position */
+static inline void update_field ( int pos, int num )
+{
+	volatile char *video = CLOCK_POS;
 	char c1, c0;
 
 	c1 = num / 10 + '0';
@@ -118,9 +126,9 @@ static void update_field ( int pos, int num )
 
 	pos *= 2;
 	video [ pos++ ] = c1;
-	video [ pos++ ] = ATTR;
+	pos++;
 	video [ pos++ ] = c0;
-	video [ pos   ] = ATTR;
+	pos++;
 }
 
 

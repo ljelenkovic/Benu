@@ -44,8 +44,6 @@ do {					\
 
 #define arch_memory_barrier()		asm ("" : : : "memory")
 
-#define arch_power_off()		arch_halt()
-
 /*! Enable or disable interrupts and return previous state */
 static inline int set_interrupts ( int enable )
 {

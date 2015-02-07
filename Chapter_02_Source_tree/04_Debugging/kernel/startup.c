@@ -1,7 +1,6 @@
 /*! Startup function - initialize kernel subsystem */
 #define _K_STARTUP_C_
 
-#include "kprint.h"
 #include <arch/processor.h>
 #include <api/stdio.h>
 #include <api/prog_info.h>
@@ -40,12 +39,6 @@ void k_startup ()
 	hello_world ();
 	debug ();
 
-#if ( TURN_OFF == 0 )
 	kprintf ( "\nSystem halted!\n" );
 	halt ();
-#else
-	/* power off (if supported, or just stop if not) */
-	kprintf ( "Powering off\n\n" );
-	power_off ();
-#endif
 }

@@ -34,4 +34,3 @@ typedef struct _sched_ready_t_
 sched_ready_t;
 
 #endif /* _K_SCHED_C_ */
-

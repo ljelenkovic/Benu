@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <time.h>
+#include <syscall.h>
 #include <arch/processor.h>
+#include <kernel/features.h>
 
 char PROG_HELP[] = "Round Robin scheduling example.";
 
@@ -22,6 +24,24 @@ static void *rr_thread ( void *param )
 	thr_no = (int) param;
 
 	printf ( "RR thread %d starting\n", thr_no );
+
+#if 1 /* testing OS_ENABLE/DISABLE RR */
+	if ( thr_no == THR_NUM - 1 )
+	{
+		printf ( "Greedy thread disabling others for some time!\n" );
+		OS_DISABLE ( FEATURE_SCHED_RR );
+		for ( i = 1; i < 500; i++ )
+		{
+			for ( j = 0; j < INNER_LOOP_COUNT && !end; j++ )
+				memory_barrier ();
+
+			iters[thr_no]++;
+		}
+		OS_ENABLE ( FEATURE_SCHED_RR );
+		printf ( "Greedy thread enabling scheduling!\n" );
+	}
+#endif
+
 	for ( i = 1; !end; i++ )
 	{
 		for ( j = 0; j < INNER_LOOP_COUNT && !end; j++ )
@@ -29,6 +49,7 @@ static void *rr_thread ( void *param )
 
 		iters[thr_no]++;
 	}
+
 	printf ( "RR thread %d exiting\n", thr_no );
 
 	return NULL;

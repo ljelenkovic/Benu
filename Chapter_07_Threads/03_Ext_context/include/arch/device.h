@@ -25,10 +25,11 @@ struct _device_t_
 		 * kernel action */
 
 	/* device interface */
-	int   (*init) ( uint flags, void *params, device_t *dev );
+	int   (*init)    ( uint flags, void *params, device_t *dev );
 	int   (*destroy) ( uint flags, void *params, device_t *dev );
-	int   (*send) ( void *data, size_t size, uint flags, device_t *dev );
-	int   (*recv) ( void *data, size_t size, uint flags, device_t *dev );
+	int   (*send)    ( void *data, size_t size, uint flags, device_t *dev );
+	int   (*recv)    ( void *data, size_t size, uint flags, device_t *dev );
+	int   (*status)  ( uint flags, device_t *dev );
 
 	/* various flags and parameters specific to device */
 	int     flags;

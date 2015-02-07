@@ -16,9 +16,6 @@
 static void uart0_putchar ( char c );
 static int uart0_getchar ();
 static int uart0_init ();
-static int uart0_clear ();
-static int uart0_gotoxy ( int x, int y );
-static int uart0_printf ( int attr, char *text );
 static int uart0_send ( void *data, size_t size, uint flags, device_t *dev );
 static int uart0_recv ( void *data, size_t size, uint flags, device_t *dev );
 
@@ -61,79 +58,24 @@ int uart0_init ( uint flags, void *params, device_t *dev )
 	return 0;
 }
 
-/*!
- * Clear console
- * (just go to new line - send \n on serial port)
- */
-int uart0_clear ()
-{
-	uart0_putchar ( '\n' );
-	return 0;
-}
-
-/*!
- * Move cursor to specified location
- * (just go to new line - send \n on serial port)
- */
-static int uart0_gotoxy ( int x, int y )
-{
-	uart0_putchar ( '\n' );
-	return 0;
-}
-
-/*!
- * Print text string on console, starting at current cursor position
- * \param attr Attributes to apply (ignored)
- * \param text String to print
- */
-static int uart0_printf ( int attr, char *text )
-{
-	if ( text == NULL )
-		return 0;
-
-
-	while ( *text != '\0' ) /* Loop until end of string */
-		uart0_putchar ( *text++ );
-
-	return strlen ( text );
-}
-
 /*! Device wrapper for console */
 static int uart0_send ( void *data, size_t size, uint flags, device_t *dev )
 {
-	int retval;
-	console_cmd_t *cmd;
+	char *text = data;
 
 	if ( dev->flags & DEV_TYPE_CONSOLE )
 	{
-		cmd = data;
+		if ( text == NULL )
+			return 0;
 
-		switch ( cmd->cmd )
-		{
-			case CONSOLE_PRINT:
-				retval = uart0_printf ( cmd->cd.print.attr,
-							&cmd->cd.print.text[0]);
-				break;
+		while ( *text != '\0' ) /* Loop until end of string */
+			uart0_putchar ( *text++ );
 
-			case CONSOLE_CLEAR:
-				retval = uart0_clear ();
-				break;
-
-			case CONSOLE_GOTOXY:
-				retval = uart0_gotoxy (
-					cmd->cd.gotoxy.x, cmd->cd.gotoxy.y );
-				break;
-
-			default:
-				retval = EXIT_FAILURE;
-				break;
-		}
+		return strlen ( text );
 	}
 	else {
-		retval = EXIT_FAILURE;
+		return EXIT_FAILURE;
 	}
-
-	return retval;
 }
 
 /*!
@@ -156,6 +98,21 @@ static int uart0_recv ( void *data, size_t size, uint flags, device_t *dev )
 	return 1;
 }
 
+/*! Get status */
+static int uart_status ( uint flags, device_t *dev )
+{
+	int rflags = 0;
+	volatile unsigned int *uart_fr = (unsigned int *) UART0_FR;
+
+	if ( !( (*uart_fr) & (1 << 4) ) ) /* Have something to read? */
+		rflags |= DEV_IN_READY;
+
+	if ( !( (*uart_fr) & (1 << 5) ) ) /* Is UART ready to transmit? */
+		rflags |= DEV_OUT_READY;
+
+	return DEV_IN_READY;
+}
+
 /*! uart as device_t -----------------------------------------------------*/
 device_t uart0_dev = (device_t)
 {
@@ -167,6 +124,7 @@ device_t uart0_dev = (device_t)
 	.destroy =	NULL,
 	.send =		uart0_send,
 	.recv =		uart0_recv,
+	.status = 	uart_status,
 
 	.flags = 	DEV_TYPE_SHARED | DEV_TYPE_CONSOLE,
 	.params = 	(void *) &uart0_dev

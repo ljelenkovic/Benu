@@ -1,5 +1,7 @@
 /*! simple linker script with memory layout of output file */
 
+/* Its parsed as C before used in linking! */
+
 OUTPUT_FORMAT("binary")
 
 ENTRY(prog_init)
@@ -11,8 +13,8 @@ SECTIONS {
 	{
 		user_code = .; /* == 0 */
 
-		/* header */
-		*api/prog_info.o ( *.data* )
+		/* program/module header */
+		* ( *.program_header* )
 
 		/* instructions */
 		* (.text*)
@@ -30,16 +32,26 @@ SECTIONS {
 		. = ALIGN (4096);
 
 		user_heap = .;
-
-		. += 0x10000;
+		. += 0x10000; /* allocate space for heap */
 
 		user_stack = .;
+		. += 0x10000; /* allocate space for stack */
 
-		. += 0x10000;
+		/*
+		 * what with other sections generated with gcc (various versions)?
+		 * if optimizing for size discard them with: /DISCARD/ : { *(*) }
+		 * if debugging with qemu/gdb they must be included
+		 * - they can be included implicitly, without declaring them here
+		 * - but they will be put behind "kernel_end_addr" so its best to use
+		 *   multiboot loader (QEMU is that)
+		 */
 
 		user_end = .;
 	}
 
-	/DISCARD/ : { *(.comment) } /* gcc info is discarded */
-	/DISCARD/ : { *(.eh_frame) } /* not used */
+	#ifndef DEBUG
+		/DISCARD/ : { *(*) }
+	#endif
+	/DISCARD/ : { *(.comment*) } /* gcc info is discarded */
+	/DISCARD/ : { *(.eh_frame*) } /* not used */
 }

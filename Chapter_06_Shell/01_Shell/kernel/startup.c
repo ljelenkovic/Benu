@@ -4,7 +4,8 @@
 #include "time.h"
 #include "device.h"
 #include "memory.h"
-#include "kprint.h"
+#include <kernel/errno.h>
+#include <kernel/features.h>
 #include <arch/interrupt.h>
 #include <arch/processor.h>
 #include <api/stdio.h>
@@ -13,7 +14,10 @@
 char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "
 			"Version: " VERSION " (" ARCH ")";
 
-static void run_all ( char *argv[] );
+/* state of kernel features */
+uint kernel_features = FEATURE_SUPPORTED; /* initially set all to "on" state */
+
+static void run_all () __attribute__ ((unused));
 
 /*!
  * First kernel function (after boot loader loads it to memory)
@@ -56,28 +60,51 @@ void k_startup ()
 	/* starting program routine */
 	PROG_START_FUNC ( NULL );
 
-#if ( TURN_OFF == 0 )
 	kprintf ( "\nSystem halted!\n" );
 	halt ();
-#else
-	/* power off (if supported, or just stop if not) */
-	kprintf ( "Powering off\n\n" );
-	power_off ();
+}
+
+static void run_all ()
+{
+	kprintf ( "\nStarting program: hello_world\n\n" );
+	hello_world ();
+
+	kprintf ( "\nStarting program: timer\n\n" );
+	timer ();
+#if 0
+	kprintf ( "\nStarting program: keyboard\n\n" );
+	keyboard ();
+
+	kprintf ( "\nStarting program: segm_fault\n\n" );
+	segm_fault ();
 #endif
 }
 
-static void run_all ( char *argv[] )
+/*! Turn kernel feature on/off */
+uint sys__feature ( uint features, int cmd, int enable )
 {
-	kprintf ( "\nStarting program: hello_world\n\n" );
-	hello_world (argv);
+	uint prev_state = kernel_features & features;
 
-	kprintf ( "\nStarting program: timer\n\n" );
-	timer (argv);
-#if 0
-	kprintf ( "\nStarting program: keyboard\n\n" );
-	keyboard (argv);
+	ASSERT ( !( features & ~FEATURE_SUPPORTED ) );
 
-	kprintf ( "\nStarting program: segm_fault\n\n" );
-	segm_fault (argv);
-#endif
+	if ( cmd == FEATURE_GET )
+		return prev_state;
+
+	/* update state */
+	if ( enable )
+		kernel_features |= features;
+	else
+		kernel_features &= ~features;
+
+	/* action required? */
+
+	if ( ( features & FEATURE_INTERRUPTS ) )
+	{
+		if ( enable )
+			enable_interrupts ();
+		else
+			disable_interrupts ();
+	}
+
+	return prev_state;
 }

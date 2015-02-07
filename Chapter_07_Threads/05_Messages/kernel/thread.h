@@ -27,6 +27,7 @@ extern inline int kthread_suspend ( kthread_t *, void *wakeup_action, void * );
 
 /*! remove thread */
 int kthread_exit ( kthread_t *kthread, void *exit_status );
+int kthread_exit2 ( kthread_t *kthread, void *exit_status );
 void kthread_wait_thread ( kthread_t *waiting, kthread_t *waited );
 void kthread_collect_status ( kthread_t *waited, void **retval );
 void kthread_switch_to_thread ( kthread_t *from, kthread_t *to );

@@ -104,8 +104,7 @@ static int i8042_get ( void *data, size_t size, uint flags, device_t *d )
 			buf_size--;
 		}
 		while ( ( flags & CONSOLE_ASCII ) && !( key = ASCII_KEY (key) )
-			&& buf_size > 0 )
-			;
+			&& buf_size > 0 );
 
 		if ( flags & CLEAR_BUFFER )
 			buf_first = buf_last = buf_size = 0;
@@ -331,6 +330,21 @@ static void i8042_set_leds ()
 		i8042_send_cmd ( 0 );
 }
 
+/*! Get status */
+static int i8042_status ( uint flags, device_t *dev )
+{
+	int rflags = 0;
+
+	/* look up software buffers */
+	if ( buf_size > 0 )
+		rflags |= DEV_IN_READY;
+
+	if ( buf_size < KEYB_BUFF_SIZE )
+		rflags |= DEV_OUT_READY;
+
+	return rflags;
+}
+
 /*! device_t interface  ------------------------------------------------------*/
 device_t i8042_dev = (device_t)
 {
@@ -343,6 +357,7 @@ device_t i8042_dev = (device_t)
 	.destroy =	i8042_destroy,
 	.send =		i8042_send,
 	.recv =		i8042_get,
+	.status =	i8042_status,
 
 	.flags = 	DEV_TYPE_SHARED,
 	.params = 	NULL,

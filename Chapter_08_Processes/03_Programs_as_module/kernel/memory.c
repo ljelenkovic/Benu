@@ -3,7 +3,7 @@
 
 #include "memory.h"
 
-#include "kprint.h"
+#include <kernel/kprint.h>
 #include "thread.h"
 #include <kernel/errno.h>
 #include <arch/processor.h>
@@ -22,14 +22,14 @@ list_t kobjects; /* list of kernel objects reserved by programs */
 
 /*! Programs loaded as module */
 kprog_t prog;
-#define PNAME "prog_name="
 
 /*! Initial memory layout created in arch layer */
 void k_memory_init ()
 {
 	int i;
-	char *name, *pos;
 	uint kheap_start, kheap_size, prog_start = 0, prog_size = 0;
+
+	list_init ( &kobjects );
 
 	k_mpool = NULL;
 	mseg = arch_memory_init ();
@@ -49,44 +49,28 @@ void k_memory_init ()
 
 	prog.pi = NULL;
 
-	/* find segment marked as module */
+	/* find segment marked as program */
 	for ( i = 0; mseg[i].type != MS_END; i++ )
 	{
-		if ( mseg[i].type != MS_MODULE )
+		if ( mseg[i].type != MS_PROGRAM )
 			continue;
 
-		/*
-		 * Is this segment a program?
-		 * Programs have 'prog_name' in command line
-		 */
-		name = strstr ( mseg[i].name, PNAME );
-		if ( name )
-		{
-			name += strlen ( PNAME );
-			pos = strchr ( name, ' ' );
-			if ( pos )
-				*pos++ = 0; /* changing MB data!!! */
-			prog.prog_name = name;
-			prog.m = &mseg[i];
-			prog.pi = (void *) mseg[i].start; /* at orig. loc. */
+		prog.m = &mseg[i];
+		prog.pi = (void *) mseg[i].start; /* at orig. loc. */
 
-			/* program must fit in space reserved for heap */
-			prog_start = (uint) prog.pi->start_adr;
-			prog_size = prog.m->size;
+		/* relocate program to address for which it is prepared */
+		prog_start = (uint) prog.pi->start;
+		prog_size = prog.m->size;
 
-			ASSERT(
-	/* start */	kheap_start <= prog_start &&
-	/* end */	prog_start + prog_size <= kheap_start + kheap_size );
+		ASSERT( kheap_start <= prog_start &&
+			prog_start + prog_size <= kheap_start + kheap_size );
 
-			/* copy module (programs) to address for which programs
-			 * are prepared (absolute address) */
-			prog.pi = (void *) prog_start;
-			memcpy ( prog.pi, prog.m->start, prog_size );
+		/* copy module (programs) to address for which programs
+		 * are prepared (absolute address) */
+		prog.pi = (void *) prog_start;
+		memcpy ( prog.pi, prog.m->start, prog_size );
 
-			list_init ( &kobjects );
-
-			break;
-		}
+		break;
 	}
 
 	ASSERT ( prog.pi );
@@ -162,10 +146,12 @@ static id_t last_id = 0;
 id_t k_new_id ()
 {
 	id_t id = -1;
-	uint elem, n;
+	uint elem, n, start;
 	word_t mask;
 
-	last_id = ( last_id + 1 < MAX_RES ? last_id + 1 : 1 ); /* skip 0 */
+	last_id++;
+	if ( last_id == MAX_RES )
+		last_id = 1; /* skip 0 */
 
 	elem = last_id / WBITS;
 	mask = idmask [elem] | ( ( 1 << (last_id % WBITS) ) - 1 );
@@ -174,9 +160,10 @@ id_t k_new_id ()
 	if ( ~mask ) /* current 'elem' has free ids from last_id forward */
 	{
 		id = lsb_index ( ~mask );
+		ASSERT ( id != -1 );
 	}
 	else {
-		n = elem + 1;
+		n = start = ( elem + 1 ) % ID_ELEMS;
 		do {
 			if ( ~idmask[n] )
 			{
@@ -186,7 +173,7 @@ id_t k_new_id ()
 			}
 			n = ( n + 1 ) % ID_ELEMS;
 		}
-		while ( n != elem + 1 );
+		while ( n != start );
 	}
 
 	ASSERT ( id != -1 );
@@ -207,6 +194,20 @@ void k_free_id ( id_t id )
 	idmask [ id / WBITS ] &= ~ ( 1 << ( id % WBITS ) );
 }
 
+/*! Check if "id" is used (if object is alive) */
+int k_check_id ( id_t id )
+{
+	if (
+		id < 1 || id >= MAX_RES ||
+		( idmask [ id / WBITS ] & ( 1 << ( id % WBITS ) ) ) == 0
+	)
+		return 0;
+	else
+		return 1;
+
+}
+
+
 #undef	MAX_RES
 #undef	WBITS
 #undef	ID_ELEMS
@@ -223,8 +224,8 @@ void k_memory_info ()
 
 	for ( i = 0; mseg[i].type != MS_END && i < 20; i++ )
 	{
-		kprintf ( "%d\t%x\t%x\t%s\n", mseg[i].type, mseg[i].size,
-					      mseg[i].start, mseg[i].name );
+		kprintf ( "%d\t%x\t%x\n", mseg[i].type, mseg[i].size,
+					      mseg[i].start );
 	}
 }
 

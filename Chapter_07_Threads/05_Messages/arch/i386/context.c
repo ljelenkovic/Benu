@@ -126,32 +126,27 @@ void arch_switch_to_thread ( context_t *from, context_t *to )
 #endif
 }
 
-/* switch from one thread to another with cleanup of first */
-void arch_switch_to_thread_with_cleanup ( void *from, context_t *to )
+/* switch stack and call thread_exit2 */
+void arch_thread_exit_with_stack_switch ( void *kthread, void *exit_status )
 {
 	extern uint8 system_stack[];
 
 	asm volatile (
-	"movl	%0, %%eax	\n\t"	/* save from */
-	"movl	%1, %%ebx	\n\t"	/* save to */
+	/* save parameters from stack to registers */
+	"movl	%0, %%eax	\n\t"
+	"movl	%1, %%ebx	\n\t"
 
-	"movl	%2, %%esp	\n\t"	/* temporary switch to bootup stack */
+	"movl	%2, %%esp	\n\t"	/* switch to bootup stack */
 
-	"pushl	%%ebx		\n\t"	/* to */
-	"pushl	%%eax		\n\t"	/* from */
-
-	"call	kthread_cleanup		\n\t"	/* cleanup "from" */
-
-	/* replace first argument with NULL */
-	"popl	%%eax		\n\t"
-	"xorl	%%eax, %%eax	\n\t"
+	/* push parameters from registers to stack */
+	"pushl	%%ebx		\n\t"
 	"pushl	%%eax		\n\t"
 
-	"call	arch_switch_to_thread	\n\t"	/* "real" switch */
+	"call	kthread_exit2	\n\t"
 	/* there is no return to here */
 
-		:: "m" (from), 				/* %0 */
-		   "m" (to),				/* %1 */
-		   "i" (system_stack + KERNEL_STACK_SIZE)	/* %2 */
+		:: "m" (kthread), 				/* %0 */
+		   "m" (exit_status),				/* %1 */
+		   "i" (system_stack + KERNEL_STACK_SIZE)	/* %3 */
 	);
 }

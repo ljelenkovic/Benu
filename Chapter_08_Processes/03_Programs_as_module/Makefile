@@ -13,9 +13,10 @@ CONFIG_FILES = $(CONFIG_INI) $(THIS_MAKEFILE)
 
 include $(CONFIG_INI)
 
-KERNEL_FILE_NAME = $(PROJECT).elf
-BINFILE = $(BUILDDIR)/$(KERNEL_FILE_NAME)
-CDIMAGE = $(BUILDDIR)/$(PROJECT).iso
+KERNEL_FILE_NAME = kernel.elf
+KERNEL_IMG = $(BUILDDIR)/$(KERNEL_FILE_NAME)
+PROG := progs
+PROG_BIN := $(BUILDDIR)/$(PROG).bin
 
 CMACROS += OS_NAME="\"$(OS_NAME)\"" PROJECT="\"$(PROJECT)\"" 		\
 	   NAME_MAJOR="\"$(NAME_MAJOR)\"" NAME_MINOR="\"$(NAME_MINOR)\""\
@@ -41,44 +42,40 @@ CMACROS += $(DEVICES) DEVICES_DEV=$(DEV_VARS) DEVICES_DEV_PTRS=$(DEV_PTRS)   \
 	IC_DEV=$(IC_DEV) TIMER=$(TIMER)					     \
 	K_INITIAL_STDOUT=$(K_INITIAL_STDOUT) K_STDOUT="\"$(K_STDOUT)\""      \
 	U_STDIN="\"$(U_STDIN)\"" U_STDOUT="\"$(U_STDOUT)\"" 		     \
-	U_STDERR="\"$(U_STDERR)\""					     \
-	TURN_OFF=$(TURN_OFF)
+	U_STDERR="\"$(U_STDERR)\""
 
 CMACROS += MAX_RESOURCES=$(MAX_RESOURCES)
 
 #------------------------------------------------------------------------------
 # Threads
 
-CMACROS += PRIO_LEVELS=$(PRIO_LEVELS)				\
+CMACROS += SYSTEM_MEMORY=$(SYSTEM_MEMORY)			\
+	PRIO_LEVELS=$(PRIO_LEVELS)				\
 	THR_DEFAULT_PRIO=$(THR_DEFAULT_PRIO)			\
 	KERNEL_STACK_SIZE=$(KERNEL_STACK_SIZE)			\
 	DEFAULT_THREAD_STACK_SIZE=$(DEFAULT_THREAD_STACK_SIZE)	\
 	PROG_HEAP_SIZE=$(PROG_HEAP_SIZE)			\
-	HANDLER_STACK_SIZE=$(HANDLER_STACK_SIZE)		\
-	PROG_START_ADDR=$(PROG_START_ADDR)
+	HANDLER_STACK_SIZE=$(HANDLER_STACK_SIZE)
 
 #------------------------------------------------------------------------------
 CMACROS += $(OPTIONALS)
 #------------------------------------------------------------------------------
 
-all: $(CDIMAGE)
+all: $(KERNEL_IMG) $(PROG_BIN)
 
-#create ARCH symbolic link for selected platform (placed in arch/ directory)
-#(used only for #include <ARCH/*> purposes)
-prepare_src:
-	@-if [ ! -d $(BUILDDIR)/ARCH ]; then				\
-		mkdir -p $(BUILDDIR);					\
-		ln -s ../arch/$(ARCH) $(BUILDDIR)/ARCH ;		\
-	fi;
+# Create $(BUILDDIR) and ARCH symbolic link for selected platform source
+# (used for #include <ARCH/*> purposes)
+BDIR_RDY = $(BUILDDIR)/.null
+$(BDIR_RDY):
+	@mkdir -p $(BUILDDIR)
+	@ln -s ../arch/$(ARCH) $(BUILDDIR)/ARCH
+	@touch $(BDIR_RDY)
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Compiling and linking kernel
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 BUILD_K = $(BUILDDIR)/kernel
-
-KERNEL_FILE_NAME = kernel.elf
-KERNEL_IMG = $(BUILDDIR)/$(KERNEL_FILE_NAME)
 
 CMACROS_K += $(CMACROS) ASSERT_H=\<kernel/errno.h\>
 
@@ -97,7 +94,7 @@ DEPS_K := $(OBJS_K:.o=.d)
 KDIRS_CREATED = $(BUILD_K)/.null
 
 # create required directories in $(BUILD_K) directory (including $(BUILD_K))
-$(KDIRS_CREATED):
+$(KDIRS_CREATED): $(BDIR_RDY)
 	@-if [ ! -e $(BUILD_K) ]; then mkdir -p $(BUILD_K); fi;
 	@-$(foreach DIR,$(DIRS_K), if [ ! -e $(BUILD_K)/$(DIR) ]; \
 		then mkdir -p $(BUILD_K)/$(DIR); fi; )
@@ -119,37 +116,41 @@ $(BUILD_K)/%.asm.o: %.S $(CONFIG_FILES) $(KDIRS_CREATED)
 		$(foreach INC,$(INCLUDES_K),-I$(INC)) \
 		$(foreach MACRO,$(CMACROS_K),-D $(MACRO))
 
-# preprocessed linker script (konstants)
+# preprocessed linker script (constants)
 LDSCRIPT_KPP := $(BUILD_K)/ldscript.ld
-$(LDSCRIPT_KPP): $(LDSCRIPT_K) $(CONFIG_FILES)
+$(LDSCRIPT_KPP): $(LDSCRIPT_K) $(CONFIG_FILES) $(KDIRS_CREATED)
 	@$(CC_K) -E -P -x c -o $@ $< $(CFLAGS_K)		\
 		$(foreach INC,$(INCLUDES_K),-I$(INC)) 		\
 		$(foreach MACRO,$(CMACROS_K),-D $(MACRO))
 
 # KERNEL image
-$(KERNEL_IMG): $(KDIRS_CREATED) $(OBJS_K) $(LDSCRIPT_KPP)
+$(KERNEL_IMG): $(OBJS_K) $(LDSCRIPT_KPP)
 	@echo [linking 'kernel'] $@
 	@$(LINK_K) -o$@ $(OBJS_K) $(LDFLAGS_K) -T $(LDSCRIPT_KPP)
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Compiling and linking programs
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-PROG := progs
 BUILD_U := $(BUILDDIR)/$(PROG)
-PROG_BIN := $(BUILDDIR)/$(PROG).bin
 
 PROG_HEADERS := $(PROG)/programs.h
 
 CMACROS_U += $(CMACROS) ASSERT_H=\<api/errno.h\>		\
 	     PROGRAMS=\<$(PROG_HEADERS)\>			\
 	     PROG_START_FUNC=$(PROG_START_FUNC)			\
+	     PROG_START_FUNC_NAME="\"$(PROG_START_FUNC)\""	\
 	     MEM_ALLOCATOR_FOR_USER=$(MEM_ALLOCATOR_FOR_USER)	\
-	     MAX_USER_DESCRIPTORS=$(MAX_USER_DESCRIPTORS)
+	     MAX_USER_DESCRIPTORS=$(MAX_USER_DESCRIPTORS)	\
+	     PROG_START_ADDR=$(PROG_START_ADDR)
 
 PROGRAM_HEADERS := $(BUILDDIR)/$(PROG_HEADERS)
 
 #------------------------------------------------------------------------------
+
+UDIR_RDY = $(BUILD_U)/.null
+$(UDIR_RDY): $(BDIR_RDY)
+	@-if [ ! -e $(BUILD_U) ]; then mkdir -p $(BUILD_U); fi;
+	@touch $(UDIR_RDY)
 
 # Programs compilation through template ----------------------------------------
 
@@ -185,7 +186,7 @@ DEPS_U	+= $$($(1)_DEPS)
 $(1)_DIRS_CREATED := $$($(1)_BUILDDIR)/.null
 
 #create directories for objects
-$$($(1)_DIRS_CREATED):
+$$($(1)_DIRS_CREATED): $(UDIR_RDY)
 	@if [ ! -e $$($(1)_BUILDDIR) ]; then mkdir -p $$($(1)_BUILDDIR); fi;
 	@$$(foreach DIR,$$($(1)_BDIRS), if [ ! -e $$(DIR) ]; \
 		then mkdir -p $$(DIR); fi; )
@@ -210,18 +211,14 @@ endef
 # "Call" above template for each program to be included
 $(foreach prog,$(CCPROGRAMS),$(eval $(call PROGRAM_TEMPLATE,$(prog))))
 
-# preprocessed linker script (konstants)
+# preprocessed linker script (constants)
 LDSCRIPT_UPP := $(BUILD_U)/ldscript.ld
-$(LDSCRIPT_UPP): $(LDSCRIPT_U)
+$(LDSCRIPT_UPP): $(LDSCRIPT_U) $(UDIR_RDY)
 	@$(CC_U) -E -P -x c -o $@ $< $(CFLAGS_U)		\
 		$(foreach INC,$(INCLUDES_U),-I$(INC)) 		\
 		$(foreach MACRO,$(CMACROS_U),-D $(MACRO))
 
-$(PROG_BIN): $(PROGRAM_HEADERS) $(OBJS_U) $(LDSCRIPT_UPP)
-	@echo [linking program]
-	@$(LINK_U) -o $@ $(OBJS_U) $(LDFLAGS_U) -T $(LDSCRIPT_UPP)
-
-$(PROGRAM_HEADERS): $(FILES_U)
+$(PROGRAM_HEADERS): $(FILES_U) $(UDIR_RDY)
 	@echo
 	@echo ">>> Compiling programs ..."
 	@-if [ ! -e $(BUILD_U) ]; then mkdir -p $(BUILD_U); fi;
@@ -235,63 +232,17 @@ $(PROGRAM_HEADERS): $(FILES_U)
 		>> $(PROGRAM_HEADERS); )
 	@echo "{NULL,NULL,NULL} }" >> $(PROGRAM_HEADERS)
 
+$(PROG_BIN): $(PROGRAM_HEADERS) $(OBJS_U) $(LDSCRIPT_UPP)
+	@echo [linking program]
+	@$(LINK_U) -o $@ $(OBJS_U) $(LDFLAGS_U) -T $(LDSCRIPT_UPP)
+
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-BOOTCD := $(BUILDDIR)/cd
-GRUBMENU := $(BOOTCD)/boot/grub/menu.lst
-GRUBFILE := $(BOOTCD)/boot/grub/stage2_eltorito
-GRUBFILE_ORIG := $(BUILDDIR)/ARCH/boot/grub_file
-
-$(GRUBFILE):
-	@-if [ ! -e $(BOOTCD) ]; then mkdir -p $(BOOTCD)/boot/grub ; fi;
-	@cp -a $(GRUBFILE_ORIG) $(GRUBFILE)
-
-$(GRUBMENU): $(KERNEL_IMG) $(PROG_BIN)
-	@-if [ ! -e $(BOOTCD) ]; then mkdir -p $(BOOTCD)/boot/grub ; fi;
-	@echo "default 0" > $(GRUBMENU)
-	@echo "timeout=0" >> $(GRUBMENU)
-	@echo "title $(PROJECT)" >> $(GRUBMENU)
-	@echo "root (cd)" >> $(GRUBMENU)
-	@echo "kernel /boot/$(KERNEL_FILE_NAME)" >> $(GRUBMENU)
-	@echo "module /boot/$(PROG).bin.gz prog_name=$(PROG)" >> $(GRUBMENU);
-	@echo "boot" >> $(GRUBMENU)
-
-
-# ISO CD image for booting (with grub as boot loader and $(KERNEL) as OS image)
-$(CDIMAGE): prepare_src $(KERNEL_IMG) $(PROG_BIN) $(GRUBFILE) $(GRUBMENU)
-	@cp $(KERNEL_IMG) $(BOOTCD)/boot/$(KERNEL_FILE_NAME)
-	@gzip -c $(PROG_BIN) > $(BOOTCD)/boot/$(PROG).bin.gz
-	@mkisofs -J -R -b boot/grub/stage2_eltorito			\
-	-no-emul-boot -boot-load-size 4 -boot-info-table -V $(PROJECT)	\
-	-A $(PROJECT) -o $(CDIMAGE) $(BOOTCD) 2> /dev/null
-	@echo
-	@echo ISO CD image: $(CDIMAGE)
-	@echo
-
-
-#find qemu emulator requested in config.ini (QEMU)
-#ifeq ($(strip $(shell command -v $(QEMU);)),)
-#	QEMU = echo "Error: $(QEMU) not found!"; exit ;
-#endif
 
 # starting compiled system in 'qemu' emulator
-qemu: all
+qemu: $(KERNEL_IMG) $(PROG_BIN)
 	@echo $(QMSG)
-	@$(QEMU) $(QFLAGS) -cdrom $(CDIMAGE)
-
-# DEBUGGING
-# For debugging to work: include '-g' in CFLAGS and omit -s and -S from LDFLAGS
-# Best if -O3 flag is also omitted from CFLAGS and LDFLAGS (or some variables
-# may be optimized away)
-# Start debugging from two consoles:
-#	1st: make debug_qemu
-#	2nd: make debug_gdb
-debug_qemu: all
-	@echo $(QMSG)
-	@$(QEMU) $(QFLAGS) -cdrom $(CDIMAGE) -s -S
-debug_gdb: all
-	@echo Starting gdb ...
-	@$(DEBUG_GDB) -s $(KERNEL_IMG) -ex 'target remote localhost:1234'
+	@$(QEMU) $(QFLAGS) -kernel $(KERNEL_IMG) -initrd "$(PROG_BIN) prog_name=$(PROG)"
 
 OBJECTS = $(OBJS_K) $(OBJS_U)
 DEPS = $(DEPS_K) $(DEPS_U)

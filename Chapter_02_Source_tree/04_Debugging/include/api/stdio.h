@@ -1,8 +1,6 @@
-/*! Printing on stdout, reading from stdin */
+/*! Printing on stdout/stderr */
 #pragma once
 
-extern inline int clear_screen ();
-extern inline int goto_xy ( int x, int y );
 int printf ( char *format, ... );
 void warn ( char *format, ... );
 

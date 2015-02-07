@@ -8,5 +8,3 @@
 
 /* keyboard special keys identifications */
 #include "drivers/i8042.h"
-
-#include "drivers/acpi_power_off.h"

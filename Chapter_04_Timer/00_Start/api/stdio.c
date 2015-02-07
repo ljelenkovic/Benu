@@ -24,18 +24,6 @@ int stdio_init ()
 	return EXIT_SUCCESS;
 }
 
-/*! Erase screen (if supported by stdout device) */
-inline int clear_screen ()
-{
-	return u_stdout->clear ();
-}
-
-/*! Move cursor to given position (if supported by stdout device) */
-inline int goto_xy ( int x, int y )
-{
-	return u_stdout->gotoxy ( x, y );
-}
-
 /*! Formated output to console (lightweight version of 'printf') */
 int printf ( char *format, ... )
 {
@@ -43,7 +31,7 @@ int printf ( char *format, ... )
 
 	vssprintf ( text, CONSOLE_MAXLEN, &format );
 
-	return u_stdout->print ( CONSOLE_USER, text );
+	return u_stdout->print ( text );
 }
 
 /*! Formated output to error console */
@@ -53,5 +41,5 @@ void warn ( char *format, ... )
 
 	vssprintf ( text, CONSOLE_MAXLEN, &format );
 
-	u_stderr->print ( CONSOLE_USER, text );
+	u_stderr->print ( text );
 }

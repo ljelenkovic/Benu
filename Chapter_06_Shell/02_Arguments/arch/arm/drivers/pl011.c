@@ -114,39 +114,12 @@ static void uart_write ( arch_uart_t *up )
 static int uart_send ( void *data, size_t size, uint flags, device_t *dev )
 {
 	arch_uart_t *up;
-	uint8 *d, pchar;
-	console_cmd_t *cmd;
+	uint8 *d;
 
 	ASSERT ( dev );
 
 	up = dev->params;
 	d = data;
-
-	if ( dev->flags & DEV_TYPE_CONSOLE )
-	{
-		cmd = data;
-
-		switch ( cmd->cmd )
-		{
-			case CONSOLE_PRINT:
-				d = (uint8 *) &cmd->cd.print.text[0];
-				break;
-
-			case CONSOLE_CLEAR:
-			case CONSOLE_GOTOXY:
-				/* go to new line */
-				pchar = '\n';
-				d = &pchar;
-				size = 1;
-				break;
-
-			default:
-				return EXIT_FAILURE;
-		}
-	}
-	/*else {
-		send raw data;
-	}*/
 
 	/* first, copy to software buffer */
 	while ( size > 0 && up->outsz < up->outbufsz )
@@ -216,6 +189,26 @@ static int uart_recv ( void *data, size_t size, uint flags, device_t *dev )
 	return i; /* bytes read */
 }
 
+/*! Get status */
+static int uart_status ( uint flags, device_t *dev )
+{
+	arch_uart_t *up;
+	int rflags = 0;
+
+	ASSERT ( dev );
+
+	up = dev->params;
+
+	/* look up software buffers */
+	if ( up->insz > 0 )
+		rflags |= DEV_IN_READY;
+
+	if ( up->outsz < up->outbufsz )
+		rflags |= DEV_OUT_READY;
+
+	return rflags;
+}
+
 /*! uart0 device & parameters */
 static uint8 uart0_inbuf[BUFFER_SIZE];
 static uint8 uart0_outbuf[BUFFER_SIZE];
@@ -240,6 +233,7 @@ device_t pl011_dev = (device_t)
 	.destroy =	uart_destroy,
 	.send =		uart_send,
 	.recv =		uart_recv,
+	.status =	uart_status,
 
 	.flags = 	DEV_TYPE_SHARED | DEV_TYPE_CONSOLE,
 	.params = 	(void *) &uart0_params

@@ -3,7 +3,7 @@
 
 #include "memory.h"
 
-#include "kprint.h"
+#include <kernel/kprint.h>
 #include <kernel/errno.h>
 #include <arch/processor.h>
 #include <lib/string.h>
@@ -100,10 +100,12 @@ static id_t last_id = 0;
 id_t k_new_id ()
 {
 	id_t id = -1;
-	uint elem, n;
+	uint elem, n, start;
 	word_t mask;
 
-	last_id = ( last_id + 1 < MAX_RES ? last_id + 1 : 1 ); /* skip 0 */
+	last_id++;
+	if ( last_id == MAX_RES )
+		last_id = 1; /* skip 0 */
 
 	elem = last_id / WBITS;
 	mask = idmask [elem] | ( ( 1 << (last_id % WBITS) ) - 1 );
@@ -112,9 +114,10 @@ id_t k_new_id ()
 	if ( ~mask ) /* current 'elem' has free ids from last_id forward */
 	{
 		id = lsb_index ( ~mask );
+		ASSERT ( id != -1 );
 	}
 	else {
-		n = elem + 1;
+		n = start = ( elem + 1 ) % ID_ELEMS;
 		do {
 			if ( ~idmask[n] )
 			{
@@ -124,7 +127,7 @@ id_t k_new_id ()
 			}
 			n = ( n + 1 ) % ID_ELEMS;
 		}
-		while ( n != elem + 1 );
+		while ( n != start );
 	}
 
 	ASSERT ( id != -1 );
@@ -145,6 +148,20 @@ void k_free_id ( id_t id )
 	idmask [ id / WBITS ] &= ~ ( 1 << ( id % WBITS ) );
 }
 
+/*! Check if "id" is used (if object is alive) */
+int k_check_id ( id_t id )
+{
+	if (
+		id < 1 || id >= MAX_RES ||
+		( idmask [ id / WBITS ] & ( 1 << ( id % WBITS ) ) ) == 0
+	)
+		return 0;
+	else
+		return 1;
+
+}
+
+
 #undef	MAX_RES
 #undef	WBITS
 #undef	ID_ELEMS
@@ -162,7 +179,7 @@ void k_memory_info ()
 	for ( i = 0; mseg[i].type != MS_END && i < 20; i++ )
 	{
 		kprintf ( "%d\t%x\t%x\t%s\n", mseg[i].type, mseg[i].size,
-					      mseg[i].start, mseg[i].name );
+					  mseg[i].start );
 	}
 }
 

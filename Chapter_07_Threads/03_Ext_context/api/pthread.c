@@ -64,7 +64,7 @@ int pthread_attr_destroy ( pthread_attr_t *attr )
 int pthread_attr_setschedpolicy ( pthread_attr_t *attr, int policy )
 {
 	ASSERT_ERRNO_AND_RETURN ( attr, EINVAL );
-	ASSERT_ERRNO_AND_RETURN ( policy == SCHED_FIFO, ENOTSUP );
+	ASSERT_ERRNO_AND_RETURN ( policy >= 0 && policy < SCHED_NUM, EINVAL );
 
 	attr->sched_policy = policy;
 
@@ -87,7 +87,7 @@ int pthread_attr_setschedparam ( pthread_attr_t *attr,
 int pthread_setschedparam ( pthread_t thread, int policy,
 			    struct sched_param *param )
 {
-	ASSERT_ERRNO_AND_RETURN ( policy == SCHED_FIFO, ENOTSUP );
+	ASSERT_ERRNO_AND_RETURN ( policy >= 0 && policy < SCHED_NUM, EINVAL );
 
 	if ( param )
 		ASSERT_ERRNO_AND_RETURN (

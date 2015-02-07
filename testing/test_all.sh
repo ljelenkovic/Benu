@@ -42,7 +42,7 @@ for chapter in * ; do
         echo "================================================================="
         echo
         echo
-#        sleep 1
+#       sleep 1
         cd ..
       fi
     done

@@ -19,7 +19,8 @@ void arch_descriptors_init ()
 	GDTR_t gdtr;
 
 	/* initial update of segment descriptors */
-	arch_update_segments ( NULL, (size_t) 0xffffffff );
+	arch_upd_segm_descr (SEGM_CODE, NULL, (size_t) 0xffffffff, PRIV_KERNEL);
+	arch_upd_segm_descr (SEGM_DATA, NULL, (size_t) 0xffffffff, PRIV_KERNEL);
 
 	gdtr.gdt = gdt;
 	gdtr.limit = sizeof(gdt) - 1;
@@ -43,13 +44,6 @@ void arch_descriptors_init ()
 		   "i" ( GDT_DESCRIPTOR ( SEGM_DATA, GDT, PRIV_KERNEL ) )
 		: "memory"
 	);
-}
-
-/*! Update segment descriptors in GDT */
-void arch_update_segments ( void *adr, size_t size )
-{
-	arch_upd_segm_descr ( SEGM_CODE, adr, size, PRIV_KERNEL );
-	arch_upd_segm_descr ( SEGM_DATA, adr, size, PRIV_KERNEL );
 }
 
 /*! Update segment descriptor with starting address, size and privilege level */

@@ -3,6 +3,7 @@
 #include "uthread.h"
 
 #include <stdio.h>
+#include <errno.h>
 
 char PROG_HELP[] = "Threads created and managed in user space - kernel sees"
 		   " only single thread.";
@@ -15,6 +16,8 @@ volatile static int thr_num;
 
 int user_threads ( char *args[] )
 {
+	int errno_by_get, errno_by_macro;
+
 	printf ( "Example program: [%s:%s]\n%s\n\n", __FILE__, __FUNCTION__,
 		 PROG_HELP );
 
@@ -28,6 +31,24 @@ int user_threads ( char *args[] )
 	while (	thr_num > 0 )
 		uthread_yield ();
 
+	printf ( "\nerrno test\n" );
+
+	errno_by_get = get_errno();
+	errno_by_macro = _errno;
+	printf ( "Current errno by get_errno = %d\n", errno_by_get );
+	printf ( "Current errno by _errno = %d\n", errno_by_macro );
+
+	set_errno (10);
+	errno_by_get = get_errno();
+	errno_by_macro = _errno;
+	printf ( "Current errno by get_errno = %d\n", errno_by_get );
+	printf ( "Current errno by _errno = %d\n", errno_by_macro );
+
+	_errno = 5;
+	errno_by_get = get_errno();
+	errno_by_macro = _errno;
+	printf ( "Current errno by get_errno = %d\n", errno_by_get );
+	printf ( "Current errno by _errno = %d\n", errno_by_macro );
 	return 0;
 }
 

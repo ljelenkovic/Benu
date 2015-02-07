@@ -1,7 +1,7 @@
-/*! Multiboot configuration */
+/*! Memory segments */
 #pragma once
 
-#include <lib/list.h>
+#include <types/basic.h>
 
 /* Memory segments */
 enum {
@@ -14,12 +14,9 @@ enum {
 
 typedef struct _mseg_t_
 {
-	uint	type;	/* MS_KERNEL, MS_KHEAP, MS_PROGRAM, MS_MODULE  */
-	char	*name;
+	uint	 type;
 	void	*start;
-	size_t	size;
-
-	list_h	list;
+	size_t	 size;
 }
 mseg_t;
 

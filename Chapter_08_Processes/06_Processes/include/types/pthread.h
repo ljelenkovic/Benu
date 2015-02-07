@@ -3,8 +3,6 @@
 
 #include <types/basic.h>
 
-#include <types/sched2.h>
-
 /*! POSIX thread descriptor (user space) */
 typedef descriptor_t pthread_t;
 typedef pthread_t pid_t;
@@ -12,15 +10,16 @@ typedef pthread_t pid_t;
 /*! Scheduling parameters */
 typedef struct sched_param
 {
-	int           sched_priority;
-		      /* thread priority */
+	int  sched_priority;
+	     /* thread priority */
 
-	sched_supp_t  supp;
-		      /* additional scheduling parameters for policy != FIFO */
+	/* place here additional scheduling parameters for scheduler extension*/
 }
 sched_param_t;
 
 #define SCHED_FIFO		0
+#define SCHED_RR		1
+#define SCHED_NUM		2
 
 #define THREAD_MIN_PRIO		0
 #define THREAD_MAX_PRIO		(PRIO_LEVELS - 1)

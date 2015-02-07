@@ -22,7 +22,7 @@ int run_all ( char *args[] )
 {
 	int i, j;
 	char *progs_to_start[] = {
-		"keyboard", "hello", "timer", "args", "uthreads", NULL };
+		"hello", "timer", "args", "uthreads", NULL };
 
 	for ( j = 0; progs_to_start[j]; j++ )
 	for ( i = 0; prog[i].func; i++ )

@@ -19,6 +19,6 @@ void arch_create_thread_context (
 );
 
 void arch_switch_to_thread ( context_t *from, context_t *to );
-void arch_switch_to_thread_with_cleanup ( void *from, context_t *to );
+void arch_thread_exit_with_stack_switch ( void *kthread, void *exit_status );
 
 #include <ARCH/context.h> /* for context_t */

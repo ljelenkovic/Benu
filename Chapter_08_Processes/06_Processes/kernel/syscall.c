@@ -7,6 +7,7 @@
 #include <kernel/pthread.h>
 #include <kernel/device.h>
 #include <kernel/errno.h>
+#include <kernel/features.h>
 #include <kernel/memory.h>
 #include <kernel/signal.h>
 #include <kernel/time.h>
@@ -22,6 +23,7 @@ static int (*k_sysfunc[SYSFUNCS]) ( void *params ) =
 	NULL,
 
 	sys__sysinfo,
+	sys__feature,
 
 	sys__set_errno,
 	sys__get_errno,
@@ -40,7 +42,8 @@ static int (*k_sysfunc[SYSFUNCS]) ( void *params ) =
 	sys__close,
 	sys__read,
 	sys__write,
-	sys__power_off,
+	sys__device_status,
+	sys__poll,
 
 	sys__pthread_create,
 	sys__pthread_exit,

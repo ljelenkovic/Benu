@@ -11,7 +11,7 @@ PROJECT=hello.elf
 #Compile if required
 if [ $# -eq 0 ] || ( [ $1 = "qemu" ] && [ ! -e $PROJECT ] ); then
 
-CCFLAGS="-mcpu=arm926ej-s -g -Wall"
+CCFLAGS="-mcpu=arm926ej-s -g -Wall -Werror"
 ASFLAGS="-mcpu=arm926ej-s -g"
 LDFLAGS="-e arch_start -Ttext=0x10000"
 

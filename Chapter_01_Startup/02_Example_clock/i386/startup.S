@@ -5,7 +5,7 @@
 #define MULTIBOOT_HEADER_FLAGS	0
 
 /* stack, startup function */
-.extern	print_hello
+.extern	clock
 
 /* this code must be first in image for boot loader to find it easy */
 .section .text

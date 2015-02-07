@@ -14,7 +14,7 @@ int keyboard ( char *args[] )
 		 PROG_HELP );
 
 	do {
-		if ( ( key = get_char () ) )
+		if ( ( key = getchar () ) )
 			printf ( "Got: %c (%d)\n", key, key );
 		else
 			nanosleep ( &t, NULL );

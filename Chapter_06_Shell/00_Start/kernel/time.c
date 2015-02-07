@@ -4,8 +4,9 @@
 #include "time.h"
 
 #include "memory.h"
-#include "kprint.h"
+#include <kernel/kprint.h>
 #include <kernel/errno.h>
+#include <kernel/features.h>
 #include <arch/time.h>
 #include <arch/processor.h>
 
@@ -80,7 +81,7 @@ int kclock_settime ( clockid_t clockid, timespec_t *time )
  */
 void kclock_wake_up ( sigval_t sigval )
 {
-	int retval;
+	int retval __attribute__((__unused__));
 	timespec_t *remain;
 
 	ASSERT ( sleep_timer );
@@ -181,6 +182,14 @@ int ktimer_delete ( ktimer_t *ktimer )
 {
 	ASSERT ( ktimer );
 
+	/* check for object status first */
+	if ( !k_check_id ( ktimer->id ) )
+	{
+		/* FIXME Maybe this should not happen! */
+		//LOG ( DEBUG, "Bug possibly!" );
+		return ENOENT;
+	}
+
 	/* remove from active timers (if it was there) */
 	if ( TIMER_IS_ARMED ( ktimer ) )
 	{
@@ -269,6 +278,9 @@ static void ktimer_schedule ()
 {
 	ktimer_t *first, *next;
 	timespec_t time, ref_time;
+
+	if ( !sys__feature ( FEATURE_TIMERS, FEATURE_GET, 0 ) )
+		return;
 
 	kclock_gettime ( CLOCK_REALTIME, &time );
 	/* should have separate "scheduler" for each clock */

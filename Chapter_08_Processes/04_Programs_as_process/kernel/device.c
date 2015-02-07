@@ -206,6 +206,16 @@ static void k_device_interrupt_handler ( unsigned int inum, void *device )
 	if ( status ) {} /* handle return status if required */
 }
 
+static int k_device_status ( int flags, kdevice_t *kdev )
+{
+	ASSERT ( kdev );
+
+	if ( kdev->dev.status )
+		return kdev->dev.status ( flags, &kdev->dev );
+	else
+		return -1;
+}
+
 /* /dev/null emulation */
 static int do_nothing ()
 {
@@ -223,6 +233,7 @@ device_t dev_null = (device_t)
 	.destroy =	NULL,
 	.send =		do_nothing,
 	.recv =		do_nothing,
+	.status =	do_nothing,
 
 	.flags = 	DEV_TYPE_SHARED,
 	.params = 	NULL,
@@ -366,16 +377,105 @@ static int read_write ( void *p, int op )
 		EXIT2 ( EIO, EXIT_FAILURE );
 }
 
+int kdevice_status ( descriptor_t *desc, int flags, kprocess_t *proc )
+{
+	kdevice_t *kdev;
+	kobject_t *kobj;
+	int status, rflags = 0;
+
+	ASSERT_AND_RETURN_ERRNO ( desc, EINVAL );
+
+	kobj = desc->ptr;
+	ASSERT_AND_RETURN_ERRNO ( kobj, EINVAL );
+	ASSERT_AND_RETURN_ERRNO ( list_find ( &proc->kobjects, &kobj->list ),
+				EINVAL );
+	kdev = kobj->kobject;
+	ASSERT_AND_RETURN_ERRNO ( kdev && kdev->id == desc->id, EINVAL );
+
+	status = k_device_status ( flags, kdev );
+
+	if ( status == -1 )
+		return -1;
+
+	/* TODO only DEV_IN_READY and DEV_OUT_READY are set in device drivers */
+	if ( ( flags & ( POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI ) ) )
+		if ( ( status & DEV_IN_READY ) )
+			rflags |= POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI;
+	if ( ( flags & ( POLLOUT | POLLWRNORM | POLLWRBAND | POLLPRI ) ) )
+		if ( ( status & DEV_OUT_READY ) )
+			rflags |= POLLOUT | POLLWRNORM | POLLWRBAND | POLLPRI;
+
+	return rflags;
+}
+
+int sys__device_status ( void *p )
+{
+	descriptor_t *desc;
+	int flags;
+	kprocess_t *proc;
+
+	int status;
+
+	desc =  *( (descriptor_t **) p );	p += sizeof (descriptor_t *);
+	flags = *( (int *) p );
+
+	proc = kthread_get_process (NULL);
+
+	ASSERT_ERRNO_AND_EXIT ( desc, EINVAL );
+	desc = U2K_GET_ADR ( desc, proc );
+	ASSERT_ERRNO_AND_EXIT ( desc, EINVAL );
+
+	status = kdevice_status ( desc, flags, proc );
+	if ( status == -1 )
+		EXIT2 ( EXIT_FAILURE, status );
+	else
+		EXIT2 ( EXIT_SUCCESS, status );
+}
 
 /*!
- * System power off
+ * poll - input/output multiplexing
+ * \param fds set of file descriptors
+ * \param nfds number of file descriptors in fds
+ * \param timeout minimum time in ms to wait for any event defined by fds
+ *        (in current implementation this parameter is ignored)
+ * \param std_desc address of file descriptor array from user space
+ * \return number of file descriptors with changes in revents, -1 on errors
  */
-int sys__power_off ( void *p )
+int sys__poll ( void *p )
 {
-	/* power off is supported */
-	arch_power_off();
+	struct pollfd *fds;
+	nfds_t nfds;
+	int timeout __attribute__ ((unused));
+	descriptor_t *std_desc;
 
-	kprintf ( "\nPower off with ACPI failed!\n" );
+	int changes = 0, i;
+	short revents;
+	kprocess_t *proc;
 
-	EXIT ( ENOTSUP );
+	fds =       *( (struct pollfd **) p );	p += sizeof (struct pollfd *);
+	nfds =      *( (nfds_t *) p );		p += sizeof (nfds_t);
+	timeout =   *( (int *) p );		p += sizeof (int);
+	std_desc =  *( (descriptor_t **) p );
+
+	proc = kthread_get_process (NULL);
+
+	ASSERT_ERRNO_AND_EXIT ( fds && nfds > 0 && std_desc, EINVAL );
+	fds = U2K_GET_ADR ( fds, proc );
+	ASSERT_ERRNO_AND_EXIT ( fds, EINVAL );
+	std_desc = U2K_GET_ADR ( std_desc, proc );
+	ASSERT_ERRNO_AND_EXIT ( std_desc, EINVAL );
+
+	for ( i = 0; i < nfds; i++ )
+	{
+		revents = kdevice_status (
+			&std_desc[fds[i].fd], fds[i].events, proc
+		);
+		ASSERT_ERRNO_AND_EXIT ( revents != -1, EINVAL );
+
+		fds[i].revents = revents;
+		if ( revents )
+			changes++;
+	}
+
+	EXIT2 ( EXIT_SUCCESS, changes );
 }

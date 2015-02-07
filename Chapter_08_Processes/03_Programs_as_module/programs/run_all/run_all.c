@@ -28,18 +28,13 @@ int run_all ( char *args[] )
 	int i, j, error = 0;
 	char *progs_to_start[] = {
 		"hello", "timer", "args", "uthreads", "threads", "semaphores",
-		"monitors", "messages", "signals", "rr", "edf", NULL };
+		"monitors", "messages", "signals", "rr", NULL };
 
 	for ( j = 0; !error && progs_to_start[j]; j++ )
 		for ( i = 0; !error && prog[i].func; i++ )
 			if ( !strcmp ( progs_to_start[j], prog[i].name ) )
 				if ( start_program (i) )
 					error = 1;
-
-#if ( TURN_OFF == 1 )
-	printf ( "Powering off\n\n" );
-	syscall ( POWER_OFF, NULL, 0, NULL );
-#endif
 
 	return error;
 }

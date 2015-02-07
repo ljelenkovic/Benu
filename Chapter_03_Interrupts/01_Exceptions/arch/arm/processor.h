@@ -42,8 +42,6 @@ do {					\
 
 #define arch_memory_barrier()		asm ("" : : : "memory")
 
-#define arch_power_off()		arch_halt()
-
 #include "interrupt.h"
 
 static inline int arch_get_irqn ( int mode )

@@ -21,8 +21,7 @@ typedef struct _kthread_t_ kthread_t;
 /*! Interface for kernel (this and other subsystems) ------------------------ */
 void kthreads_init ();
 kthread_t *kthread_create ( void *start_routine, void *arg, uint flags,
-	int sched_policy, int sched_priority, sched_supp_t *sched_param,
-	void *stackaddr, size_t stacksize );
+      int sched_policy, int sched_priority, void *stackaddr, size_t stacksize );
 
 /*! insert/restore state for signal handler and similar */
 void kthread_create_new_state ( kthread_t *kthread, void *start_func,
@@ -30,7 +29,10 @@ void kthread_create_new_state ( kthread_t *kthread, void *start_func,
 int kthread_restore_state ( kthread_t *kthread );
 
 /*! suspend thread on delay and wait for signal */
-extern inline int kthread_suspend ( kthread_t *, void *wakeup_action, void * );
+extern inline int kthread_suspend (
+	kthread_t *kthread, void *wakeup_action, void *param );
+extern inline int kthread_set_signal_interrupt_handler (
+	kthread_t *kthread, void *wakeup_action, void *param );
 
 /*! add cleanup functions for when thread terminates or finish special processing
  *  like signal handlers */
@@ -47,7 +49,8 @@ void kthread_switch_to_thread ( kthread_t *from, kthread_t *to );
 void kthread_cleanup ( kthread_t *kthread );
 
 /*! Thread queue manipulation - advanced operations */
-void kthread_enqueue ( kthread_t *kthread, kthread_q *q_id );
+void kthread_enqueue ( kthread_t *kthread, kthread_q *q_id, int sig_int,
+		       void *wakeup_action, void *param );
 int kthreadq_release ( kthread_q *q_id );
 int kthreadq_release_all ( kthread_q *q_id );
 
@@ -83,9 +86,10 @@ extern inline kthread_t *kthread_get_active ();
 extern inline void *kthread_get_context ( kthread_t *thread );
 extern inline kthread_t *kthread_get_descriptor ( pthread_t *thr );
 
-/*! Get scheduling and signal parts of thread descriptor */
-extern inline void *kthread_get_sched2_param ( kthread_t *kthread );
+/*! Get signal part of thread descriptor */
 extern inline void *kthread_get_sigparams ( kthread_t *kthread );
+
+extern inline int kthread_get_interruptable ( kthread_t *kthread );
 
 /* save extra parameter when blocking thread */
 extern inline void kthread_set_private_param (kthread_t *kthread, void *qdata);
@@ -132,6 +136,9 @@ typedef struct _kthread_state_t_
 
 	void	  *exit_status;
 		   /* status with which thread exited */
+
+	int	   sig_int;
+		   /* is thread interruptable by signals */
 
 	sigset_t   sigmask;
 		   /* signal mask (which signals are blocked...) */
@@ -186,9 +193,6 @@ struct _kthread_t_
 			    /* scheduling policy */
 	int		    sched_priority;
 			    /* priority - primary scheduling parameter */
-
-	kthread_sched2_t    sched2;
-			    /* secondary scheduler parameters */
 
 	kthread_q	   *queue;
 			    /* in witch queue thread is (if not active) */

@@ -1,5 +1,7 @@
 /*! linker script for memory layout */
 
+/* Its parsed as C before used in linking! */
+
 ENTRY(arch_startup)
 
 SECTIONS {
@@ -26,8 +28,17 @@ SECTIONS {
 		. = ALIGN (4096);
 	}
 
-	kernel_end_addr = .;
+	/*
+	 * what with other sections generated with gcc (various versions)?
+	 * if optimizing for size discard them with: /DISCARD/ : { *(*) }
+	 * if debugging with qemu/gdb they must be included
+	 * - they can be included implicitly, without declaring them here
+	 * - but they will be put behind "kernel_end_addr" so its best to use
+	 *   multiboot loader (QEMU is that)
+	 */
 
-	/DISCARD/ : { *(.comment) } /* gcc info is discarded */
-	/DISCARD/ : { *(.eh_frame) } /* not used */
+#ifndef DEBUG
+	/DISCARD/ : { *(*) }
+#endif
+	kernel_end_addr = .;
 }

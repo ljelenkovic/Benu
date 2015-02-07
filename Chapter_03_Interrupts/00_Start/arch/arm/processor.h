@@ -21,5 +21,3 @@ do {					\
 	arch_disable_interrupts();	\
 	asm volatile ( "b .\n\t" );	\
 } while (0)
-
-#define arch_power_off()		arch_halt()

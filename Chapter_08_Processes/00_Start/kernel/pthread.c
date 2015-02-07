@@ -30,7 +30,6 @@ int sys__pthread_create ( pthread_t *thread, pthread_attr_t *attr,
 	uint flags = 0;
 	int sched_policy = SCHED_FIFO;
 	int sched_priority = THREAD_DEF_PRIO;
-	sched_supp_t *sched_supp = NULL;
 	void *stackaddr = NULL;
 	size_t stacksize = 0;
 
@@ -41,7 +40,6 @@ int sys__pthread_create ( pthread_t *thread, pthread_attr_t *attr,
 		flags = attr->flags;
 		sched_policy = attr->sched_policy;
 		sched_priority = attr->sched_params.sched_priority;
-		sched_supp = &attr->sched_params.supp;
 		stackaddr = attr->stackaddr;
 		stacksize = attr->stacksize;
 
@@ -59,7 +57,7 @@ int sys__pthread_create ( pthread_t *thread, pthread_attr_t *attr,
 	}
 
 	kthread = kthread_create ( start_routine, arg, flags,
-				   sched_policy, sched_priority, sched_supp,
+				   sched_policy, sched_priority,
 				   stackaddr, stacksize );
 
 	ASSERT_ERRNO_AND_EXIT ( kthread, ENOMEM );
@@ -317,14 +315,15 @@ int sys__pthread_mutex_lock ( pthread_mutex_t *mutex )
 
 	retval = mutex_lock ( kmutex, kthread_get_active () );
 
+	if ( retval != -1 )
+		kthread_set_syscall_retval ( NULL, EXIT_SUCCESS );
+	else
+		kthread_set_syscall_retval ( NULL, EXIT_FAILURE );
+
 	if ( retval == 1 )
 		kthreads_schedule ();
 
-	 /* errno is already set */
-	if ( retval != -1 )
-		SYS_RETURN ( EXIT_SUCCESS );
-	else
-		SYS_RETURN ( EXIT_FAILURE );
+	SYS_EXIT ( kthread_get_errno(NULL), kthread_get_syscall_retval(NULL) );
 }
 
 /*! lock mutex; return 0 if locked, 1 if thread blocked, -1 if error */
@@ -349,7 +348,7 @@ static int mutex_lock ( kpthread_mutex_t *kmutex, kthread_t *kthread )
 		}
 
 		kthread_set_errno ( kthread, EXIT_SUCCESS );
-		kthread_enqueue ( kthread, &kmutex->queue );
+		kthread_enqueue ( kthread, &kmutex->queue, 0, NULL, NULL );
 
 		return 1;
 	}
@@ -497,7 +496,7 @@ int sys__pthread_cond_wait ( pthread_cond_t *cond, pthread_mutex_t *mutex )
 	kthread_set_syscall_retval ( NULL, EXIT_SUCCESS );
 
 	/* move thread in conditional variable queue */
-	kthread_enqueue ( NULL, &kcond->queue );
+	kthread_enqueue ( NULL, &kcond->queue, 0, NULL, NULL );
 
 	/* save reference to mutex object */
 	kthread_set_private_param ( NULL, kobj_mutex );
@@ -573,7 +572,7 @@ static int cond_release ( pthread_cond_t *cond, int release_all )
 			kobj_mutex = kthread_get_private_param ( kthread );
 			kmutex = kobj_mutex->kobject;
 
-			kthread_enqueue ( kthread, &kmutex->queue );
+			kthread_enqueue(kthread, &kmutex->queue, 0, NULL, NULL);
 		}
 	}
 
@@ -692,7 +691,7 @@ int sys__sem_wait ( sem_t *sem )
 		ksem->last_lock = kthread;
 	}
 	else {
-		kthread_enqueue ( kthread, &ksem->queue );
+		kthread_enqueue ( kthread, &ksem->queue, 1, NULL, NULL );
 		kthreads_schedule ();
 	}
 
@@ -922,7 +921,7 @@ int sys__mq_send ( mqd_t *mqdes, char *msg_ptr, size_t msg_len, uint msg_prio )
 		kthread_set_errno ( NULL, EAGAIN );
 		kthread_set_syscall_retval ( NULL, EAGAIN );
 
-		kthread_enqueue ( NULL, &kq_queue->send_q );
+		kthread_enqueue ( NULL, &kq_queue->send_q, 1, NULL, NULL );
 		kthreads_schedule ();
 
 		if ( kthread_get_errno (NULL) != EAGAIN )
@@ -1002,7 +1001,7 @@ int sys__mq_receive (mqd_t *mqdes,char *msg_ptr,size_t msg_len,uint *msg_prio)
 		kthread_set_errno ( NULL, EAGAIN );
 		kthread_set_syscall_retval ( NULL, EAGAIN );
 
-		kthread_enqueue ( NULL, &kq_queue->recv_q );
+		kthread_enqueue ( NULL, &kq_queue->recv_q, 1, NULL, NULL );
 		kthreads_schedule ();
 
 		if ( kthread_get_errno (NULL) != EAGAIN )

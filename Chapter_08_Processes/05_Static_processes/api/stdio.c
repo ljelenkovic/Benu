@@ -108,7 +108,7 @@ ssize_t write ( int fd, void *buffer, size_t count )
 }
 
 /*! Get input from "standard input" */
-inline int get_char ()
+inline int getchar ()
 {
 	int c = 0;
 
@@ -117,52 +117,55 @@ inline int get_char ()
 	return c;
 }
 
-/*! Erase screen (if supported by stdout device) */
-inline int clear_screen ()
-{
-	console_cmd_t cmd;
-
-	cmd.cmd = CONSOLE_CLEAR;
-
-	return write ( _stdout, &cmd, sizeof (int) );
-}
-
-/*! Move cursor to given position (if supported by stdout device) */
-inline int goto_xy ( int x, int y )
-{
-	console_cmd_t cmd;
-
-	cmd.cmd = CONSOLE_GOTOXY;
-	cmd.cd.gotoxy.x = x;
-	cmd.cd.gotoxy.y = y;
-
-	return write ( _stdout, &cmd, sizeof (int) );
-}
-
 /*! Formated output to console (lightweight version of 'printf') */
 int printf ( char *format, ... )
 {
-	console_cmd_t cmd;
+	char buffer[CONSOLE_MAXLEN];
 	size_t size;
 
-	cmd.cmd = CONSOLE_PRINT;
-	cmd.cd.print.attr = CONSOLE_USER;
+	size = vssprintf ( buffer, CONSOLE_MAXLEN, &format );
 
-	size = vssprintf ( &cmd.cd.print.text[0], CONSOLE_MAXLEN, &format );
-
-	return write ( _stdout, &cmd, size );
+	return write ( _stdout, buffer, size );
 }
 
 /*! Formated output to error console */
 void warn ( char *format, ... )
 {
-	console_cmd_t cmd;
+	char buffer[CONSOLE_MAXLEN];
 	size_t size;
 
-	cmd.cmd = CONSOLE_PRINT;
-	cmd.cd.print.attr = CONSOLE_USER;
+	size = vssprintf ( buffer, CONSOLE_MAXLEN, &format );
 
-	size = vssprintf ( &cmd.cd.print.text[0], CONSOLE_MAXLEN, &format );
+	write ( _stderr, buffer, size );
+}
 
-	write ( _stderr, &cmd, size );
+/*!
+ * poll - input/output multiplexing
+ * \param fds set of file descriptors
+ * \param nfds number of file descriptors in fds
+ * \param timeout minimum time in ms to wait for any event defined by fds
+ *        (in current implementation this parameter is ignored)
+ * \return number of file descriptors with changes in 'revents', -1 on errors
+ */
+int poll ( struct pollfd fds[], nfds_t nfds, int timeout )
+{
+	int i;
+
+	if ( !fds || nfds < 1 )
+	{
+		set_errno ( EBADF );
+		return EXIT_FAILURE;
+	}
+
+	for ( i = 0; i < nfds; i++ )
+	{
+		if ( 	fds[i].fd < 0 || fds[i].fd >= MAX_USER_DESCRIPTORS ||
+			!std_desc[fds[i].fd].id || !std_desc[fds[i].fd].ptr )
+		{
+			set_errno ( EBADF );
+			return EXIT_FAILURE;
+		}
+	}
+
+	return syscall ( POLL, fds, nfds, timeout, std_desc );
 }

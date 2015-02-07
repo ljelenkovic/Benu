@@ -5,7 +5,7 @@
 #include <arch/multiboot.h>
 
 /* stack, startup function */
-.extern system_stack, k_startup, arch_descriptors_init, arch_mb_magic, arch_mb_info
+.extern system_stack, k_startup, arch_descriptors_init
 
 .section .text
 
@@ -32,10 +32,6 @@ arch_startup:
 	/* starting status register - EFLAGS register */
 	pushl	$0
 	popf
-
-	/* copy multiboot parameters in arch_mb_magic and arch_mb_info */
-	movl	%eax, arch_mb_magic
-	movl	%ebx, arch_mb_info
 
 	/* set up GDT, IDT */
 	call	arch_descriptors_init

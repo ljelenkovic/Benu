@@ -39,21 +39,17 @@ extern MEM_ALLOC_T *k_mpool; /* defined in *ff_simple.c, *gma.h, ... */
 void k_memory_init ();
 void k_memory_info ();
 
-#define	MAX_PROG_NAME_LEN	32
 
-/*! Program, loaded as module */
+/*! Available (loaded) programs */
 struct _kprog_t_
 {
-	char	      prog_name[MAX_PROG_NAME_LEN];
-		      /* read from multiboot */
+	program_t  *prog;
+		    /* defined as header of program */
 
-	prog_info_t  *pi;
-	              /* defined as header of program */
+	mseg_t     *m;
+		    /* memory segment this program occupies */
 
-	mseg_t	     *m;
-		      /* memory segment this program occupies */
-
-	list_h	      list;
+	list_h      list;
 };
 
 /*! Process ----------------------------------------------------------------- */
@@ -61,12 +57,26 @@ struct _kprog_t_
 /*! Process */
 struct _kprocess_t_
 {
-	kprog_t	     *prog;
-	ffs_mpool_t  *stack_pool;
-
-	prog_info_t  *pi;
-		      /* process header (copy of program header) */
 	mseg_t	      m;
+		      /* memory segment this process occupies */
+
+	process_t    *proc;
+		      /* process header - at start of process memory */
+
+	char          name[16];	/* program name */
+
+	void         *heap; /* physical address of heap area */
+	size_t        heap_size;
+
+	void         *stack; /* physical address of stack area */
+	size_t        stack_size;
+	size_t        thread_stack_size;
+	uint         *smap; /* bitmap for stack allocation */
+	              /* allocation unit = thread_stack */
+		      /* allocation units = stack_size / thread_stack */
+	uint          smap_size;
+
+	uint          prio;	/* default priority for threads */
 
 	int	      thread_count;
 
@@ -97,6 +107,7 @@ struct _kobject_t_
 
 id_t k_new_id ();
 void k_free_id ( id_t id );
+int k_check_id ( id_t id );
 
 int k_list_programs ( char *buffer, size_t buf_size );
 
@@ -105,3 +116,6 @@ void k_memory_fault (); /* memory fault handler */
 void *kmalloc_kobject ( kprocess_t *proc, size_t obj_size );
 void *kfree_kobject ( kprocess_t *proc, kobject_t *kobj );
 int   kfree_process_kobjects ( kprocess_t *proc );
+
+void *kprocess_stack_alloc ( kprocess_t *kproc );
+void kprocess_stack_free ( kprocess_t *kproc, void *stack );

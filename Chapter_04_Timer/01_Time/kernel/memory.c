@@ -3,7 +3,7 @@
 
 #include "memory.h"
 
-#include "kprint.h"
+#include <kernel/kprint.h>
 #include <kernel/errno.h>
 #include <arch/processor.h>
 #include <lib/string.h>
@@ -63,7 +63,7 @@ void k_memory_info ()
 	for ( i = 0; mseg[i].type != MS_END && i < 20; i++ )
 	{
 		kprintf ( "%d\t%x\t%x\t%s\n", mseg[i].type, mseg[i].size,
-					      mseg[i].start, mseg[i].name );
+					  mseg[i].start );
 	}
 }
 

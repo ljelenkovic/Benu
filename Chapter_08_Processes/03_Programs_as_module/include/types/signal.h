@@ -39,7 +39,7 @@
 #define SIGIO		29	/* I/O now possible (4.2 BSD) */
 #define SIGPWR		30	/* Power failure restart (System V) */
 #define SIGSYS		31	/* Bad system call */
-#define SIGRTMIN        32
+#define SIGRTMIN	32
 #define SIGRTMAX	63
 #define SIGMAX		63
 
@@ -159,7 +159,7 @@ sigaction_t;
 #define SIG_UNBLOCK	1	/* Unblock signals.  */
 #define SIG_SETMASK	2	/* Set the set of blocked signals.  */
 
-/* how to react on signal (generated through timers) */
+/* how to react on signal */
 typedef struct sigevent
 {
 	int	  sigev_notify;		/* Notification type */

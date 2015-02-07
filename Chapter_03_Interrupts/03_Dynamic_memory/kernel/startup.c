@@ -2,15 +2,19 @@
 #define _K_STARTUP_C_
 
 #include "memory.h"
-#include "kprint.h"
 #include <arch/interrupt.h>
 #include <arch/processor.h>
 #include <api/stdio.h>
 #include <api/prog_info.h>
 #include <types/io.h>
+#include <kernel/errno.h>
+#include <kernel/features.h>
 
 char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "
 			"Version: " VERSION " (" ARCH ")";
+
+/* state of kernel features */
+uint kernel_features = FEATURE_SUPPORTED; /* initially set all to "on" state */
 
 /*!
  * First kernel function (after boot loader loads it to memory)
@@ -51,18 +55,35 @@ void k_startup ()
 	hello_world ();
 	segm_fault ();
 
-#if ( TURN_OFF == 0 )
 	kprintf ( "\nSystem halted!\n" );
-#ifdef PL190
-	/* testing uart (arm) interrupts */
-	void uart0_echo_test_start ();
-	uart0_echo_test_start ();
-	suspend();
-#endif
 	halt ();
-#else
-	/* power off (if supported, or just stop if not) */
-	kprintf ( "Powering off\n\n" );
-	power_off ();
-#endif
+}
+
+/*! Turn kernel feature on/off */
+uint sys__feature ( uint features, int cmd, int enable )
+{
+	uint prev_state = kernel_features & features;
+
+	ASSERT ( !( features & ~FEATURE_SUPPORTED ) );
+
+	if ( cmd == FEATURE_GET )
+		return prev_state;
+
+	/* update state */
+	if ( enable )
+		kernel_features |= features;
+	else
+		kernel_features &= ~features;
+
+	/* action required? */
+
+	if ( ( features & FEATURE_INTERRUPTS ) )
+	{
+		if ( enable )
+			enable_interrupts ();
+		else
+			disable_interrupts ();
+	}
+
+	return prev_state;
 }

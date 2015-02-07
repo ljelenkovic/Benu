@@ -10,19 +10,18 @@ extern char user_code, user_end, user_heap, user_stack;
 
 extern int PROG_START_FUNC ( char *args[] );
 
-prog_info_t pi =
+prog_info_t pi __attribute__ ((section (".program_header"))) =
 {
-	.zero =		{ 0, 0, 0, 0 },
-	.init = 	prog_init,
+	.magic =	{ PMAGIC1, ~PMAGIC1, PMAGIC2, ~PMAGIC2 },
+	.type = 	MS_PROGRAM,
+	.start =	&user_code, /* from user.ld */
+	.end =		&user_end,  /* from user.ld */
+	.name =		PROG_START_FUNC_NAME,
+	.init =		prog_init,
 	.entry =	PROG_START_FUNC,
 	.param =	NULL,
 	.exit =		pthread_exit,
 	.prio =		THR_DEFAULT_PRIO,
-
-	.start_adr =	&user_code,
-	.end_adr =	&user_end,
-
-	.mpool =	NULL,
 };
 
 int stdio_init (); /* implemented in stdio.c */

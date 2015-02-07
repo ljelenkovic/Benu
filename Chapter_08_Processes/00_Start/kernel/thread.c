@@ -32,7 +32,7 @@ void kthreads_init ()
 	active_thread = NULL;
 	ksched_init ();
 
-	(void) kthread_create(idle_thread,NULL,0,SCHED_FIFO,0,NULL,NULL,0);
+	(void) kthread_create ( idle_thread, NULL, 0, SCHED_FIFO, 0, NULL, 0 );
 
 	/* initialize memory pool for threads */
 	pi.heap = kmalloc ( PROG_HEAP_SIZE );
@@ -42,7 +42,7 @@ void kthreads_init ()
 	if ( !prio )
 		prio = THREAD_DEF_PRIO;
 
-	(void) kthread_create(pi.init,NULL,0,SCHED_FIFO,prio,NULL,NULL,0);
+	(void) kthread_create ( pi.init, NULL, 0, SCHED_FIFO, prio, NULL, 0 );
 
 	kthreads_schedule ();
 }
@@ -58,8 +58,7 @@ void kthreads_init ()
  * \return Pointer to descriptor of created kernel thread
  */
 kthread_t *kthread_create ( void *start_routine, void *arg, uint flags,
-	int sched_policy, int sched_priority, sched_supp_t *sched_param,
-	void *stackaddr, size_t stacksize )
+       int sched_policy, int sched_priority, void *stackaddr, size_t stacksize )
 {
 	kthread_t *kthread;
 
@@ -82,6 +81,7 @@ kthread_t *kthread_create ( void *start_routine, void *arg, uint flags,
 	/* connect signal mask in descriptor with state */
 	kthread->sig_handling.mask = &kthread->state.sigmask;
 	ksignal_thread_init ( kthread );
+	kthread->state.sig_int = 1;
 
 	list_append ( &all_threads, kthread, &kthread->all );
 
@@ -94,8 +94,6 @@ kthread_t *kthread_create ( void *start_routine, void *arg, uint flags,
 
 	kthread->ref_cnt = 1;
 	kthread_move_to_ready ( kthread, LAST );
-
-	ksched2_thread_add (kthread, sched_policy, sched_priority, sched_param);
 
 	return kthread;
 }
@@ -181,12 +179,13 @@ int kthread_restore_state ( kthread_t *kthread )
 	return retval;
 }
 
-/*! Suspend thread (kthreads_schedule must follow this call) */
+/*! Suspend thread (kthreads_schedule() must follow this call) */
 inline int kthread_suspend ( kthread_t *kthread, void *wakeup_action,
 			     void *param )
 {
 	if ( !kthread )
 		kthread = active_thread;
+	ASSERT ( kthread );
 
 	ASSERT ( kthread->state.state == THR_STATE_ACTIVE ||
 		 kthread->state.state == THR_STATE_READY );
@@ -195,10 +194,41 @@ inline int kthread_suspend ( kthread_t *kthread, void *wakeup_action,
 		kthread_remove_from_ready ( kthread );
 
 	kthread->state.state = THR_STATE_SUSPENDED;
+	kthread_set_signal_interrupt_handler ( kthread, wakeup_action, param );
+
+	return 0;
+}
+
+/*! Set signal (or other) interrupt handler for suspended or blocked thread */
+inline int kthread_set_signal_interrupt_handler (
+	kthread_t *kthread, void *wakeup_action, void *param )
+{
+	if ( !kthread )
+		kthread = active_thread;
+	ASSERT ( kthread );
+
 	kthread->state.cancel_suspend_handler = wakeup_action;
 	kthread->state.cancel_suspend_param = param;
 
 	return 0;
+}
+
+static void kthread_release_prematurely ( kthread_t *kthread, void *param )
+{
+	if ( !kthread )
+		kthread = active_thread;
+	ASSERT ( kthread );
+
+	if ( kthread->state.state == THR_STATE_WAIT )
+	{
+		if ( !kthreadq_remove ( kthread->queue, kthread ) )
+			ASSERT ( FALSE );
+	}
+	else if ( kthread->state.state == THR_STATE_READY )
+	{
+		if ( !kthread_remove_from_ready ( kthread ) )
+			ASSERT ( FALSE );
+	}
 }
 
 /*! add cleanup functions for when thread terminates or finish special processing
@@ -229,7 +259,22 @@ void kthread_param_free ( param_t p1, param_t p2, param_t p3 )
  * Cancel thread (or restore it to previous state)
  * \param kthread Thread descriptor
  */
+int kthread_exit2 ( kthread_t *kthread, void *exit_status, int force );
+
 int kthread_exit ( kthread_t *kthread, void *exit_status, int force )
+{
+	ASSERT ( kthread );
+
+	if ( kthread == active_thread )
+	{
+		/* switch to bootup stack before destroying this thread */
+		arch_thread_exit_with_stack_switch(kthread, exit_status, force);
+		ASSERT ( FALSE ); /* there is no return to here! */
+	}
+	return kthread_exit2 ( kthread, exit_status, force );
+}
+
+int kthread_exit2 ( kthread_t *kthread, void *exit_status, int force )
 {
 	kthread_state_t *prev;
 	int restored = FALSE;
@@ -238,6 +283,7 @@ int kthread_exit ( kthread_t *kthread, void *exit_status, int force )
 	void **p;
 
 	ASSERT ( kthread );
+
 	do {
 		prev = list_get ( &kthread->states, FIRST );
 		if ( prev )
@@ -245,22 +291,27 @@ int kthread_exit ( kthread_t *kthread, void *exit_status, int force )
 	}
 	while ( prev && force ); /* if cancel is called, destroy all states */
 
-	if ( restored && !force ) /* restored to previous state */
+	if ( restored && !force ) /* restored to previous state, not canceled */
 	{
 		if ( kthread == active_thread )
 		{
 			kthread->state.state = THR_STATE_ACTIVE;
-			arch_switch_to_thread ( NULL, &kthread->state.context );
+
+			/* process pending signals (if any) */
+			ksignal_process_pending ( active_thread );
+
+			arch_switch_to_thread ( NULL, &active_thread->state.context );
+			ASSERT ( FALSE ); /* there is no return to here! */
 		}
 		else {
-			ASSERT (FALSE); /* hum, rethink this */
-			/* move to ready? */
+			/* don't think there is scenario where this branch is executed */
+			/* if happens, reschedule */
+			kthreads_schedule ();
+			return EXIT_SUCCESS;
 		}
-
-		kthreads_schedule ();
-
-		return EXIT_SUCCESS;
 	}
+
+	/* thread is to be canceled ! */
 
 	if ( kthread->state.state == THR_STATE_PASSIVE )
 		return EXIT_SUCCESS; /* thread is already finished */
@@ -296,9 +347,6 @@ int kthread_exit ( kthread_t *kthread, void *exit_status, int force )
 	kthread->state.state = THR_STATE_PASSIVE;
 	kthread->state.exit_status = exit_status;
 
-	/* remove it from its scheduler */
-	ksched2_thread_remove ( kthread );
-
 	/* any thread waiting on this? */
 	q = &kthread->join_queue;
 
@@ -313,12 +361,15 @@ int kthread_exit ( kthread_t *kthread, void *exit_status, int force )
 		kthread->ref_cnt--;
 	}
 
-	/* defer removing thread resources until last moment */
-	kthread->state.flags |= THR_FLAG_DELETE;
+	/* remove thread resources */
+	kthread_restore_state ( kthread ); /* cleanup functions */
+	kthread->ref_cnt--;
+	if ( !kthread->ref_cnt )
+		kthread_remove_descriptor ( kthread );
 
 	if ( kthread == active_thread )
 	{
-		//active_thread = NULL;
+		active_thread = NULL;
 		kthreads_schedule ();
 	}
 
@@ -351,7 +402,7 @@ void kthread_wait_thread ( kthread_t *waiting, kthread_t *waited )
 	ASSERT ( waited );
 
 	waited->ref_cnt++;
-	kthread_enqueue ( waiting, &waited->join_queue );
+	kthread_enqueue ( waiting, &waited->join_queue, 0, NULL, NULL );
 }
 
 /*! Get exit status of finished thread (and free descriptor) */
@@ -372,39 +423,27 @@ void kthread_switch_to_thread ( kthread_t *from, kthread_t *to )
 {
 	ASSERT ( to == active_thread );
 
-	if ( from && ( from->state.flags & THR_FLAG_DELETE ) )
-	{
-		/* delete thread resources with switch */
-		from->state.flags &= ~THR_FLAG_DELETE;
-
-		arch_switch_to_thread_with_cleanup (
-			from, kthread_get_context ( to )
-		);
-	}
-	else {
-		arch_switch_to_thread (
-		/* from */	( from ? kthread_get_context ( from ) : NULL ),
-		/* to */	kthread_get_context ( to )
-		);
-	}
+	arch_switch_to_thread (
+	/* from */	( from ? kthread_get_context ( from ) : NULL ),
+	/* to */	kthread_get_context ( to )
+	);
 }
 
-void kthread_cleanup ( kthread_t *kthread )
-{
-	kthread_restore_state ( kthread );
-	kthread->ref_cnt--;
-	if ( !kthread->ref_cnt )
-		kthread_remove_descriptor ( kthread );
-}
 
 /*! operations on thread queues (blocked threads) --------------------------- */
 
 /*!
  * Put given thread or active thread (when kthread == NULL) into queue 'q_id'
- * - if kthread != NULL, thread must not be in any list and 'kthreads_schedule'
- *   should follow this call before exiting from kernel!
+ * - if kthread != NULL, thread must not be in any list and
+ *   'kthreads_schedule' should follow this call before exiting from kernel!
+ * \param kthread thread descriptor
+ * \param q queue where to put thread
+ * \param sig_int is thread interruptable while in queue?
+ * \param wakeup_action if thread is interruptable on interrupt call this
+ * \param param param for "wakeup_action"
  */
-void kthread_enqueue ( kthread_t *kthread, kthread_q *q )
+void kthread_enqueue ( kthread_t *kthread, kthread_q *q, int sig_int,
+		       void *wakeup_action, void *param )
 {
 	ASSERT ( ( kthread || active_thread ) && q );
 
@@ -413,6 +452,11 @@ void kthread_enqueue ( kthread_t *kthread, kthread_q *q )
 
 	kthread->state.state = THR_STATE_WAIT;
 	kthread->queue = q;
+	kthread->state.sig_int = sig_int;
+
+	if ( sig_int && wakeup_action == NULL )
+		wakeup_action = kthread_release_prematurely;
+	kthread_set_signal_interrupt_handler ( kthread, wakeup_action, param );
 
 	kthreadq_append ( kthread->queue, kthread );
 }
@@ -433,6 +477,8 @@ int kthreadq_release ( kthread_q *q )
 	if ( kthread )
 	{
 		kthread_move_to_ready ( kthread, LAST );
+		kthread->state.sig_int = 1;
+
 		return 1;
 	}
 	else {
@@ -588,17 +634,15 @@ inline int kthread_is_suspended (kthread_t *kthread, void **func, void **param)
 	if ( !kthread )
 		kthread = active_thread;
 
+	if ( func )
+		*func = kthread->state.cancel_suspend_handler;
+	if ( param )
+		*param = kthread->state.cancel_suspend_param;
+
 	if ( kthread->state.state == THR_STATE_SUSPENDED )
-	{
-		if ( func )
-			*func = kthread->state.cancel_suspend_handler;
-		if ( param )
-			*param = kthread->state.cancel_suspend_param;
-
 		return TRUE;
-	}
-
-	return FALSE;
+	else
+		return FALSE;
 }
 
 /*! check if thread descriptor is valid, i.e. is in all thread list */
@@ -640,20 +684,20 @@ inline kthread_t *kthread_get_descriptor ( pthread_t *thread )
 		return NULL;
 }
 
-inline void *kthread_get_sched2_param ( kthread_t *kthread )
-{
-	if ( kthread )
-		return &kthread->sched2;
-	else
-		return &active_thread->sched2;
-}
-
 inline void *kthread_get_sigparams ( kthread_t *kthread )
 {
 	if ( !kthread )
 		kthread = active_thread;
 	ASSERT ( kthread );
 	return &kthread->sig_handling;
+}
+
+inline int kthread_get_interruptable ( kthread_t *kthread )
+{
+	if ( !kthread )
+		kthread = active_thread;
+	ASSERT ( kthread );
+	return kthread->state.sig_int;
 }
 
 inline void kthread_set_active ( kthread_t *kthread )
@@ -777,7 +821,6 @@ static void idle_thread ( void *param )
 int kthread_setschedparam (kthread_t *kthread, int policy, sched_param_t *param)
 {
 	int sched_priority;
-	sched_supp_t *supp;
 
 	ASSERT_AND_RETURN_ERRNO ( kthread, EINVAL );
 	ASSERT_AND_RETURN_ERRNO ( kthread_is_alive (kthread), ESRCH );
@@ -793,31 +836,14 @@ int kthread_setschedparam (kthread_t *kthread, int policy, sched_param_t *param)
 			sched_priority = param->sched_priority;
 		else
 			sched_priority = kthread->sched_priority;
-
-		supp = &param->supp;
 	}
 	else {
 		sched_priority = kthread->sched_priority;
-		supp = NULL;
 	}
 
 	/* change in priority? */
 	if ( kthread->sched_priority != sched_priority )
 		kthread_set_prio ( kthread, sched_priority );
-
-	/* change in scheduling policy? */
-	if ( kthread->sched_policy != policy )
-	{
-		ksched2_thread_remove ( kthread );
-		ksched2_schedule ( kthread->sched_policy );
-		kthread->sched_policy = policy;
-		ksched2_thread_add ( kthread, policy, sched_priority, supp );
-		ksched2_schedule ( kthread->sched_policy );
-	}
-	else if ( supp ) /* if policy changed, parameters are already given */
-	{
-		ksched2_setsched_param ( kthread, supp );
-	}
 
 	return EXIT_SUCCESS;
 }

@@ -48,7 +48,7 @@ static int identify_UART ( arch_uart_t *up )
 }
 
 /*! Initialize UART device */
-int uart_init ( uint flags, void *params, device_t *dev )
+static int uart_init ( uint flags, void *params, device_t *dev )
 {
 	arch_uart_t *up;
 
@@ -70,7 +70,7 @@ static int uart_config ( device_t *dev, uart_t *params )
 	arch_uart_t *up;
 	uint8 setting;
 
-	ASSERT ( dev );
+	ASSERT_AND_RETURN_ERRNO ( dev && params, -EINVAL );
 
 	ASSERT_AND_RETURN_ERRNO ( params->data_bits >= 5 || params->data_bits<=8,
 				  -EINVAL );
@@ -219,8 +219,7 @@ static void uart_write ( arch_uart_t *up )
 static int uart_send ( void *data, size_t size, uint flags, device_t *dev )
 {
 	arch_uart_t *up;
-	uint8 *d, pchar;
-	console_cmd_t *cmd;
+	uint8 *d;
 
 	ASSERT ( dev );
 
@@ -233,50 +232,27 @@ static int uart_send ( void *data, size_t size, uint flags, device_t *dev )
 	up = dev->params;
 	d = data;
 
-	if ( dev->flags & DEV_TYPE_CONSOLE )
-	{
-		cmd = data;
-
-		switch ( cmd->cmd )
+	do {
+		/* first, copy to software buffer */
+		while ( size > 0 && up->outsz < up->outbufsz )
 		{
-			case CONSOLE_PRINT:
-				d = (uint8 *) &cmd->cd.print.text[0];
+			if ( *d == 0 && flags == CONSOLE_PRINT )
+			{
+				size = 0;
 				break;
-
-			case CONSOLE_CLEAR:
-			case CONSOLE_GOTOXY:
-				/* go to new line */
-				pchar = '\n';
-				d = &pchar;
-				size = 1;
-				break;
-
-			default:
-				return EXIT_FAILURE;
+			}
+			up->outbuff[up->outl] = *d++;
+			INC_MOD ( up->outl, up->outbufsz );
+			up->outsz++;
+			size--;
 		}
+
+		/* second, copy from software buffer to uart */
+		uart_write ( up );
 	}
-	/*else {
-		send raw data;
-	}*/
+	while ( size > 0 && up->outsz < up->outbufsz );
 
-	/* first, copy to software buffer */
-	while ( size > 0 && up->outsz < up->outbufsz )
-	{
-		if ( *d == 0 && flags == CONSOLE_PRINT )
-		{
-			size = 0;
-			break;
-		}
-		up->outbuff[up->outl] = *d++;
-		INC_MOD ( up->outl, up->outbufsz );
-		up->outsz++;
-		size--;
-	}
-
-	/* second, copy from software buffer to uart */
-	uart_write ( up );
-
-	return size; /* 0 if all sent, otherwise not send part length */
+	return size; /* FIXME 0 if all sent, otherwise not send part length */
 }
 
 /*! Read data from UART to software buffer */
@@ -332,6 +308,30 @@ static int uart_recv ( void *data, size_t size, uint flags, device_t *dev )
 	return i; /* bytes read */
 }
 
+/*! Get status */
+static int uart_status ( uint flags, device_t *dev )
+{
+	arch_uart_t *up;
+	int rflags = 0;
+
+	ASSERT ( dev );
+
+	up = dev->params;
+
+	/* first, copy from uart to software buffer */
+	uart_read ( up );
+
+	/* look up software buffers */
+	if ( up->insz > 0 )
+		rflags |= DEV_IN_READY;
+
+	if ( up->outsz < up->outbufsz )
+		rflags |= DEV_OUT_READY;
+
+	//kprintf ( "status = %d\n", rflags );
+	return rflags;
+}
+
 /*! uart0 device & parameters */
 static uint8 com1_inbuf[BUFFER_SIZE];
 static uint8 com1_outbuf[BUFFER_SIZE];
@@ -360,6 +360,7 @@ device_t uart_com1 = (device_t)
 	.destroy =	uart_destroy,
 	.send =		uart_send,
 	.recv =		uart_recv,
+	.status =	uart_status,
 
 	.flags = 	DEV_TYPE_SHARED | DEV_TYPE_CONSOLE,
 	.params = 	&com1_params

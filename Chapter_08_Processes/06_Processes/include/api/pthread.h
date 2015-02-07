@@ -23,11 +23,6 @@ int pthread_setschedparam ( pthread_t thread, int policy,
 int pthread_getschedparam ( pthread_t thread, int *policy,
 			    struct sched_param *param );
 
-/*! EDF scheduling */
-int edf_set ( timespec_t deadline, timespec_t period, int flags );
-int edf_wait ();
-int edf_exit ();
-
 /*! Create process */
 int posix_spawn ( pid_t *pid, char *path, void *file_actions,
 		  void *attrp, char *argv[], char *envp[] );

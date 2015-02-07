@@ -3,7 +3,7 @@
 
 #include "memory.h"
 
-#include "kprint.h"
+#include <kernel/kprint.h>
 #include "thread.h"
 #include <kernel/errno.h>
 #include <arch/processor.h>
@@ -19,14 +19,12 @@ MEM_ALLOC_T *k_mpool = NULL;
 static mseg_t *mseg = NULL;
 
 /*! Programs loaded as module */
-kprog_t prog;
-#define PNAME "prog_name="
+kprog_t kprog;
 
 /*! Initial memory layout created in arch layer */
 void k_memory_init ()
 {
 	int i;
-	char *name, *pos;
 
 	k_mpool = NULL;
 	mseg = arch_memory_init ();
@@ -43,33 +41,18 @@ void k_memory_init ()
 
 	ASSERT ( k_mpool );
 
-	prog.pi = NULL;
+	kprog.prog = NULL;
 
-	/* find segment marked as module */
+	/* find segment marked as program */
 	for ( i = 0; mseg[i].type != MS_END; i++ )
 	{
-		if ( mseg[i].type != MS_MODULE )
+		if ( mseg[i].type != MS_PROGRAM )
 			continue;
 
-		/*
-		 * Is this segment a program?
-		 * Programs have 'prog_name' in command line
-		 */
-		name = strstr ( mseg[i].name, PNAME );
-		if ( name )
-		{
-			name += strlen ( PNAME );
-			pos = strchr ( name, ' ' );
-			if ( pos )
-				*pos++ = 0; /* changing MB data!!! */
-			prog.prog_name = name;
+		kprog.m = &mseg[i];
+		kprog.prog = (void *) mseg[i].start;
 
-			prog.pi = (void *) mseg[i].start;
-
-			prog.m = &mseg[i];
-
-			break;
-		}
+		break;
 	}
 }
 
@@ -176,10 +159,12 @@ static id_t last_id = 0;
 id_t k_new_id ()
 {
 	id_t id = -1;
-	uint elem, n;
+	uint elem, n, start;
 	word_t mask;
 
-	last_id = ( last_id + 1 < MAX_RES ? last_id + 1 : 1 ); /* skip 0 */
+	last_id++;
+	if ( last_id == MAX_RES )
+		last_id = 1; /* skip 0 */
 
 	elem = last_id / WBITS;
 	mask = idmask [elem] | ( ( 1 << (last_id % WBITS) ) - 1 );
@@ -188,9 +173,10 @@ id_t k_new_id ()
 	if ( ~mask ) /* current 'elem' has free ids from last_id forward */
 	{
 		id = lsb_index ( ~mask );
+		ASSERT ( id != -1 );
 	}
 	else {
-		n = elem + 1;
+		n = start = ( elem + 1 ) % ID_ELEMS;
 		do {
 			if ( ~idmask[n] )
 			{
@@ -200,7 +186,7 @@ id_t k_new_id ()
 			}
 			n = ( n + 1 ) % ID_ELEMS;
 		}
-		while ( n != elem + 1 );
+		while ( n != start );
 	}
 
 	ASSERT ( id != -1 );
@@ -221,9 +207,57 @@ void k_free_id ( id_t id )
 	idmask [ id / WBITS ] &= ~ ( 1 << ( id % WBITS ) );
 }
 
+/*! Check if "id" is used (if object is alive) */
+int k_check_id ( id_t id )
+{
+	if (
+		id < 1 || id >= MAX_RES ||
+		( idmask [ id / WBITS ] & ( 1 << ( id % WBITS ) ) ) == 0
+	)
+		return 0;
+	else
+		return 1;
+
+}
+
 #undef	MAX_RES
 #undef	WBITS
 #undef	ID_ELEMS
+
+
+/* use bitmap to find free memory block for thread stack */
+void *kprocess_stack_alloc ( kprocess_t *kproc )
+{
+	int i, j, m;
+
+	m = ( kproc->smap_size + sizeof(uint)*8 - 1 ) / (sizeof(uint)*8);
+
+	/* find first 0 in stack mask */
+	for ( i = 0; i < m; i++ )
+	{
+		if ( kproc->smap[i] != (uint) -1 )
+			break;
+	}
+	if ( i == m )
+		return NULL;
+
+	j = lsb_index (~kproc->smap[i]);
+
+	kproc->smap[i] |= 1<<j;
+
+	return kproc->stack + kproc->thread_stack_size * j;
+}
+/* free thread stack */
+void kprocess_stack_free ( kprocess_t *kproc, void *stack )
+{
+	int i, j;
+
+	j = ( (uint) stack - (uint) kproc->stack ) / kproc->thread_stack_size;
+	i = j / (sizeof(uint) * 8);
+	j %= (sizeof(uint) * 8);
+
+	kproc->smap[i] &= ~(1<<j);
+}
 
 /*! print memory layout */
 void k_memory_info ()
@@ -237,8 +271,8 @@ void k_memory_info ()
 
 	for ( i = 0; mseg[i].type != MS_END && i < 20; i++ )
 	{
-		kprintf ( "%d\t%x\t%x\t%s\n", mseg[i].type, mseg[i].size,
-					      mseg[i].start, mseg[i].name );
+		kprintf ( "%d\t%x\t%x\n", mseg[i].type, mseg[i].size,
+					      mseg[i].start );
 	}
 }
 

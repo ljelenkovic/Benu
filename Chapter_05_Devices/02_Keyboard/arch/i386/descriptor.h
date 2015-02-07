@@ -21,7 +21,6 @@
 #include <types/basic.h>
 
 void arch_descriptors_init ();
-void arch_update_segments ( void *adr, size_t size );
 
 #endif
 

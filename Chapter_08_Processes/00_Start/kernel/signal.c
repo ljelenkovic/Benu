@@ -5,8 +5,8 @@
 
 #include "thread.h"
 #include <arch/context.h>
-#include "kprint.h"
-#include "errno.h"
+#include <kernel/kprint.h>
+#include <kernel/errno.h>
 #include "time.h"
 
 static int ksignal_received_signal ( kthread_t *kthread, void *param );
@@ -39,7 +39,7 @@ int ksignal_queue ( kthread_t *kthread, siginfo_t *sig )
 	void (*func) (kthread_t *, void *), *param;
 	siginfo_t *us;
 	param_t param1, param2, param3;
-	void *context = NULL;
+	context_t context;
 
 	ASSERT ( kthread );
 	ASSERT ( kthread_check_kthread ( kthread ) );
@@ -51,29 +51,30 @@ int ksignal_queue ( kthread_t *kthread, siginfo_t *sig )
 	sh = kthread_get_sigparams ( kthread );
 
 	/* is thread suspended and waits for this signal? */
-	if ( kthread_is_suspended ( kthread, (void **) &func, &param ) )
+	if (
+		kthread_is_suspended ( kthread, (void **) &func, &param ) &&
+		((void *) func) == ((void *) ksignal_received_signal)
+	)
 	{
-		if ( ((void *) func) == ((void *) ksignal_received_signal) )
+		/* thread is waiting for signal */
+		if ( !ksignal_received_signal ( kthread, sig ) )
 		{
-			/* thread is waiting for signal */
-			if ( !ksignal_received_signal ( kthread, sig ) )
-			{
-				/* waited for this signal */
-				/* should continue with signal handler also? */
+			/* waited for this signal */
 
-				/* do not process this signal further */
-				return EXIT_SUCCESS;
-			}
-
+			/* do not process this signal further */
+			return EXIT_SUCCESS;
 		}
-		/* else {
-		 *	thread is waiting for something else;
-		 * 	deal with this later (in next "if")
-		 * } */
 	}
 
-	/* if signal is not masked in thread signal mask, deliver signal */
-	if ( !sigtestset ( sh->mask, sig->si_signo ) )
+	/*
+	 * If thread is in interruptable state and signal is not masked:
+	 * - process signal
+	 * - otherwise queue it
+	 */
+	if (
+		kthread_get_interruptable ( kthread ) &&
+		!sigtestset ( sh->mask, sig->si_signo )
+	)
 	{
 		act = &sh->act[sig->si_signo];
 
@@ -88,49 +89,32 @@ int ksignal_queue ( kthread_t *kthread, siginfo_t *sig )
 			return ENOTSUP; /* not yet supported */
 		}
 
-		/* current implementation
-			* - if thread is active or ready
-			* -- save old context in list
-			* -- create new context
-			* - else
-			* -- enqueue signal or cancel wait state (todo)
-			*
-			* on sys__exit check if its handler or thread!!!
-			*/
-
 		if ( !kthread_is_ready ( kthread ) )
 		{
+			/*
+			 * thread is suspended/blocked on something else
+			 *
+			 * 1. handle interruption:
+			 *    a) we break suspend/wait state
+			 *       (call cancel function)
+			 *    b) set errno = EINTR
+			 *    c) set return value = FAILURE
+			 * 2. create new thread state
+			 *    a) process signal in this state
+			 */
 			void (*func) (kthread_t *, void *), *param;
-			if ( kthread_is_suspended ( kthread,
-						    (void **) &func, &param ) )
-			{
-				/*
-					* thread is suspended on something
-					* else; interrupt it or not?
-					*
-					* -handle interruption (kernel part)
-					* -interrupt it (resume)
-					* -process signal
-					*
-					* to do above just move thread to
-					* ready, set errno & retval
-					*/
-				if ( func )
-					func ( kthread, param );
+			kthread_is_suspended (kthread, (void **) &func, &param);
 
-				kthread_move_to_ready ( kthread, LAST );
-				kthread_set_errno ( kthread, EINTR );
-				kthread_set_syscall_retval ( kthread,
-							     EXIT_FAILURE );
+			if ( func )
+				func ( kthread, param );
 
-				/* thread is unsuspended, but signal
-				 * handler will be added first */
-				schedule = TRUE;
-			}
-			else {
-				/* what else? this is error */
-				ASSERT ( FALSE );
-			}
+			kthread_move_to_ready ( kthread, LAST );
+			kthread_set_errno ( kthread, EINTR );
+			kthread_set_syscall_retval ( kthread, EXIT_FAILURE );
+
+			/* thread is unsuspended, but signal
+			 * handler will be added first */
+			schedule = TRUE;
 		}
 
 		/* copy sig */
@@ -141,7 +125,7 @@ int ksignal_queue ( kthread_t *kthread, siginfo_t *sig )
 
 		/* if sender is recipient, remember context */
 		if ( kthread_is_active ( kthread ) )
-			context = kthread_get_context (kthread);
+			context = *((context_t *) kthread_get_context(kthread));
 
 		kthread_create_new_state ( kthread, act->sa_sigaction, us, NULL,
 					   HANDLER_STACK_SIZE, TRUE );
@@ -157,10 +141,12 @@ int ksignal_queue ( kthread_t *kthread, siginfo_t *sig )
 		/* mask additional signals in thread mask */
 		sigaddsets ( sh->mask, &act->sa_mask );
 
-		/* if sender is recipient switch to new state */
+		/* if active thread is recipient switch to new state */
 		if ( kthread_is_active ( kthread ) )
-			arch_switch_to_thread ( context,
+		{
+			arch_switch_to_thread ( &context,
 						kthread_get_context (kthread) );
+		}
 	}
 	else {
 		enqueue = TRUE;
@@ -182,9 +168,6 @@ int ksignal_queue ( kthread_t *kthread, siginfo_t *sig )
 static void ksignal_add_to_pending ( ksignal_handling_t *sh, siginfo_t *sig )
 {
 	ksiginfo_t *ksig;
-
-	/* mask signal in thread mask */
-	sigaddset ( sh->mask, sig->si_signo );
 
 	/* add signal to list of pending signals */
 	ksig = kmalloc ( sizeof (ksiginfo_t) );
@@ -231,7 +214,7 @@ int ksignal_process_pending ( kthread_t *kthread )
 	return retval;
 }
 
-/*! Callback function called when an signal is delivered to suspended thread */
+/*! Callback function called when a signal is delivered to suspended thread */
 static int ksignal_received_signal ( kthread_t *kthread, void *param )
 {
 	siginfo_t *sig;
@@ -317,7 +300,7 @@ int ksignal_process_event ( sigevent_t *evp, kthread_t *kthread, int code )
 			if ( !kthread_create (	evp->sigev_notify_function,
 						evp->sigev_value.sival_ptr, 0,
 						SCHED_FIFO, THREAD_DEF_PRIO,
-						NULL, NULL, 0 ) )
+						NULL, 0 ) )
 				retval = EINVAL;
 		}
 		else {

@@ -27,13 +27,13 @@ CMACROS += OS_NAME="\"$(OS_NAME)\"" PROJECT="\"$(PROJECT)\"" 		\
 
 CMACROS += $(DEVICES) IC_DEV=$(IC_DEV) 					\
 	K_INITIAL_STDOUT=$(K_INITIAL_STDOUT) K_STDOUT=$(K_STDOUT)	\
-	U_STDOUT=$(U_STDOUT) U_STDERR=$(U_STDERR)			\
-	TURN_OFF=$(TURN_OFF)
+	U_STDOUT=$(U_STDOUT) U_STDERR=$(U_STDERR)
 
 #------------------------------------------------------------------------------
 # Misc
 
-CMACROS += STACK_SIZE=$(STACK_SIZE)					\
+CMACROS += SYSTEM_MEMORY=$(SYSTEM_MEMORY)				\
+	STACK_SIZE=$(STACK_SIZE)					\
 	LOAD_ADDR=$(LOAD_ADDR)						\
 	ASSERT_H=\<kernel/errno.h\>					\
 	MEM_ALLOCATOR=$(MEM_ALLOCATOR)
@@ -43,15 +43,6 @@ CMACROS += $(OPTIONALS)
 #------------------------------------------------------------------------------
 
 all: $(BINFILE)
-
-#create ARCH symbolic link for selected platform (placed in arch/ directory)
-#(used only for #include <ARCH/*> purposes)
-prepare_src:
-	@-if [ ! -d $(BUILDDIR)/ARCH ]; then				\
-		mkdir -p $(BUILDDIR);					\
-		ln -s ../arch/$(ARCH) $(BUILDDIR)/ARCH ;		\
-	fi;
-
 
 #------------------------------------------------------------------------------
 FILES := $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.c $(DIR)/*.S))
@@ -63,10 +54,13 @@ DEPS := $(OBJECTS:.o=.d)
 DIRS_CREATED = $(BUILDDIR)/.null
 
 # create required directories in $(BUILDDIR) directory (including $(BUILDDIR))
+# also create ARCH symbolic link for selected platform source
+# (used for #include <ARCH/*> purposes)
 $(DIRS_CREATED):
 	@-if [ ! -e $(BUILDDIR) ]; then mkdir -p $(BUILDDIR); fi;
 	@-$(foreach DIR,$(DIRS), if [ ! -e $(BUILDDIR)/$(DIR) ];	\
 		then mkdir -p $(BUILDDIR)/$(DIR); fi; )
+	@ln -s ../arch/$(ARCH) $(BUILDDIR)/ARCH
 	@touch $(DIRS_CREATED)
 
 # define how to compile .c files
@@ -83,24 +77,19 @@ $(BUILDDIR)/%.asm.o: %.S $(CONFIG_FILES) $(DIRS_CREATED)
 		$(foreach INC,$(INCLUDES),-I$(INC)) \
 		$(foreach MACRO,$(CMACROS),-D $(MACRO))
 
-# preprocessed linker script (konstants)
+# preprocessed linker script (constants)
 LDSCRIPT_PP := $(BUILDDIR)/ldscript.ld
-$(LDSCRIPT_PP): $(LDSCRIPT) $(CONFIG_FILES)
+$(LDSCRIPT_PP): $(LDSCRIPT) $(CONFIG_FILES) $(DIRS_CREATED)
 	@$(CC) -E -P -x c -o $@ $< $(CFLAGS)			\
 		$(foreach INC,$(INCLUDES),-I$(INC)) 		\
 		$(foreach MACRO,$(CMACROS),-D $(MACRO))
 
 
 # OS image
-$(BINFILE): prepare_src $(OBJECTS) $(LDSCRIPT_PP)
+$(BINFILE): $(OBJECTS) $(LDSCRIPT_PP)
 	@echo [linking $@]
 	@$(LINK) -o $@ $(OBJECTS) -T $(LDSCRIPT_PP) $(LDFLAGS)
 
-
-#find qemu emulator requested in config.ini (QEMU)
-#ifeq ($(strip $(shell command -v $(QEMU);)),)
-#	QEMU = echo "Error: $(QEMU) not found!"; exit ;
-#endif
 
 # starting compiled system in 'qemu' emulator
 qemu: all

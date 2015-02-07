@@ -1,5 +1,6 @@
 /*! context switching */
 
+.extern system_stack
 .global arch_switch_to_thread
 
 .section .text

@@ -24,7 +24,6 @@
 
 void arch_descriptors_init ();
 void arch_tss_update ( void *context );
-void arch_update_segments ( void *adr, size_t size, int priv );
 
 #endif
 

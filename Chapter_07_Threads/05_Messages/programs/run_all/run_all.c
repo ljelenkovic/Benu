@@ -36,11 +36,6 @@ int run_all ( char *args[] )
 				if ( start_program (i) )
 					error = 1;
 
-#if ( TURN_OFF == 1 )
-	printf ( "Powering off\n\n" );
-	power_off ();
-#endif
-
 	return error;
 }
 

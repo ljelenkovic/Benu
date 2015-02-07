@@ -34,8 +34,8 @@ static void GDT_init ()
 	GDTR_t gdtr;
 
 	/* initial update of segment descriptors */
-	arch_update_segments ( NULL, (size_t) 0xffffffff );
-
+	arch_upd_segm_descr (SEGM_CODE, NULL, (size_t) 0xffffffff, PRIV_KERNEL);
+	arch_upd_segm_descr (SEGM_DATA, NULL, (size_t) 0xffffffff, PRIV_KERNEL);
 	arch_upd_segm_descr (SEGM_TSS, &tss, sizeof(tss_t) - 1, PRIV_KERNEL);
 
 	gdtr.gdt = gdt;
@@ -80,7 +80,7 @@ static void IDT_init ()
 		offset = (uint32) arch_interrupt_handlers[i];
 
 		idt[i].offset_lo = offset & 0xffff;
-		idt[i].seg_sel	= GDT_DESCRIPTOR ( SEGM_CODE, GDT, PRIV_KERNEL );
+		idt[i].seg_sel	= GDT_DESCRIPTOR ( SEGM_CODE, GDT, PRIV_KERNEL);
 		idt[i].zero	= 0;
 		idt[i].type	= 0x0e;
 		idt[i].DPL	= PRIV_KERNEL;
@@ -92,13 +92,6 @@ static void IDT_init ()
 	idtr.base = idt;
 	idtr.limit = sizeof(IDT_t) * INTERRUPTS - 1;
 	asm ( "lidt %0" : : "m" (idtr) );
-}
-
-/*! Update segment descriptors in GDT */
-void arch_update_segments ( void *adr, size_t size )
-{
-	arch_upd_segm_descr ( SEGM_CODE, adr, size, PRIV_KERNEL );
-	arch_upd_segm_descr ( SEGM_DATA, adr, size, PRIV_KERNEL );
 }
 
 /*! Update segment descriptor with starting address, size and privilege level */

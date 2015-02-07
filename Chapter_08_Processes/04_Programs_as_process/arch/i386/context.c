@@ -101,6 +101,8 @@ void arch_select_thread ( context_t *context )
 #endif
 
 	/* update segment descriptors */
-	arch_update_segments ( k_process_start_adr (context->proc),
-				    k_process_size (context->proc), PRIV_USER );
+	arch_upd_segm_descr ( SEGM_T_CODE, k_process_start_adr (context->proc),
+			      k_process_size (context->proc), PRIV_USER );
+	arch_upd_segm_descr ( SEGM_T_DATA, k_process_start_adr (context->proc),
+			      k_process_size (context->proc), PRIV_USER );
 }

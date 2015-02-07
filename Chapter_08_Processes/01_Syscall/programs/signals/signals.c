@@ -60,6 +60,7 @@ int signals ( char *args[] )
 	int i;
 	pthread_t thread;
 	sigval_t sigval;
+	sem_t sem;
 
 	printf ( "Example program: [%s:%s]\n%s\n\n", __FILE__, __FUNCTION__,
 		 PROG_HELP );
@@ -91,9 +92,16 @@ int signals ( char *args[] )
 
 	t.tv_sec = 1;
 	t.tv_nsec = 0;
+	sem_init ( &sem, 0, 3 );
 	for ( i = 0; i < 10; i++ )
 	{
 		printf ( "In main thread (%d)\n", i );
+		if ( i < 5 && sem_wait ( &sem ) == EXIT_FAILURE )
+		{
+			int errno = get_errno ();
+			printf ( "sem_wait interrupted, errno=%d\n", errno );
+			continue;
+		}
 
 		if ( clock_nanosleep(CLOCK_REALTIME,0,&t,NULL) == EXIT_FAILURE )
 		{

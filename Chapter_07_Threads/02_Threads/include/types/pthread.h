@@ -18,6 +18,7 @@ typedef struct sched_param
 sched_param_t;
 
 #define SCHED_FIFO		0
+#define SCHED_NUM		1
 
 #define THREAD_MIN_PRIO		0
 #define THREAD_MAX_PRIO		(PRIO_LEVELS - 1)
