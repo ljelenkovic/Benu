@@ -1,0 +1,19 @@
+default 0
+timeout=0
+
+# Define name in boot menu
+title System-name
+
+# Root device is cd
+root (cd)
+
+# Kernel image, in boot directory
+kernel /boot/kernel.elf
+
+# If modules need to be included, gzip them and put in boot directory.
+# For example, if programs.bin should be loaded in memory, run gzip programs.bin
+# and copy it to boot directory, and put line here:
+# module /boot/programs.bin.gz var=programs
+
+# command to boot
+boot
