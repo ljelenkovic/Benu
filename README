@@ -116,3 +116,4 @@ LIB2 := $(DIR)/lib/gcc/arm-none-eabi/
 LIB2 := $(LIB2)$(shell ls "$(LIB2)")
 endif
 LDFLAGS += -L$(LIB1) -L$(LIB2)
+
