@@ -8,19 +8,19 @@ int sys__sysinfo ( void *p );
 
 #include <types/basic.h>
 
-extern inline void *k_mem_init ( void *segment, size_t size );
-extern inline void *kmalloc ( size_t size );
-extern inline int kfree ( void *chunk );
+void *k_mem_init ( void *segment, size_t size );
+void *kmalloc ( size_t size );
+int kfree ( void *chunk );
 
 struct _kobject_t_; typedef struct _kobject_t_ kobject_t;
 struct _kprog_t_; typedef struct _kprog_t_ kprog_t;
 struct _kprocess_t_; typedef struct _kprocess_t_ kprocess_t;
 
-extern inline void *k_process_start_adr ( void *proc );
-extern inline size_t k_process_size ( void *proc );
+void *k_process_start_adr ( void *proc );
+size_t k_process_size ( void *proc );
 
-extern inline void *k_u2k_adr ( void *uadr, kprocess_t *proc );
-extern inline void *k_k2u_adr ( void *kadr, kprocess_t *proc );
+void *k_u2k_adr ( void *uadr, kprocess_t *proc );
+void *k_k2u_adr ( void *kadr, kprocess_t *proc );
 
 #define U2K_GET_ADR(ADR,PROC)	k_u2k_adr (ADR, PROC)
 #define U2K_GET_INT(ADR,PROC)	( *( (int *) k_u2k_adr (ADR, PROC) ) )

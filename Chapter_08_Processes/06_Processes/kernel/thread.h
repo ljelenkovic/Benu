@@ -31,9 +31,9 @@ void kthread_create_new_state ( kthread_t *kthread, void *start_func,
 int kthread_restore_state ( kthread_t *kthread );
 
 /*! suspend thread on delay and wait for signal */
-extern inline int kthread_suspend (
+int kthread_suspend (
 	kthread_t *kthread, void *wakeup_action, void *param );
-extern inline int kthread_set_signal_interrupt_handler (
+int kthread_set_signal_interrupt_handler (
 	kthread_t *kthread, void *wakeup_action, void *param );
 
 /*! add cleanup functions for when thread terminates or finish special processing
@@ -53,61 +53,61 @@ int kthreadq_release ( kthread_q *q_id );
 int kthreadq_release_all ( kthread_q *q_id );
 
 /*! Thread queue manipulation - basic operations */
-extern inline void kthreadq_init ( kthread_q *q );
-extern inline void kthreadq_append ( kthread_q *q, kthread_t *kthread );
-extern inline void kthreadq_prepend ( kthread_q *q, kthread_t *kthread );
-extern inline kthread_t *kthreadq_remove ( kthread_q *q, kthread_t *kthread );
-extern inline kthread_t *kthreadq_get ( kthread_q *q );
-extern inline kthread_t *kthreadq_get_next ( kthread_t *kthread );
+void kthreadq_init ( kthread_q *q );
+void kthreadq_append ( kthread_q *q, kthread_t *kthread );
+void kthreadq_prepend ( kthread_q *q, kthread_t *kthread );
+kthread_t *kthreadq_remove ( kthread_q *q, kthread_t *kthread );
+kthread_t *kthreadq_get ( kthread_q *q );
+kthread_t *kthreadq_get_next ( kthread_t *kthread );
 
 /*! set thread scheduling parameters */
 int kthread_setschedparam ( kthread_t *kthread, int policy,
 			    sched_param_t *param );
 
 /*! get thread scheduling policy */
-extern inline int kthread_get_sched_policy ( kthread_t *kthread );
+int kthread_get_sched_policy ( kthread_t *kthread );
 
 /*! get/set (set=change) thread priority */
-extern inline int kthread_get_prio ( kthread_t *kthread );
+int kthread_get_prio ( kthread_t *kthread );
 int kthread_set_prio ( kthread_t *kthread, int prio );
 
 /*! Get-ers and Set-ers ----------------------------------------------------- */
-extern inline int kthread_is_active ( kthread_t *kthread );
-extern inline int kthread_is_ready ( kthread_t *kthread );
-extern inline int kthread_is_alive ( kthread_t *kthread );
-extern inline int kthread_is_passive ( kthread_t *kthread );
-extern inline int kthread_is_suspended (kthread_t *, void **func, void **param);
-extern inline int kthread_check_kthread ( kthread_t *kthread );
+int kthread_is_active ( kthread_t *kthread );
+int kthread_is_ready ( kthread_t *kthread );
+int kthread_is_alive ( kthread_t *kthread );
+int kthread_is_passive ( kthread_t *kthread );
+int kthread_is_suspended (kthread_t *, void **func, void **param);
+int kthread_check_kthread ( kthread_t *kthread );
 
-extern inline int kthread_get_id ( kthread_t *kthread );
-extern inline kthread_t *kthread_get_active ();
-extern inline void *kthread_get_context ( kthread_t *thread );
-extern inline void *kthread_get_process ( kthread_t *kthread );
-extern inline kthread_t *kthread_get_descriptor ( pthread_t *thr );
+int kthread_get_id ( kthread_t *kthread );
+kthread_t *kthread_get_active ();
+void *kthread_get_context ( kthread_t *thread );
+void *kthread_get_process ( kthread_t *kthread );
+kthread_t *kthread_get_descriptor ( pthread_t *thr );
 
 /*! Get signal part of thread descriptor */
-extern inline void *kthread_get_sigparams ( kthread_t *kthread );
+void *kthread_get_sigparams ( kthread_t *kthread );
 
-extern inline int kthread_get_interruptable ( kthread_t *kthread );
+int kthread_get_interruptable ( kthread_t *kthread );
 
 /* save extra parameter when blocking thread */
-extern inline void kthread_set_private_param (kthread_t *kthread, void *qdata);
-extern inline void *kthread_get_private_param ( kthread_t *kthread );
+void kthread_set_private_param (kthread_t *kthread, void *qdata);
+void *kthread_get_private_param ( kthread_t *kthread );
 
 /*! errno and return value */
-extern inline void kthread_set_errno ( kthread_t *kthread, int error_number );
-extern inline int kthread_get_errno ( kthread_t *kthread );
-extern inline int *kthread_get_errno_ptr ( kthread_t *kthread );
-extern inline void kthread_set_syscall_retval (kthread_t *kthread, int ret_val);
+void kthread_set_errno ( kthread_t *kthread, int error_number );
+int kthread_get_errno ( kthread_t *kthread );
+int *kthread_get_errno_ptr ( kthread_t *kthread );
+void kthread_set_syscall_retval (kthread_t *kthread, int ret_val);
 
 /*! display active & ready threads info on console */
 int kthread_info ();
 
 #ifdef _K_SCHED_
-extern inline void kthread_set_active ( kthread_t *kthread );
-extern inline void kthread_mark_ready ( kthread_t *kthread );
-extern inline void kthread_set_queue ( kthread_t *kthread, kthread_q *queue );
-extern inline kthread_q *kthread_get_queue ( kthread_t *kthread );
+void kthread_set_active ( kthread_t *kthread );
+void kthread_mark_ready ( kthread_t *kthread );
+void kthread_set_queue ( kthread_t *kthread, kthread_q *queue );
+kthread_q *kthread_get_queue ( kthread_t *kthread );
 #endif /* _K_SCHED_ */
 
 #ifdef _K_THREAD_C_ /* rest of the file is only for kernel/thread.c */

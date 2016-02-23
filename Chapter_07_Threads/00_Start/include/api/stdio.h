@@ -8,7 +8,7 @@ int close ( int fd );
 ssize_t read ( int fd, void *buffer, size_t count );
 ssize_t write ( int fd, void *buffer, size_t count );
 
-extern inline int getchar ();
+int getchar ();
 int printf ( char *format, ... );
 void warn ( char *format, ... );
 

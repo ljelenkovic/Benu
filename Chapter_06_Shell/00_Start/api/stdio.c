@@ -108,7 +108,7 @@ ssize_t write ( int fd, void *buffer, size_t count )
 }
 
 /*! Get input from "standard input" */
-inline int getchar ()
+int getchar ()
 {
 	int c = 0;
 

@@ -245,7 +245,7 @@ int kthread_restore_state ( kthread_t *kthread )
 }
 
 /*! Suspend thread (kthreads_schedule must follow this call) */
-inline int kthread_suspend (kthread_t *kthread,void *wakeup_action,void *param)
+int kthread_suspend (kthread_t *kthread,void *wakeup_action,void *param)
 {
 	if ( !kthread )
 		kthread = active_thread;
@@ -263,7 +263,7 @@ inline int kthread_suspend (kthread_t *kthread,void *wakeup_action,void *param)
 }
 
 /*! Set signal (or other) interrupt handler for suspended or blocked thread */
-inline int kthread_set_signal_interrupt_handler (
+int kthread_set_signal_interrupt_handler (
 	kthread_t *kthread, void *wakeup_action, void *param )
 {
 	if ( !kthread )
@@ -524,22 +524,22 @@ int kthreadq_release_all ( kthread_q *q )
 }
 
 /*! thread queue manipulation */
-inline void kthreadq_init ( kthread_q *q )
+void kthreadq_init ( kthread_q *q )
 {
 	ASSERT ( q );
 	list_init ( &q->q );
 }
-inline void kthreadq_append ( kthread_q *q, kthread_t *kthread )
+void kthreadq_append ( kthread_q *q, kthread_t *kthread )
 {
 	ASSERT ( kthread && q );
 	list_append ( &q->q, kthread, &kthread->list );
 }
-inline void kthreadq_prepend ( kthread_q *q, kthread_t *kthread )
+void kthreadq_prepend ( kthread_q *q, kthread_t *kthread )
 {
 	ASSERT ( kthread && q );
 	list_prepend ( &q->q, kthread, &kthread->list );
 }
-inline kthread_t *kthreadq_remove ( kthread_q *q, kthread_t *kthread )
+kthread_t *kthreadq_remove ( kthread_q *q, kthread_t *kthread )
 {
 	ASSERT ( q );
 	if ( kthread )
@@ -547,19 +547,19 @@ inline kthread_t *kthreadq_remove ( kthread_q *q, kthread_t *kthread )
 	else
 		return list_remove ( &q->q, FIRST, NULL );
 }
-inline kthread_t *kthreadq_get ( kthread_q *q )
+kthread_t *kthreadq_get ( kthread_q *q )
 {
 	ASSERT ( q );
 	return list_get ( &q->q, FIRST );
 }
-inline kthread_t *kthreadq_get_next ( kthread_t *kthread )
+kthread_t *kthreadq_get_next ( kthread_t *kthread )
 {
 	ASSERT ( kthread );
 	return list_get_next ( &kthread->list );   /* kthread->queue->q.first->object */
 }
 
 /*! get thread scheduling policy */
-inline int kthread_get_sched_policy ( kthread_t *kthread )
+int kthread_get_sched_policy ( kthread_t *kthread )
 {
 	if ( kthread )
 		return kthread->sched_policy;
@@ -567,7 +567,7 @@ inline int kthread_get_sched_policy ( kthread_t *kthread )
 		return active_thread->sched_policy;
 }
 
-inline int kthread_get_prio ( kthread_t *kthread )
+int kthread_get_prio ( kthread_t *kthread )
 {
 	if ( kthread )
 		return kthread->sched_priority;
@@ -618,7 +618,7 @@ int kthread_set_prio ( kthread_t *kthread, int prio )
 
 /*! Get-ers, Set-ers and misc ----------------------------------------------- */
 
-inline int kthread_is_active ( kthread_t *kthread )
+int kthread_is_active ( kthread_t *kthread )
 {
 	ASSERT ( kthread );
 	if ( kthread->state.state == THR_STATE_ACTIVE )
@@ -627,7 +627,7 @@ inline int kthread_is_active ( kthread_t *kthread )
 		return FALSE;
 }
 
-inline int kthread_is_ready ( kthread_t *kthread )
+int kthread_is_ready ( kthread_t *kthread )
 {
 	ASSERT ( kthread );
 
@@ -635,13 +635,13 @@ inline int kthread_is_ready ( kthread_t *kthread )
 		kthread->state.state == THR_STATE_READY;
 }
 
-inline int kthread_is_alive ( kthread_t *kthread )
+int kthread_is_alive ( kthread_t *kthread )
 {
 	return	kthread->state.state != THR_STATE_PASSIVE &&
 		kthread_check_kthread ( kthread );
 }
 
-inline int kthread_is_passive ( kthread_t *kthread )
+int kthread_is_passive ( kthread_t *kthread )
 {
 	ASSERT ( kthread );
 	if ( kthread->state.state == THR_STATE_PASSIVE )
@@ -650,7 +650,7 @@ inline int kthread_is_passive ( kthread_t *kthread )
 		return FALSE;
 }
 
-inline int kthread_is_suspended (kthread_t *kthread, void **func, void **param)
+int kthread_is_suspended (kthread_t *kthread, void **func, void **param)
 {
 	if ( !kthread )
 		kthread = active_thread;
@@ -667,12 +667,12 @@ inline int kthread_is_suspended (kthread_t *kthread, void **func, void **param)
 }
 
 /*! check if thread descriptor is valid, i.e. is in all thread list */
-inline int kthread_check_kthread ( kthread_t *kthread )
+int kthread_check_kthread ( kthread_t *kthread )
 {
 	return kthread && list_find ( &all_threads, &kthread->all );
 }
 
-inline int kthread_get_id ( kthread_t *kthread )
+int kthread_get_id ( kthread_t *kthread )
 {
 	if ( kthread )
 		return kthread->id;
@@ -680,12 +680,12 @@ inline int kthread_get_id ( kthread_t *kthread )
 		return active_thread->id;
 }
 
-inline kthread_t *kthread_get_active ()
+kthread_t *kthread_get_active ()
 {
 	return active_thread;
 }
 
-inline void *kthread_get_context ( kthread_t *kthread )
+void *kthread_get_context ( kthread_t *kthread )
 {
 	if ( kthread )
 		return &kthread->state.context;
@@ -693,7 +693,7 @@ inline void *kthread_get_context ( kthread_t *kthread )
 		return &active_thread->state.context;
 }
 
-inline void *kthread_get_process ( kthread_t *kthread )
+void *kthread_get_process ( kthread_t *kthread )
 {
 	if ( kthread )
 		return kthread->proc;
@@ -702,7 +702,7 @@ inline void *kthread_get_process ( kthread_t *kthread )
 }
 
 /*! Get kernel thread descriptor from user thread descriptor */
-inline kthread_t *kthread_get_descriptor ( pthread_t *thread )
+kthread_t *kthread_get_descriptor ( pthread_t *thread )
 {
 	kthread_t *kthread;
 
@@ -713,7 +713,7 @@ inline kthread_t *kthread_get_descriptor ( pthread_t *thread )
 		return NULL;
 }
 
-inline void *kthread_get_sigparams ( kthread_t *kthread )
+void *kthread_get_sigparams ( kthread_t *kthread )
 {
 	if ( !kthread )
 		kthread = active_thread;
@@ -721,7 +721,7 @@ inline void *kthread_get_sigparams ( kthread_t *kthread )
 	return &kthread->sig_handling;
 }
 
-inline int kthread_get_interruptable ( kthread_t *kthread )
+int kthread_get_interruptable ( kthread_t *kthread )
 {
 	if ( !kthread )
 		kthread = active_thread;
@@ -729,24 +729,24 @@ inline int kthread_get_interruptable ( kthread_t *kthread )
 	return kthread->state.sig_int;
 }
 
-inline void kthread_set_active ( kthread_t *kthread )
+void kthread_set_active ( kthread_t *kthread )
 {
 	ASSERT ( kthread );
 	active_thread = kthread;
 	active_thread->state.state = THR_STATE_ACTIVE;
 	active_thread->queue = NULL;
 }
-inline void kthread_mark_ready ( kthread_t *kthread )
+void kthread_mark_ready ( kthread_t *kthread )
 {
 	ASSERT ( kthread );
 	kthread->state.state = THR_STATE_READY;
 }
-inline void kthread_set_queue ( kthread_t *kthread, kthread_q *queue )
+void kthread_set_queue ( kthread_t *kthread, kthread_q *queue )
 {
 	ASSERT ( kthread && queue );
 	kthread->queue = queue;
 }
-inline kthread_q *kthread_get_queue ( kthread_t *kthread )
+kthread_q *kthread_get_queue ( kthread_t *kthread )
 {
 	ASSERT ( kthread );
 	return kthread->queue;
@@ -754,13 +754,13 @@ inline kthread_q *kthread_get_queue ( kthread_t *kthread )
 
 
 /*! Temporary storage for blocked thread (save specific context before wait) */
-inline void kthread_set_private_param ( kthread_t *kthread, void *pparam )
+void kthread_set_private_param ( kthread_t *kthread, void *pparam )
 {
 	if ( !kthread )
 		kthread = active_thread;
 	kthread->state.pparam = pparam;
 }
-inline void *kthread_get_private_param ( kthread_t *kthread )
+void *kthread_get_private_param ( kthread_t *kthread )
 {
 	if ( !kthread )
 		kthread = active_thread;
@@ -769,28 +769,28 @@ inline void *kthread_get_private_param ( kthread_t *kthread )
 
 
 /*! errno and return value */
-inline void kthread_set_errno ( kthread_t *kthread, int error_number )
+void kthread_set_errno ( kthread_t *kthread, int error_number )
 {
 	if ( kthread )
 		*kthread->state.errno = error_number;
 	else
 		*active_thread->state.errno = error_number;
 }
-inline int kthread_get_errno ( kthread_t *kthread )
+int kthread_get_errno ( kthread_t *kthread )
 {
 	if ( kthread )
 		return *kthread->state.errno;
 	else
 		return *active_thread->state.errno;
 }
-inline int *kthread_get_errno_ptr ( kthread_t *kthread )
+int *kthread_get_errno_ptr ( kthread_t *kthread )
 {
 	if ( kthread )
 		return kthread->state.errno;
 	else
 		return active_thread->state.errno;
 }
-inline void kthread_set_syscall_retval ( kthread_t *kthread, int ret_val )
+void kthread_set_syscall_retval ( kthread_t *kthread, int ret_val )
 {
 	if ( !kthread )
 		kthread = active_thread;

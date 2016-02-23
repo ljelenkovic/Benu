@@ -56,37 +56,37 @@ void k_memory_init ()
 	}
 }
 
-inline void *k_mem_init ( void *segment, size_t size )
+void *k_mem_init ( void *segment, size_t size )
 {
 	return K_MEM_INIT ( segment, size );
 }
-inline void *kmalloc ( size_t size )
+void *kmalloc ( size_t size )
 {
 	return KMALLOC ( size );
 }
-inline int kfree ( void *chunk )
+int kfree ( void *chunk )
 {
 	return KFREE ( chunk );
 }
 
-inline void *k_process_start_adr ( void *proc )
+void *k_process_start_adr ( void *proc )
 {
 	return ( (kprocess_t *) proc )->m.start;
 }
 
-inline size_t k_process_size ( void *proc )
+size_t k_process_size ( void *proc )
 {
 	return ( (kprocess_t *) proc )->m.size;
 }
 
 /*! kernel <--> user address translation (using segmentation) */
-inline void *k_u2k_adr ( void *uadr, kprocess_t *proc )
+void *k_u2k_adr ( void *uadr, kprocess_t *proc )
 {
 	ASSERT ( (aint) uadr < proc->m.size );
 
 	return uadr + (aint) proc->m.start;
 }
-inline void *k_k2u_adr ( void *kadr, kprocess_t *proc )
+void *k_k2u_adr ( void *kadr, kprocess_t *proc )
 {
 	ASSERT ( (aint) kadr >= (aint) proc->m.start &&
 		 (aint) kadr < (aint) proc->m.start + proc->m.size );

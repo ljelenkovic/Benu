@@ -41,15 +41,15 @@ void k_memory_init ()
 	ASSERT ( k_mpool );
 }
 
-inline void *k_mem_init ( void *segment, size_t size )
+void *k_mem_init ( void *segment, size_t size )
 {
 	return K_MEM_INIT ( segment, size );
 }
-inline void *kmalloc ( size_t size )
+void *kmalloc ( size_t size )
 {
 	return KMALLOC ( size );
 }
-inline int kfree ( void *chunk )
+int kfree ( void *chunk )
 {
 	return KFREE ( chunk );
 }
