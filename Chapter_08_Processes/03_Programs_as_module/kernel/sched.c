@@ -205,7 +205,10 @@ static void  ksched_rr_tick ( sigval_t sigval )
 	if ( k_feature ( FEATURE_SCHED_RR, FEATURE_GET, 0 ) == 0 )
 		return;
 
-	kthread_move_to_ready ( kthread_get_active(), LAST );
-	kthreads_schedule ();
+	kthread_t *active_thread = kthread_get_active();
+	if ( kthread_is_active ( active_thread ) ) {
+		kthread_move_to_ready ( active_thread, LAST );
+		kthreads_schedule ();
+	}
 }
 #endif /* SCHED_RR_SIMPLE */
