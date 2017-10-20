@@ -81,6 +81,7 @@ void arch_thread_exit_with_stack_switch ( void *kthread, void *exit_status )
 
 		:: "m" (kthread), 				/* %0 */
 		   "m" (exit_status),				/* %1 */
-		   "i" (system_stack + KERNEL_STACK_SIZE)	/* %3 */
+		   "g" (system_stack + KERNEL_STACK_SIZE)	/* %3 */
+		: "%eax", "%ebx", "%ecx"
 	);
 }

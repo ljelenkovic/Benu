@@ -70,6 +70,7 @@ void arch_create_thread_context ( context_t *context,
 			"mov	%0, %%eax	\n\t"
 			"fxsave	(%%eax)		\n\t"
 			:: "m" (context->sse_mmx_fpu)
+			: "%eax"
 		);
 	}
 #endif

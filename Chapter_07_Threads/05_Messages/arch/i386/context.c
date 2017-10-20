@@ -51,6 +51,7 @@ void arch_create_thread_context ( context_t *context,
 			"mov	%0, %%eax	\n\t"
 			"fxsave	(%%eax)		\n\t"
 			:: "m" (context->sse_mmx_fpu)
+			: "%eax"
 		);
 	}
 #endif
@@ -122,6 +123,7 @@ void arch_switch_to_thread ( context_t *from, context_t *to )
 		  "m" (to->context),		/* %3 */
 		  "m" (to->sse_mmx_fpu),	/* %4 */
 		  "m" (arch_sse_supported)	/* %5 */
+		: "%ebx"
 	);
 #endif
 }
@@ -147,6 +149,7 @@ void arch_thread_exit_with_stack_switch ( void *kthread, void *exit_status )
 
 		:: "m" (kthread), 				/* %0 */
 		   "m" (exit_status),				/* %1 */
-		   "i" (system_stack + KERNEL_STACK_SIZE)	/* %3 */
+		   "g" (system_stack + KERNEL_STACK_SIZE)	/* %3 */
+		: "%eax", "%ebx", "%ecx"
 	);
 }

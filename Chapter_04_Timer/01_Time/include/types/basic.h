@@ -13,7 +13,7 @@ typedef	sword_t	ssize_t;
 #else /* size_t must be 32 bits or more */
 
 typedef	uint32	size_t;
-typedef	uint32	ssize_t;
+typedef	int32	ssize_t;
 
 #endif /* __WORD_SIZE */
 
