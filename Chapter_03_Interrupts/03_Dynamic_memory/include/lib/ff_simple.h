@@ -10,7 +10,8 @@
 #pragma once
 
 #ifdef MEM_TEST
-#include "test/test.h"
+#include <stdlib.h>
+#include <test.h>
 #endif
 #include <types/basic.h>
 

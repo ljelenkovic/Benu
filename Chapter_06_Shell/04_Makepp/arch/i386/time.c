@@ -100,6 +100,8 @@ void arch_set_time ( timespec_t *time )
 	void (*k_handler) ();
 
 	clock = *time;
+	last_load = timer->max_interval;
+	timer->set_interval ( &last_load );
 
 	/* let kernel handle time shift problems */
 	if ( alarm_handler )
@@ -120,28 +122,29 @@ static void arch_timer_handler ()
 
 	time_add ( &clock, &last_load );
 
-	time_sub ( &delay, &last_load );
-	last_load = timer->max_interval;
-
-	if ( time_cmp ( &delay, &threshold ) <= 0 )
+	if ( alarm_handler )
 	{
-		/* "delay" expired */
-		delay = timer->max_interval;
-		timer->set_interval ( &last_load );
+		time_sub ( &delay, &last_load );
 
-		if ( alarm_handler )
+		if ( time_cmp ( &delay, &threshold ) <= 0 )
 		{
+			/* activate alarm; but first update counter */
+			last_load = timer->max_interval;
+			timer->set_interval ( &last_load );
+
 			k_handler = alarm_handler;
 			alarm_handler = NULL; /* reset kernel callback function */
 			k_handler (); /* forward interrupt to kernel */
 		}
-	}
-	else {
-		if ( time_cmp ( &delay, &timer->min_interval ) < 0 )
-			last_load = timer->min_interval;
-		else if ( time_cmp ( &delay, &last_load ) < 0 )
-			last_load = delay;
+		else {
+			if ( time_cmp ( &delay, &timer->min_interval ) < 0 )
+				last_load = timer->min_interval;
+			else if ( time_cmp ( &delay, &timer->max_interval ) < 0 )
+				last_load = delay;
+			else
+				last_load = timer->max_interval;
 
-		timer->set_interval ( &last_load );
+			timer->set_interval ( &last_load );
+		}
 	}
 }

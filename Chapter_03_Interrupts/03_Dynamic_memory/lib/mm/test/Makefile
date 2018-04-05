@@ -1,7 +1,7 @@
 
 ARCH ?= i386
 
-INCLUDES := ../../../include ../../../arch
+INCLUDES := ../../../include ../../../arch . ../../../build
 
 CMACROS := ARCH="\"$(ARCH)\"" DEBUG MEM_TEST
 

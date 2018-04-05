@@ -62,7 +62,7 @@ int main ()
 	}
 	m[requests];
 	void *pool, *mpool;
-	timespec_t t1, t2;
+	struct timespec t1, t2;
 
 	if ( ( pool = malloc ( pool_size ) ) == NULL )
 	{
@@ -109,7 +109,7 @@ int main ()
 		}
 	}
 
-	printf ( "Start of tests (j=%d, fail=%d, inuse=%d)!\n", j, fail, inuse );
+	printf ( "Start of tests (j=%d, fail=%d, inuse=%lu)!\n", j, fail, inuse );
 
 	fail = 0;
 
@@ -168,7 +168,7 @@ int main ()
 		}
 	}
 
-	printf ( "End of tests (i=%d, fail=%d, inuse=%d)!\n", i, fail, inuse );
+	printf ( "End of tests (i=%d, fail=%d, inuse=%lu)!\n", i, fail, inuse );
 
 	return 0;
 }

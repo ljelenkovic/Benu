@@ -176,7 +176,10 @@
 #pragma once
 
 #ifdef MEM_TEST	/* standalone test, using standard libraries */
-#include "../../lib/mm/test/test.h"
+//#include <stdlib.h>
+int exit(int status);
+#define EXIT_FAILURE (-1)
+#include <test.h>
 #endif
 
 #include <types/basic.h>
