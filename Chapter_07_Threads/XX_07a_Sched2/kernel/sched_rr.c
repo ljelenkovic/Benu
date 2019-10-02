@@ -134,7 +134,7 @@ static int rr_thread_deactivate ( ksched_t *ksched, kthread_t *kthread )
 		time_sub ( &tsched->params.rr.slice_end, &t );
 		tsched->params.rr.remainder = tsched->params.rr.slice_end;
 
-		if ( kthread_is_ready ( kthread ) )
+		if ( kthread_is_active ( kthread ) )
 		{
 			/* is remainder too small or not? */
 			if ( time_cmp ( &tsched->params.rr.remainder,

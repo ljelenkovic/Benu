@@ -175,10 +175,6 @@
 
 #pragma once
 
-#ifdef MEM_TEST	/* standalone test, using standard libraries */
-#include "../../lib/mm/test/test.h"
-#endif
-
 #include <types/basic.h>
 
 /*! interface to kernel and other code (not for gma.c) */

@@ -219,13 +219,13 @@ void k_memory_info ()
 
 	kprintf ( "Memory segments\n"
 		 "===============\n"
-		 "Type\tsize\t\tstart addres\tstring\n"
+		 "Type\tsize\t\tstart addres\n"
 	);
 
 	for ( i = 0; mseg[i].type != MS_END && i < 20; i++ )
 	{
 		kprintf ( "%d\t%x\t%x\n", mseg[i].type, mseg[i].size,
-					      mseg[i].start );
+					  mseg[i].start );
 	}
 }
 

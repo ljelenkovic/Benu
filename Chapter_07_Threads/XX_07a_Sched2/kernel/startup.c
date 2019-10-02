@@ -79,5 +79,17 @@ uint sys__feature ( uint features, int cmd, int enable )
 			disable_interrupts ();
 	}
 
+	if ( ( features & FEATURE_SCHEDULER ) )
+	{
+		if ( enable ) {
+			kthread_t *kthread = kthread_get_active ();
+			if ( kthread && kthread_get_sched_policy(kthread) == SCHED_RR )
+				kthread_move_to_ready ( kthread, FIRST );
+
+			kthreads_schedule ();
+		}
+		//else {}
+	}
+
 	return prev_state;
 }

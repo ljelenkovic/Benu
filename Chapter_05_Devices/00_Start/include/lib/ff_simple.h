@@ -9,9 +9,6 @@
 
 #pragma once
 
-#ifdef MEM_TEST
-#include "test/test.h"
-#endif
 #include <types/basic.h>
 
 #ifndef _FF_SIMPLE_C_

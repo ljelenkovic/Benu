@@ -176,7 +176,6 @@
 #pragma once
 
 #ifdef MEM_TEST	/* standalone test, using standard libraries */
-//#include <stdlib.h>
 int exit(int status);
 #define EXIT_FAILURE (-1)
 #include <test.h>

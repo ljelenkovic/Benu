@@ -195,7 +195,7 @@ struct _kthread_t_
 			    /* priority - primary scheduling parameter */
 
 	kthread_q	   *queue;
-			    /* in witch queue thread is (if not active) */
+			    /* in which queue thread is (if not active) */
 
 	kthread_q	    join_queue;
 			    /* queue for threads waiting for this to end */
