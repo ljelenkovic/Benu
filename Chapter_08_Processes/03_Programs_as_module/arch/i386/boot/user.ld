@@ -47,4 +47,5 @@ SECTIONS {
 	#endif
 	/DISCARD/ : { *(.comment*) } /* gcc info is discarded */
 	/DISCARD/ : { *(.eh_frame*) } /* not used */
+	/DISCARD/ : { *(.note*) } /* not used */
 }

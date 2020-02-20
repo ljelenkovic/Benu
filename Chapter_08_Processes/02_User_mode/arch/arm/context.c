@@ -35,7 +35,8 @@ void arch_create_thread_context ( context_t *context,
 void arch_select_thread ( context_t *context )
 {
 	arch_active_thr_context = context;
-	arch_thr_context = (void *) context->context;
+	arch_thr_context = (void *) context;
+	//arch_thr_context = (void *) &context->context;
 }
 
 /*! Cleanups on context when deleting thread (nothing to do) */

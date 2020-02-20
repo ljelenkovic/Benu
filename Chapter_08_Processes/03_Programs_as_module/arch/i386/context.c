@@ -89,7 +89,8 @@ void arch_destroy_thread_context ( context_t *context )
 /*! Select thread to return to from interrupt */
 void arch_select_thread ( context_t *context )
 {
-	arch_thr_context = (void *) &context->context;
+	arch_thr_context = (void *) context;
+	//arch_thr_context = (void *) &context->context;
 	arch_tss_update(((void *) &context->context) + sizeof (arch_context_t));
 
 #ifdef USE_SSE
