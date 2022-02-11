@@ -541,7 +541,7 @@ static int cond_release ( pthread_cond_t *cond, int release_all )
 	kpthread_mutex_t *kmutex;
 	kobject_t *kobj_cond, *kobj_mutex;
 	kthread_t *kthread;
-	int retval = 0;
+	int released = 0;
 
 	SYS_ENTRY();
 
@@ -556,29 +556,22 @@ static int cond_release ( pthread_cond_t *cond, int release_all )
 
 	kthread_set_errno ( kthread_get_active (), EXIT_SUCCESS );
 
-	if ( (kthread = kthreadq_remove ( &kcond->queue, NULL )) )
+	while ( (kthread = kthreadq_remove ( &kcond->queue, NULL )) )
 	{
 		kobj_mutex = kthread_get_private_param ( kthread );
 		kmutex = kobj_mutex->kobject;
 
-		retval = mutex_lock ( kmutex, kthread );
-		if ( retval == 0 )
+		if ( mutex_lock ( kmutex, kthread ) == 0 ) {
 			kthread_move_to_ready ( kthread, LAST );
-
-		/* process other threads in queue */
-		while ( release_all &&
-			(kthread = kthreadq_remove ( &kcond->queue, NULL )) )
-		{
-			kthread_set_errno ( kthread, EXIT_SUCCESS );
-
-			kobj_mutex = kthread_get_private_param ( kthread );
-			kmutex = kobj_mutex->kobject;
-
-			kthread_enqueue(kthread, &kmutex->queue, 0, NULL, NULL);
+			released++;
 		}
+
+		/* release only one? */
+		if ( !release_all )
+			break;
 	}
 
-	if ( retval > -1 )
+	if ( released )
 		kthreads_schedule ();
 
 	SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
