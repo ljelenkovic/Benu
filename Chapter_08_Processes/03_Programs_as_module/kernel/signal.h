@@ -10,10 +10,10 @@ typedef struct _ksignal_handling_t_ ksignal_handling_t;
 #include "thread.h"
 
 /*! interface to kernel */
-int ksignal_thread_init ( kthread_t *kthread );
-int ksignal_queue ( kthread_t *receiver, siginfo_t *sig );
-int ksignal_process_pending ( kthread_t *kthread );
-int ksignal_process_event ( sigevent_t *evp, kthread_t *kthread, int code );
+int ksignal_thread_init(kthread_t *kthread);
+int ksignal_queue(kthread_t *receiver, siginfo_t *sig);
+int ksignal_process_pending(kthread_t *kthread);
+int ksignal_process_event(sigevent_t *evp, kthread_t *kthread, int code);
 
 struct _ksignal_handling_t_
 {

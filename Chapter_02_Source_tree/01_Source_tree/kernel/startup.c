@@ -14,16 +14,16 @@ char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "
 /*!
  * First kernel function (after boot loader loads it to memory)
  */
-void k_startup ()
+void k_startup()
 {
 	/* initialize "subsystem" */
-	kconsole_init ();
+	kconsole_init();
 
-	kconsole_print_word ( system_info );
+	kconsole_print_word(system_info);
 
 	/* start desired program(s) */
-	hello_world ();
+	hello_world();
 
-	kconsole_print_word ( "System halted!" );
-	halt ();
+	kconsole_print_word("System halted!");
+	halt();
 }

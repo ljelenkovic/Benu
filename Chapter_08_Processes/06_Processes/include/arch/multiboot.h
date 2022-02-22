@@ -12,7 +12,7 @@
 
 /* The magic field should contain this. */
 #define MULTIBOOT_HEADER_MAGIC	0x1BADB002
-#define MULTIBOOT_HEADER_FLAGS	( MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO )
+#define MULTIBOOT_HEADER_FLAGS	(MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO)
 
 /* Flags to be set in the 'flags' member of the multiboot info structure
    (boot loader sets this flags upon loading kernel). */

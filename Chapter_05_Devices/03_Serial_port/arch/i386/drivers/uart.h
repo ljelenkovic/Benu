@@ -1,4 +1,4 @@
-/*! 'serial port' module (UART) */
+/*! 'serial port' module(UART) */
 #ifdef UART
 
 #pragma once
@@ -6,10 +6,10 @@
 #include <arch/device.h>
 #include <types/io.h>
 
-/*! serial port (UART) ------------------------------------------------------ */
+/*! serial port(UART) ------------------------------------------------------ */
 /* commands */
-#define UART_SETCONF	( 1 << 30 )	/* reconfigure port */
-#define UART_GETCONF	( 1 << 31 )	/* read configuration */
+#define UART_SETCONF	(1 << 30)	/* reconfigure port */
+#define UART_GETCONF	(1 << 31)	/* read configuration */
 
 /* parameters for configuring serial port */
 typedef struct _uart_t_
@@ -22,19 +22,19 @@ typedef struct _uart_t_
 }
 uart_t;
 
-#define PARITY_NONE	( 0 << 3 )
-#define PARITY_ODD	( 1 << 3 )
-#define PARITY_EVEN	( 3 << 3 )
-#define PARITY_MARK	( 5 << 3 )
-#define PARITY_SPACE	( 7 << 3 )
+#define PARITY_NONE	(0 << 3)
+#define PARITY_ODD	(1 << 3)
+#define PARITY_EVEN	(3 << 3)
+#define PARITY_MARK	(5 << 3)
+#define PARITY_SPACE	(7 << 3)
 
-#define STOPBIT_1	( 0 << 2 )
-#define STOPBIT_15	( 1 << 2 )
+#define STOPBIT_1	(0 << 2)
+#define STOPBIT_15	(1 << 2)
 
 /* operating mode */
 #define UART_BYTE	1	/* "byte" mode - irq on every byte received */
 #define UART_STREAM	2	/* "stream" mode - irq when input buffer is
-				   (almost) full */
+				  (almost) full */
 
 #define COM1_BASE	0x3f8
 #define COM2_BASE	0x2f8
@@ -69,17 +69,17 @@ uart_t;
 
 #define MCR_DEFAULT	0x08
 
-#define IIR_INT_PENDING	( 1 << 0 )
-#define IIR_MODEM	( 0 << 1 )
-#define IIR_THR_EMPTY	( 1 << 1 )
-#define IIR_RECV_DATA	( 2 << 1 )
-#define IIR_LINE	( 3 << 1 )
-#define IIR_TIMEOUT	( 6 << 1 )
+#define IIR_INT_PENDING	(1 << 0)
+#define IIR_MODEM	(0 << 1)
+#define IIR_THR_EMPTY	(1 << 1)
+#define IIR_RECV_DATA	(2 << 1)
+#define IIR_LINE	(3 << 1)
+#define IIR_TIMEOUT	(6 << 1)
 
-#define LSR_DATA_READY	( 1 << 0 )
-#define LSR_BREAK	( 1 << 4 )
-#define LSR_THR_EMPTY	( 1 << 5 )
-#define LSR_DHR_EMPTY	( 1 << 6 )
+#define LSR_DATA_READY	(1 << 0)
+#define LSR_BREAK	(1 << 4)
+#define LSR_THR_EMPTY	(1 << 5)
+#define LSR_DHR_EMPTY	(1 << 6)
 
 
 #define BUFFER_SIZE	256	/* software buffer size */
@@ -99,10 +99,10 @@ typedef struct _arch_uart_t_
 }
 arch_uart_t;
 
-#define INC_MOD(X,MOD)	do { X = ( X+1 < MOD ? X+1 : 0 ); } while(0)
+#define INC_MOD(X,MOD)	do { X = (X+1 < MOD ? X+1 : 0); } while (0)
 
 #define UART_DEFAULT_SETTING	\
-{ 115200, 8, PARITY_NONE, STOPBIT_1, UART_BYTE }
+{115200, 8, PARITY_NONE, STOPBIT_1, UART_BYTE}
 
 /* UART chip type */
 enum {
@@ -115,8 +115,8 @@ enum {
 };
 
 
-static void uart_read ( arch_uart_t *up );
-static void uart_write ( arch_uart_t *up );
-static int uart_config ( device_t *dev, uart_t *params );
+static void uart_read(arch_uart_t *up);
+static void uart_write(arch_uart_t *up);
+static int uart_config(device_t *dev, uart_t *params);
 
 #endif /* UART */

@@ -6,7 +6,7 @@
 #include <arch/context.h>
 #include <arch/processor.h>
 
-#define	INIT_CPSR ( CPSR_MODE_SVC | CPSR_IRQ ) /* SVC, interrupts disabled ! */
+#define	INIT_CPSR(CPSR_MODE_SVC | CPSR_IRQ) /* SVC, interrupts disabled ! */
 #define	INIT_SPSR CPSR_MODE_USR /* user mode, interrupts enabled ! */
 
 
@@ -15,16 +15,16 @@
 typedef struct _arch_context_t_
 {
 	uint32  cpsr;	/* interrupt mode */
-	uint32  spsr;	/* thread mode (system) */
+	uint32  spsr;	/* thread mode(system) */
 	uint32  pc;	/* 1st time: thread starting function */
 	uint32  rh[11];	/* {r4-r14} */
-	uint32  rl[4];	/* {r0-r3} (parameters to syscall) */
+	uint32  rl[4];	/* {r0-r3}(parameters to syscall) */
 }
 arch_context_t;
 /* __attribute__((__packed__)) not required since all elem. are 32 bits wide */
 
 /*
- * NOTE on push/pop (arm processor)
+ * NOTE on push/pop(arm processor)
  * The lowest numbered register is transferred to or from the lowest
  * memory address accessed, and the highest numbered register to or from the
  * highest address accessed. The order of the registers in the register list
@@ -60,13 +60,13 @@ struct _ucontext_t_
 
 /*! Create initial context for thread - it should start with defined function
  */
-static inline void arch_create_uthread_context ( ucontext_t *context,
-		void (func) (void *), void *param, void (thread_exit)(),
-		void *stack, size_t stack_size )
+static inline void arch_create_uthread_context(ucontext_t *context,
+		void (func)(void *), void *param, void (thread_exit)(),
+		void *stack, size_t stack_size)
 {
 	/* thread context is on stack */
 	context->context = (void *)
-		((uint32) stack) + stack_size - sizeof (arch_ucontext_t);
+		((uint32) stack) + stack_size - sizeof(arch_ucontext_t);
 
 	/* thread context */
 	context->context->pc = (uint32) func;
@@ -77,9 +77,9 @@ static inline void arch_create_uthread_context ( ucontext_t *context,
 	/* rest of context->context is not relevant for new thread */
 }
 
-static inline void arch_switch_to_uthread ( ucontext_t *from, ucontext_t *to )
+static inline void arch_switch_to_uthread(ucontext_t *from, ucontext_t *to)
 {
-	void arch_switch_to_uthread2 ( ucontext_t *from, ucontext_t *to );
+	void arch_switch_to_uthread2(ucontext_t *from, ucontext_t *to);
 
-	arch_switch_to_uthread2 ( from, to );
+	arch_switch_to_uthread2(from, to);
 }

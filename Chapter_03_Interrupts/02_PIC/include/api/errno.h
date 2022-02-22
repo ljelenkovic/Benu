@@ -5,11 +5,11 @@
 
 extern int _errno;
 
-static inline int set_errno ( int error_number )
+static inline int set_errno(int error_number)
 {
 	return _errno = error_number;
 }
-static inline int get_errno ()
+static inline int get_errno()
 {
 	return _errno;
 }
@@ -21,13 +21,13 @@ static inline int get_errno ()
 /* assert and return */
 #define ASSERT_ERRNO_AND_RETURN(expr, errnum)			\
 do {								\
-	if ( !( expr ) )					\
+	if (!(expr))					\
 	{							\
-		warn ("%s:%d::ASSERT\n", __FILE__, __LINE__);	\
-		set_errno (errnum);				\
+		warn("%s:%d::ASSERT\n", __FILE__, __LINE__);	\
+		set_errno(errnum);				\
 		return EXIT_FAILURE;				\
 	 }							\
-} while(0)
+} while (0)
 
 #else /* !DEBUG */
 

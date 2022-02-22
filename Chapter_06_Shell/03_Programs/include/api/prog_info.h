@@ -18,16 +18,16 @@ typedef struct _prog_info_t_
 }
 prog_info_t;
 
-void prog_init ( void *args );
+void prog_init(void *args);
 
 /* "programs" */
-int hello_world ( char *args[] );
-int timer ( char *args[] );
-int keyboard ( char *args[] );
-int shell ( char *argv[] );
-int arguments ( char *argv[] );
-int segm_fault ( char *argv[] );
-int run_all ( char *argv[] );
+int hello_world(char *args[]);
+int timer(char *args[]);
+int keyboard(char *args[]);
+int shell(char *argv[]);
+int arguments(char *argv[]);
+int segm_fault(char *argv[]);
+int run_all(char *argv[]);
 
 #define	hello_world_PROG_HELP	"Print 'Hello world'."
 #define	timer_PROG_HELP		"Timer interface demonstration: "	\
@@ -43,12 +43,12 @@ int run_all ( char *argv[] );
 
 #define PROGRAMS_FOR_SHELL					\
 {								\
-{ hello_world,	"hello",	hello_world_PROG_HELP },	\
-{ timer, 	"timer",	timer_PROG_HELP },		\
-{ keyboard,	"keyboard",	keyboard_PROG_HELP },		\
-{ shell,	"shell",	shell_PROG_HELP },		\
-{ arguments,	"args",		arguments_PROG_HELP },		\
-{ segm_fault,	"segm_fault", 	segm_fault_PROG_HELP },		\
-{ run_all,	"run_all", 	run_all_PROG_HELP },		\
-{ NULL, 	NULL, 		NULL }				\
+{hello_world,	"hello",	hello_world_PROG_HELP},		\
+{timer, 	"timer",	timer_PROG_HELP},		\
+{keyboard,	"keyboard",	keyboard_PROG_HELP},		\
+{shell,		"shell",	shell_PROG_HELP},		\
+{arguments,	"args",		arguments_PROG_HELP},		\
+{segm_fault,	"segm_fault", 	segm_fault_PROG_HELP},		\
+{run_all,	"run_all", 	run_all_PROG_HELP},		\
+{NULL, 		NULL, 		NULL}				\
 }

@@ -22,7 +22,7 @@ uthread_t;
 
 #endif /* USER_THREAD_C */
 
-void uthreads_init ();
-uthread_t *create_uthread ( void (func) (void *), void *param );
-void uthread_exit ();
-void uthread_yield ();
+void uthreads_init();
+uthread_t *create_uthread(void (func)(void *), void *param);
+void uthread_exit();
+void uthread_yield();

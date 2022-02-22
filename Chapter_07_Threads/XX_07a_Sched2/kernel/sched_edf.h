@@ -32,7 +32,7 @@ ksched_edf_t;
 #define EDF_DEBUG	0	/* print extensive debug informations? */
 
 #if EDF_DEBUG == 1
-#define	EDF_LOG(...)		LOG ( EDFLOG, ##__VA_ARGS__ )
+#define	EDF_LOG(...)		LOG(EDFLOG, ##__VA_ARGS__)
 #else /* EDF_DEBUG */
 #define	EDF_LOG(...)
 #endif

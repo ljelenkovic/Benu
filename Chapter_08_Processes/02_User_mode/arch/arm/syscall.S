@@ -1,6 +1,6 @@
 /*! syscall - must be in "user space" (if different from kernel)
  *
- * "Bare function", without usual "frame": int syscall ( id, arg1, arg2, ... )
+ * "Bare function", without usual "frame": int syscall(id, arg1, arg2, ...)
  */
 
 #define ASM_FILE	1

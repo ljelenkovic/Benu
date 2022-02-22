@@ -82,7 +82,7 @@ typedef struct _kmsg_t_
 	int	msg_prio;
 		/* message priority */
 	char	msg_data[1];
-		/* information saved in message (variable length)*/
+		/* information saved in message(variable length)*/
 }
 kmq_msg_t;
 
@@ -110,7 +110,7 @@ typedef struct _kmq_queue_t_
 		   /* threads waiting for messages */
 
 	kthread_q  send_q;
-		   /* threads waiting for space in queue (to store message) */
+		   /* threads waiting for space in queue(to store message) */
 
 	list_h	   list;
 		   /* all message queues are in single list */

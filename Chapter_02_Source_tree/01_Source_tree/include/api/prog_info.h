@@ -4,4 +4,4 @@
 #include <types/basic.h>
 
 /* "programs" */
-int hello_world ();
+int hello_world();

@@ -37,52 +37,52 @@
 #endif /* REQUIRE_LSB_INDEX */
 #endif
 
-/* All implementation assume num > 0 (functions don't check it) */
+/* All implementation assume num > 0(functions don't check it) */
 
 /* optimized for 32-bit system */
-static inline uint32 msb_index_32 ( uint32 num )
+static inline uint32 msb_index_32(uint32 num)
 {
 	uint32 msb;
 
 	msb = 0;
 
-	if ( num >= (1<<16) ) { msb += 16; num >>= 16; }
-	if ( num >= (1<<8)  ) { msb += 8;  num >>= 8;  }
-	if ( num >= (1<<4)  ) { msb += 4;  num >>= 4;  }
-	if ( num >= (1<<2)  ) { msb += 2;  num >>= 2;  }
-	if ( num >= (1<<1)  ) { msb += 1;              }
+	if (num >= (1<<16)) { msb += 16; num >>= 16; }
+	if (num >= (1<<8)) { msb += 8;  num >>= 8;  }
+	if (num >= (1<<4)) { msb += 4;  num >>= 4;  }
+	if (num >= (1<<2)) { msb += 2;  num >>= 2;  }
+	if (num >= (1<<1)) { msb += 1;              }
 
 	return msb;
 }
 
 /* optimized for 64-bit system */
-static inline int msb_index_64 ( uint64 num )
+static inline int msb_index_64(uint64 num)
 {
 	int msb;
 
 	msb = 0;
 
-	if ( num >= (1ULL<<32) ) { msb += 32; num >>= 32; }
-	if ( num >= (1<<16) ) { msb += 16; num >>= 16; }
-	if ( num >= (1<<8)  ) { msb += 8;  num >>= 8;  }
-	if ( num >= (1<<4)  ) { msb += 4;  num >>= 4;  }
-	if ( num >= (1<<2)  ) { msb += 2;  num >>= 2;  }
-	if ( num >= (1<<1)  ) { msb += 1;              }
+	if (num >= (1ULL<<32)) { msb += 32; num >>= 32; }
+	if (num >= (1<<16)) { msb += 16; num >>= 16; }
+	if (num >= (1<<8)) { msb += 8;  num >>= 8;  }
+	if (num >= (1<<4)) { msb += 4;  num >>= 4;  }
+	if (num >= (1<<2)) { msb += 2;  num >>= 2;  }
+	if (num >= (1<<1)) { msb += 1;              }
 
 	return msb;
 }
 
 /* generic function for type 'unsigned int' */
-static inline int msb_index_generic ( unsigned int num )
+static inline int msb_index_generic(unsigned int num)
 {
 	unsigned int half;
 	int i, msb;
 
 	msb = 0;
-	for ( i = sizeof(unsigned int) * 8 / 2; i > 0; i >>= 1 )
+	for (i = sizeof(unsigned int) * 8 / 2; i > 0; i >>= 1)
 	{
-		half = ( (unsigned int) 1 ) << i;
-		if ( num >= half )
+		half = ((unsigned int) 1) << i;
+		if (num >= half)
 		{
 			num >>= i;
 			msb += i;
@@ -95,16 +95,16 @@ static inline int msb_index_generic ( unsigned int num )
 /* generic function for type required integer type */
 typedef unsigned long long int int_n; /* change type as required */
 
-static inline int msb_index_int_n ( int_n num )
+static inline int msb_index_int_n(int_n num)
 {
 	int_n half;
 	int i, msb;
 
 	msb = 0;
-	for ( i = sizeof(int_n) * 8 / 2; i > 0; i >>= 1 )
+	for (i = sizeof(int_n) * 8 / 2; i > 0; i >>= 1)
 	{
-		half = ( (int_n) 1 ) << i;
-		if ( num >= half )
+		half = ((int_n) 1) << i;
+		if (num >= half)
 		{
 			num >>= i;
 			msb += i;

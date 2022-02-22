@@ -1,4 +1,4 @@
-/*! Intel 8259 programmable interrupt controller (PIC) */
+/*! Intel 8259 programmable interrupt controller(PIC) */
 #ifdef I8259
 
 #include "i8259.h"
@@ -6,12 +6,12 @@
 #include "../io.h"
 #include "../interrupt.h"
 
-static void i8259_init ();
-static void i8259_irq_enable ( unsigned int irq );
-static void i8259_irq_disable ( unsigned int irq );
-static void i8259_irq_disable ( unsigned int irq );
-static void i8259_at_exit ( unsigned int irq );
-static char *i8259_interrupt_description ( unsigned int n );
+static void i8259_init();
+static void i8259_irq_enable(unsigned int irq);
+static void i8259_irq_disable(unsigned int irq);
+static void i8259_irq_disable(unsigned int irq);
+static void i8259_at_exit(unsigned int irq);
+static char *i8259_interrupt_description(unsigned int n);
 
 
 /*! interface to arch layer - arch_ic_t */
@@ -32,22 +32,22 @@ arch_ic_t i8259 = (arch_ic_t)
 
 
 /*! Initialize PIC */
-static void i8259_init ()
+static void i8259_init()
 {
-	outb ( PIC1_CMD, 0x11 ); /* starting initialization  */
-	outb ( PIC2_CMD, 0x11 );
+	outb(PIC1_CMD, 0x11); /* starting initialization  */
+	outb(PIC2_CMD, 0x11);
 
-	outb ( PIC1_DATA, IRQ_OFFSET & 0xf8 );		/* offset = +0x20 */
-	outb ( PIC2_DATA, (IRQ_OFFSET + 8) & 0xf8 );	/* offset = +0x28 */
+	outb(PIC1_DATA, IRQ_OFFSET & 0xf8);		/* offset = +0x20 */
+	outb(PIC2_DATA, (IRQ_OFFSET + 8) & 0xf8);	/* offset = +0x28 */
 
-	outb ( PIC1_DATA, 0x4 ); /* continue initialization */
-	outb ( PIC2_DATA, 0x2 );
+	outb(PIC1_DATA, 0x4); /* continue initialization */
+	outb(PIC2_DATA, 0x2);
 
-	outb ( PIC1_DATA, 0x1 ); /* 8086 mode */
-	outb ( PIC2_DATA, 0x1 );
+	outb(PIC1_DATA, 0x1); /* 8086 mode */
+	outb(PIC2_DATA, 0x1);
 
-	outb ( PIC1_DATA, 0xfb ); /* mask everything, except 'slave' */
-	outb ( PIC2_DATA, 0xff ); /* mask everything */
+	outb(PIC1_DATA, 0xfb); /* mask everything, except 'slave' */
+	outb(PIC2_DATA, 0xff); /* mask everything */
 
 	/* PIC initialized, all external interrupts disabled */
 }
@@ -56,39 +56,39 @@ static void i8259_init ()
  * Enable particular external interrupt in PIC
  * \param irq Interrupt request number
  */
-static void i8259_irq_enable ( unsigned int irq )
+static void i8259_irq_enable(unsigned int irq)
 {
 	irq -= IRQ_OFFSET;
-	if ( irq < 8 )
-		outb ( PIC1_DATA, inb (PIC1_DATA) & ~(1 << irq) );
+	if (irq < 8)
+		outb(PIC1_DATA, inb(PIC1_DATA) & ~(1 << irq));
 	else
-		outb ( PIC2_DATA, inb (PIC2_DATA) & ~(1 << (irq - 8)) );
+		outb(PIC2_DATA, inb(PIC2_DATA) & ~(1 << (irq - 8)));
 }
 
 /*!
  * Disable particular external interrupt in PIC
  * \param irq Interrupt request number
  */
-static void i8259_irq_disable ( unsigned int irq )
+static void i8259_irq_disable(unsigned int irq)
 {
 	irq -= IRQ_OFFSET;
-	if ( irq < 8 )
-		outb ( PIC1_DATA, inb (PIC1_DATA) | (1 << irq) );
+	if (irq < 8)
+		outb(PIC1_DATA, inb(PIC1_DATA) |(1 << irq));
 	else
-		outb ( PIC2_DATA, inb (PIC2_DATA) | (1 << (irq - 8)) );
+		outb(PIC2_DATA, inb(PIC2_DATA) |(1 << (irq - 8)));
 }
 
 /*!
  * At end of interrupt processing, re enable some ports in PIC
  * \param irq Interrupt request number
  */
-static void i8259_at_exit ( unsigned int irq )
+static void i8259_at_exit(unsigned int irq)
 {
-	if ( irq >= IRQ_OFFSET && irq < HW_INTERRUPTS )
+	if (irq >= IRQ_OFFSET && irq < HW_INTERRUPTS)
 	{
-		outb ( PIC1_CMD, PIC_EOI );
-		if ( irq >= IRQ_OFFSET + 8 )
-			outb ( PIC2_CMD, PIC_EOI );
+		outb(PIC1_CMD, PIC_EOI);
+		if (irq >= IRQ_OFFSET + 8)
+			outb(PIC2_CMD, PIC_EOI);
 	}
 }
 
@@ -132,7 +132,7 @@ static char *arch_int_desc[] =
 	"Intel reserved",
 	"Intel reserved",
 
-	/* External interrupts (generated outside processor) */
+	/* External interrupts(generated outside processor) */
 	"IRQ_TIMER",
 	"IRQ_KEYBOARD",
 	"IRQ_SLAVE_PIC",
@@ -159,15 +159,15 @@ static char *arch_int_desc[] =
  * \param n Interrupt number
  * \return Pointer to description string
  */
-static char *i8259_interrupt_description ( unsigned int n )
+static char *i8259_interrupt_description(unsigned int n)
 {
-	if ( n < INTERRUPTS )
+	if (n < INTERRUPTS)
 		return arch_int_desc[n];
 	else
 		return "Unknown interrupt number";
 }
 #else
-static char *i8259_interrupt_description ( unsigned int n )
+static char *i8259_interrupt_description(unsigned int n)
 {
 	return "Descriptions unavailable in this build";
 }

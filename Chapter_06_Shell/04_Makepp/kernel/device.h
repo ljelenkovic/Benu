@@ -17,7 +17,7 @@ typedef void kdevice_t;
 typedef struct _kdevice_t_
 {
 	device_t   dev;
-		   /* device descriptor (with interface) */
+		   /* device descriptor(with interface) */
 
 	id_t	   id;
 		   /* system level id */
@@ -39,17 +39,17 @@ kdevice_t;
 #endif /* _K_DEVICE_C_ */
 
 /*! kernel interface */
-void kdevice_set_initial_stdout ();
-int k_devices_init ();
-kdevice_t *k_device_add ( device_t *kdev );
-int k_device_init ( kdevice_t *kdev, int flags, void *params, void *callback );
-int k_device_remove ( kdevice_t *kdev );
+void kdevice_set_initial_stdout();
+int k_devices_init();
+kdevice_t *k_device_add(device_t *kdev);
+int k_device_init(kdevice_t *kdev, int flags, void *params, void *callback);
+int k_device_remove(kdevice_t *kdev);
 
-kdevice_t *k_device_open ( char *name, int flags );
-void k_device_close ( kdevice_t *kdev );
+kdevice_t *k_device_open(char *name, int flags);
+void k_device_close(kdevice_t *kdev);
 
-int k_device_send ( void *data, size_t size, int flags, kdevice_t *kdev );
-int k_device_recv ( void *data, size_t size, int flags, kdevice_t *kdev );
+int k_device_send(void *data, size_t size, int flags, kdevice_t *kdev);
+int k_device_recv(void *data, size_t size, int flags, kdevice_t *kdev);
 
-int k_device_lock ( kdevice_t *dev, int wait );
-int k_device_unlock ( kdevice_t *dev );
+int k_device_lock(kdevice_t *dev, int wait);
+int k_device_unlock(kdevice_t *dev);

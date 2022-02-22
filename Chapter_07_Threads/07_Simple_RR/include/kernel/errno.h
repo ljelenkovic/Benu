@@ -1,9 +1,9 @@
-/*! Error numbers, macros, ... (for kernel and arch layer) */
+/*! Error numbers, macros, ...(for kernel and arch layer) */
 #pragma once
 
-int sys__set_errno ( int errno );
-int sys__get_errno ();
-int sys__get_errno_ptr ( int **errno );
+int sys__set_errno(int errno);
+int sys__get_errno();
+int sys__get_errno_ptr(int **errno);
 
 #ifdef _KERNEL_
 
@@ -14,18 +14,18 @@ int sys__get_errno_ptr ( int **errno );
 #include <arch/processor.h>
 
 
-/* error number is defined per thread (saved in thread descriptor) */
+/* error number is defined per thread(saved in thread descriptor) */
 
 /* set errno */
-#define SET_ERRNO(ENUM)		kthread_set_errno (NULL, ENUM)
+#define SET_ERRNO(ENUM)		kthread_set_errno(NULL, ENUM)
 
 
-/* syscall enter procedures (mark IE flag and disable interrupts) */
-#define SYS_ENTRY()		int __FUNCTION__ ## ei = set_interrupts (FALSE)
+/* syscall enter procedures(mark IE flag and disable interrupts) */
+#define SYS_ENTRY()		int __FUNCTION__ ## ei = set_interrupts(FALSE)
 
 /* return from syscall with return value: restore interrupts, don't set errno */
 #define SYS_RETURN(RETVAL)						\
-do { set_interrupts (__FUNCTION__ ## ei); return RETVAL; } while (0)
+do { set_interrupts(__FUNCTION__ ## ei); return RETVAL; } while (0)
 
 /* return from syscall with return value: restore interrupts and set errno */
 #define SYS_EXIT(ENUM,RETVAL)				\
@@ -38,20 +38,20 @@ do { SET_ERRNO(ENUM); SYS_RETURN(RETVAL); } while (0)
 /*! macros that are removed in release versions - depend on DEBUG */
 #ifdef DEBUG
 
-/* Debugging outputs (includes files and line numbers!) */
+/* Debugging outputs(includes files and line numbers!) */
 #define LOG(LEVEL, format, ...)	\
-kprintf ( "[" #LEVEL ":%s:%d]" format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+kprintf("[" #LEVEL ":%s:%d]" format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 
 /* Critical error - print it and stop */
-#define ASSERT(expr)	do if ( !( expr ) ) { LOG ( BUG, ""); halt(); } while(0)
+#define ASSERT(expr)	do if (!(expr)) { LOG(BUG, ""); halt(); } while (0)
 
 /* assert and return (inter kernel calls) */
 #define ASSERT_AND_RETURN_ERRNO(expr, errnum)		\
-do { if ( !( expr ) ) { LOG ( ASSERT, ""); return errnum; } } while(0)
+do { if (!(expr)) { LOG(ASSERT, ""); return errnum; } } while (0)
 
 /* assert and return from syscall */
 #define ASSERT_ERRNO_AND_EXIT(expr, errnum)		\
-do if( !(expr) ) { LOG(ASSERT, ""); SYS_EXIT(errnum, EXIT_FAILURE); } while(0)
+do if (!(expr)) { LOG(ASSERT, ""); SYS_EXIT(errnum, EXIT_FAILURE); } while (0)
 
 #else /* !DEBUG */
 
@@ -63,20 +63,20 @@ do if( !(expr) ) { LOG(ASSERT, ""); SYS_EXIT(errnum, EXIT_FAILURE); } while(0)
 #endif /* DEBUG */
 
 /*! macros that are not removed in release versions - don't depend on DEBUG */
-/* Debugging outputs (includes files and line numbers!) */
+/* Debugging outputs(includes files and line numbers!) */
 #define log(LEVEL, format, ...)	\
-kprintf ( "[" #LEVEL ":%s:%d]" format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+kprintf("[" #LEVEL ":%s:%d]" format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 
 /* Critical error - print it and stop */
-#define assert(expr)	do if ( !( expr ) ) { log ( BUG, ""); halt(); } while(0)
+#define assert(expr)	do if (!(expr)) { log(BUG, ""); halt(); } while (0)
 
 /* assert and return (inter kernel calls) */
 #define assert_and_return_errno(expr, errnum)		\
-do { if ( !( expr ) ) { log ( ASSERT, ""); return errnum; } } while(0)
+do { if (!(expr)) { log(ASSERT, ""); return errnum; } } while (0)
 
 /* assert and return from syscall */
 #define assert_errno_and_exit(expr, errnum)		\
-do if( !(expr) ) { log(ASSERT, ""); SYS_EXIT(errnum, EXIT_FAILURE); } while(0)
+do if (!(expr)) { log(ASSERT, ""); SYS_EXIT(errnum, EXIT_FAILURE); } while (0)
 
 
 #endif /* _KERNEL_ */

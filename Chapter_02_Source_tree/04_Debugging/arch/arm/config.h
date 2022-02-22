@@ -10,7 +10,7 @@ enum {
 /* choose platform */
 #define ARM_SYSTEM	PB926EJS
 
-#if ( ARM_SYSTEM == PB926EJS )
+#if (ARM_SYSTEM == PB926EJS)
 
 /*! Platform: Versatile PB926EJ-S tested with QEMU */
 

@@ -3,7 +3,7 @@
 
 #include <types/pthread.h>
 
-/* information included in sigevent (pointer OR integer) */
+/* information included in sigevent(pointer OR integer) */
 typedef union sigval
 {
 	int    sival_int;
@@ -14,7 +14,7 @@ typedef union sigval
 }
 sigval_t;
 
-/* how to react on signal (generated through timers) */
+/* how to react on signal(generated through timers) */
 typedef struct sigevent
 {
 	int	  sigev_notify;		/* Notification type */
@@ -24,11 +24,11 @@ typedef struct sigevent
 	union {
 		struct _sigev_thread_
 		{
-			void  (*_function) ( sigval_t );
+			void (*_function)(sigval_t);
 			       /* Notification function */
 
 			pthread_attr_t  *_attribute;
-					/* Notification attributes (if new
+					/* Notification attributes(if new
 					 * thread is created to handle signal)*/
 		}
 		_sigev_thread;
@@ -50,5 +50,5 @@ enum {
 			   is generated when the event of interest occurs */
 	SIGEV_THREAD,	/* A notification function is called to perform
 			   notification */
-	SIGEV_THREAD_ID	/* Send signal to specific thread (Linux spec.) */
+	SIGEV_THREAD_ID	/* Send signal to specific thread(Linux spec.) */
 };

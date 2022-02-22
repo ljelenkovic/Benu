@@ -1,4 +1,4 @@
-/*! interrupts.S - low level (arch) interrupt handling */
+/*! interrupts.S - low level(arch) interrupt handling */
 
 /*
  * Used ideas from:
@@ -83,7 +83,7 @@ arch_int_hndl:
 	msr	cpsr, #CPSR_MODE_SYS_IF		/* change to system mode */
 	mov	sp, r2		/* restore stack pointer after mode change */
 
-	/* jump to interrupt handler (r0=cpsr) */
+	/* jump to interrupt handler(r0=cpsr) */
 	bl	arch_interrupt_handler
 
 	pop	{r0-r1}
@@ -98,7 +98,7 @@ arch_int_hndl:
 	and	r0, #0x1f		/* leave only mode bits */
 	cmp	r0, #CPSR_MODE_SVC	/* is it SVC interrupt? */
 
-	ldmfd	sp, {r0-r14}^	/* restore thread context (incl. stack p.) */
+	ldmfd	sp, {r0-r14}^	/* restore thread context(incl. stack p.) */
 
 	beq	ret_from_svc
 

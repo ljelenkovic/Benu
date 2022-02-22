@@ -16,25 +16,25 @@
  * \param oact Where to save old signal behavior
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sigaction ( int sig, sigaction_t *act, sigaction_t *oact )
+int sigaction(int sig, sigaction_t *act, sigaction_t *oact)
 {
-	ASSERT_ERRNO_AND_RETURN ( sig > 0 && sig <= SIGMAX, EINVAL );
+	ASSERT_ERRNO_AND_RETURN(sig > 0 && sig <= SIGMAX, EINVAL);
 
-	return sys__sigaction ( sig, act, oact );
+	return sys__sigaction(sig, act, oact);
 }
 
 /*!
- * Send signal to thread (from thread)
- * \param pid Thread descriptor (user level descriptor)
+ * Send signal to thread(from thread)
+ * \param pid Thread descriptor(user level descriptor)
  * \param signo Signal number
  * \param sigval Parameter to send with signal
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int sigqueue ( pid_t pid, int signo, sigval_t sigval )
+int sigqueue(pid_t pid, int signo, sigval_t sigval)
 {
-	ASSERT_ERRNO_AND_RETURN ( signo > 0 && signo <= SIGMAX, EINVAL );
+	ASSERT_ERRNO_AND_RETURN(signo > 0 && signo <= SIGMAX, EINVAL);
 
-	return sys__sigqueue ( pid, signo, sigval );
+	return sys__sigqueue(pid, signo, sigval);
 }
 
 /*!
@@ -44,11 +44,11 @@ int sigqueue ( pid_t pid, int signo, sigval_t sigval )
  * \return signal number if signal is caught,
  *         -1 otherwise and appropriate error number is set
  */
-int sigwaitinfo ( sigset_t *set, siginfo_t *info )
+int sigwaitinfo(sigset_t *set, siginfo_t *info)
 {
-	ASSERT_ERRNO_AND_RETURN ( set, EINVAL );
+	ASSERT_ERRNO_AND_RETURN(set, EINVAL);
 
-	return sys__sigwaitinfo ( set, info );
+	return sys__sigwaitinfo(set, info);
 }
 
 /*!
@@ -58,9 +58,9 @@ int sigwaitinfo ( sigset_t *set, siginfo_t *info )
  * \param oset Where to store old mask
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
-int pthread_sigmask ( int how, sigset_t *set, sigset_t *oset )
+int pthread_sigmask(int how, sigset_t *set, sigset_t *oset)
 {
-	ASSERT_ERRNO_AND_RETURN ( set, EINVAL );
+	ASSERT_ERRNO_AND_RETURN(set, EINVAL);
 
-	return sys__pthread_sigmask ( how, set, oset );
+	return sys__pthread_sigmask(how, set, oset);
 }

@@ -9,14 +9,14 @@
 
 #include "thread.h"
 
-void ksched_init ();
-void kthread_move_to_ready ( kthread_t *kthread, int where );
-kthread_t *kthread_remove_from_ready ( kthread_t *kthread );
-void kthreads_schedule ();
+void ksched_init();
+void kthread_move_to_ready(kthread_t *kthread, int where);
+kthread_t *kthread_remove_from_ready(kthread_t *kthread);
+void kthreads_schedule();
 
 #ifdef SCHED_RR_SIMPLE
-void ksched_rr_start_timer ();
-void ksched_rr_stop_timer ();
+void ksched_rr_start_timer();
+void ksched_rr_stop_timer();
 #endif /* SCHED_RR_SIMPLE */
 
 #ifdef _K_SCHED_C_

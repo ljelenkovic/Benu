@@ -40,32 +40,32 @@ struct _ucontext_t_
 	uint32  *esp;
 };
 
-static inline void arch_create_uthread_context ( ucontext_t *context,
-		void (func) (void *), void *param, void (thread_exit)(),
-		void *stack, size_t stack_size )
+static inline void arch_create_uthread_context(ucontext_t *context,
+		void (func)(void *), void *param, void (thread_exit)(),
+		void *stack, size_t stack_size)
 {
 	context->esp = stack + stack_size;
 
-	*( --context->esp ) = (uint32) param;
-	*( --context->esp ) = (uint32) thread_exit;
-	*( --context->esp ) = (uint32) func;
+	*(--context->esp) = (uint32) param;
+	*(--context->esp) = (uint32) thread_exit;
+	*(--context->esp) = (uint32) func;
 
-	*( --context->esp ) = INIT_EFLAGS;	/* EFLAGS register */
+	*(--context->esp) = INIT_EFLAGS;	/* EFLAGS register */
 
-	/* set initial values for all general purpose registers (8) on stack */
-	*( --context->esp ) = 0;	/* EAX */
-	*( --context->esp ) = 0;	/* ECX */
-	*( --context->esp ) = 0;	/* EDX */
-	*( --context->esp ) = 0;	/* EBX */
-	*( --context->esp ) = 0;	/* ESP */
-	*( --context->esp ) = 0;	/* EBP */
-	*( --context->esp ) = 0;	/* ESI */
-	*( --context->esp ) = 0;	/* EDI */
+	/* set initial values for all general purpose registers(8) on stack */
+	*(--context->esp) = 0;	/* EAX */
+	*(--context->esp) = 0;	/* ECX */
+	*(--context->esp) = 0;	/* EDX */
+	*(--context->esp) = 0;	/* EBX */
+	*(--context->esp) = 0;	/* ESP */
+	*(--context->esp) = 0;	/* EBP */
+	*(--context->esp) = 0;	/* ESI */
+	*(--context->esp) = 0;	/* EDI */
 
-	/* stack (context->esp) is now ready for 'context_restore' function */
+	/* stack(context->esp) is now ready for 'context_restore' function */
 }
 
-static inline void arch_switch_to_uthread ( ucontext_t *from, ucontext_t *to )
+static inline void arch_switch_to_uthread(ucontext_t *from, ucontext_t *to)
 {
 	asm volatile (
 		"	pushl $1f\n"

@@ -1,4 +1,4 @@
-/*! PrimeCell Vectored Interrupt Controller (VIC, PL190) */
+/*! PrimeCell Vectored Interrupt Controller(VIC, PL190) */
 #ifdef PL190
 
 #include "pl190.h"
@@ -6,13 +6,13 @@
 #include <ARCH/interrupt.h>
 #include <kernel/errno.h>
 
-static void pl190_init ();
-static void pl190_irq_enable ( unsigned int irq );
-static void pl190_irq_disable ( unsigned int irq );
-static void pl190_irq_disable ( unsigned int irq );
-static void pl190_at_exit ( unsigned int irq );
-static int  pl190_get_irq ();
-static char *pl190_interrupt_description ( unsigned int n );
+static void pl190_init();
+static void pl190_irq_enable(unsigned int irq);
+static void pl190_irq_disable(unsigned int irq);
+static void pl190_irq_disable(unsigned int irq);
+static void pl190_at_exit(unsigned int irq);
+static int  pl190_get_irq();
+static char *pl190_interrupt_description(unsigned int n);
 
 
 /*! interface to arch layer - arch_ic_t */
@@ -28,24 +28,24 @@ arch_ic_t pl190 = (arch_ic_t)
 
 
 /*! Initialize VIC */
-static void pl190_init ()
+static void pl190_init()
 {
 	volatile uint32 *vicreg;
 
 	/* disable all interrupts */
-	vicreg = (void *) ( VICBASE + VICINTENABLE );
+	vicreg = (void *)(VICBASE + VICINTENABLE);
 	*vicreg = 0;
 
 	/* all sources generate IRQ not FIQ */
-	vicreg = (void *) ( VICBASE + VICINTSELECT );
+	vicreg = (void *)(VICBASE + VICINTSELECT);
 	*vicreg = 0;
 
 	/* disable "software" interrupts */
-	vicreg = (void *) ( VICBASE + VICSOFTINT );
+	vicreg = (void *)(VICBASE + VICSOFTINT);
 	*vicreg = 0;
 
 	/* allow "user mode" to also control interrupts */
-	vicreg = (void *) ( VICBASE + VICPROTECTION );
+	vicreg = (void *)(VICBASE + VICPROTECTION);
 	*vicreg = 0;
 
 	/* PIC initialized, all external interrupts disabled */
@@ -55,18 +55,18 @@ static void pl190_init ()
  * Enable particular external interrupt in VIC
  * \param irq Interrupt request number
  */
-static void pl190_irq_enable ( unsigned int irq )
+static void pl190_irq_enable(unsigned int irq)
 {
 	volatile uint32 *vicreg;
 
-	ASSERT ( irq >= IRQ_OFFSET && irq < INTERRUPTS );
+	ASSERT(irq >= IRQ_OFFSET && irq < INTERRUPTS);
 
 	irq -= IRQ_OFFSET;
 
-	if ( irq < 32 )
+	if (irq < 32)
 	{
-		vicreg = (void *) ( VICBASE + VICINTENABLE );
-		*vicreg = (*vicreg) | ( 1 << irq );
+		vicreg = (void *)(VICBASE + VICINTENABLE);
+		*vicreg = (*vicreg) |(1 << irq);
 	}
 	else {
 		/* secondary irq controller; TODO */
@@ -77,18 +77,18 @@ static void pl190_irq_enable ( unsigned int irq )
  * Disable particular external interrupt in VIC
  * \param irq Interrupt request number
  */
-static void pl190_irq_disable ( unsigned int irq )
+static void pl190_irq_disable(unsigned int irq)
 {
 	volatile uint32 *vicreg;
 
-	ASSERT ( irq >= IRQ_OFFSET && irq < INTERRUPTS );
+	ASSERT(irq >= IRQ_OFFSET && irq < INTERRUPTS);
 
 	irq -= IRQ_OFFSET;
 
-	if ( irq < 32 )
+	if (irq < 32)
 	{
-		vicreg = (void *) ( VICBASE + VICINTENABLE );
-		*vicreg = (*vicreg) & ( ~( 1 << irq ) );
+		vicreg = (void *)(VICBASE + VICINTENABLE);
+		*vicreg = (*vicreg) &(~(1 << irq));
 	}
 	else {
 		/* secondary irq controller; TODO */
@@ -99,26 +99,26 @@ static void pl190_irq_disable ( unsigned int irq )
  * At end of interrupt processing, re enable some ports in VIC
  * \param irq Interrupt request number
  */
-static void pl190_at_exit ( unsigned int irq )
+static void pl190_at_exit(unsigned int irq)
 {
 }
 
-static int pl190_get_irq ()
+static int pl190_get_irq()
 {
 	volatile uint32 *vicreg, mask, irq;
 
-	vicreg = (void *) ( VICBASE + VICIRQSTATUS );
+	vicreg = (void *)(VICBASE + VICIRQSTATUS);
 
 	mask = *vicreg;
 
-	if ( mask )
+	if (mask)
 	{
 		/* if more interrupt request are acitve get one:
 		 * with lowest or higest number? */
 #if 0	/* return highest number */
-		irq = 31 - __builtin_clz ( mask ) + IRQ_OFFSET;
+		irq = 31 - __builtin_clz(mask) + IRQ_OFFSET;
 #else	/* return lowest number */
-		irq = __builtin_ffs ( mask ) - 1 + IRQ_OFFSET;
+		irq = __builtin_ffs(mask) - 1 + IRQ_OFFSET;
 #endif
 	}
 	else {
@@ -129,20 +129,20 @@ static int pl190_get_irq ()
 }
 
 #ifdef DEBUG
-/*! Interrupts descriptions (IRQs) */
+/*! Interrupts descriptions(IRQs) */
 static char *arch_irq_desc[INTERRUPTS] =
 {
 	/* Processor interrupts */
 	"Undefined instruction",
-	"Software interrupt (by SWI/SVC instructions)",
+	"Software interrupt(by SWI/SVC instructions)",
 	"Prefetch abort",
 	"Data abort",
 	"Interrupt Request",
 	"Fast Interrupt Request",
 
-	/* Primary interrupt controller (VIC) */
+	/* Primary interrupt controller(VIC) */
 	"Watchdog timer",
-	"Software interrupt (not one generated with SVC/SWI)",
+	"Software interrupt(not one generated with SVC/SWI)",
 	"Debug communications receive interrupt",
 	"Debug communications transmit interrupt",
 	"Timer 0 or 1 Timers on development chip",
@@ -174,7 +174,7 @@ static char *arch_irq_desc[INTERRUPTS] =
 	"External",
 	"External interrupt from secondary controller",
 
-	/* Secondary interrupt controller (SIC) */
+	/* Secondary interrupt controller(SIC) */
 	"Software interrupt from secondary controller",
 	"Multimedia card 0B interrupt",
 	"Multimedia card 1B interrupt",
@@ -214,15 +214,15 @@ static char *arch_irq_desc[INTERRUPTS] =
  * \param n Interrupt number
  * \return Pointer to description string
  */
-static char *pl190_interrupt_description ( unsigned int n )
+static char *pl190_interrupt_description(unsigned int n)
 {
-	if ( n < INTERRUPTS )
+	if (n < INTERRUPTS)
 		return arch_irq_desc[n];
 	else
 		return "Unknown interrupt number";
 }
 #else
-static char *pl190_interrupt_description ( unsigned int n )
+static char *pl190_interrupt_description(unsigned int n)
 {
 	return "Descriptions unavailable in this build";
 }

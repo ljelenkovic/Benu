@@ -34,7 +34,7 @@ restore:
 	pop	{r0-r12,lr}	/* registers */
 
 	pop	{pc}		/* 1st time=thread func,
-				   other times: addr. of next instr. (2) */
+				   other times: addr. of next instr.(2) */
 
 return:
 	mov	pc, lr		/* return from function */

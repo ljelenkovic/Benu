@@ -16,14 +16,14 @@
 #define LDT	1
 
 #define GDT_DESCRIPTOR(ID, TABLE, PRIV_LEVEL)	\
-	( ((ID) << 3) | ((TABLE) << 2) | (PRIV_LEVEL) )
+	(((ID) << 3) |((TABLE) << 2) |(PRIV_LEVEL))
 
 #ifndef ASM_FILE
 
 #include <types/basic.h>
 
-void arch_descriptors_init ();
-void arch_tss_update ( void *context );
+void arch_descriptors_init();
+void arch_tss_update(void *context);
 
 #endif
 
@@ -85,7 +85,7 @@ __attribute__((__packed__)) GDTR_t;
 
 /* Third element (with index 2) describes kernel data segment
  * Since no protection is used so far, we turn this off by allowing data from
- * any memory location, within available 4 GB (rw-)
+ * any memory location, within available 4 GB(rw-)
  */
 #define GDT_K_DATA 			\
 {	0xffff,	/* segm_limit0	*/	\
@@ -125,7 +125,7 @@ __attribute__((__packed__)) GDTR_t;
 
 /* Third element (with index 2) describes user data segment
  * Since no protection is used so far, we turn this off by allowing data from
- * any memory location, within available 4 GB (rw-)
+ * any memory location, within available 4 GB(rw-)
  */
 #define GDT_T_DATA			\
 {	0xffff,	/* segm_limit0	*/	\
@@ -167,13 +167,13 @@ __attribute__((__packed__)) GDTR_t;
 /*! IDT row format */
 typedef	struct _IDT_T_
 {
-	uint16	offset_lo;	/* Offset (bits 0-15)	*/
+	uint16	offset_lo;	/* Offset(bits 0-15)	*/
 	uint16	seg_sel;	/* Segment selector	*/
 	uint8	zero;		/* Always zero		*/
 	uint8	type	: 5;	/* Type			*/
 	uint8	DPL	: 2;	/* Privilege level	*/
 	uint8	present	: 1;	/* Present		*/
-	uint16	offset_hi;	/* Offset (bits 16-31)	*/
+	uint16	offset_hi;	/* Offset(bits 16-31)	*/
 
 } __attribute__((__packed__)) IDT_t;
 
@@ -212,8 +212,8 @@ typedef struct _tss_t_
 __attribute__((__packed__)) tss_t;
 
 
-static void GDT_init ();
-static void IDT_init ();
-static void arch_upd_segm_descr (int id, void *start, size_t size, int priv);
+static void GDT_init();
+static void IDT_init();
+static void arch_upd_segm_descr(int id, void *start, size_t size, int priv);
 
 #endif /* _ARCH_DESCRIPTORS_C_ */

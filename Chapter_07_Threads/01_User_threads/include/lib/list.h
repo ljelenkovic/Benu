@@ -3,10 +3,10 @@
  *
  * properties:
  * - double linked list
- * - unsorted (FIFO & LIFO) or sorted list (compare function must be provided)
+ * - unsorted(FIFO & LIFO) or sorted list(compare function must be provided)
  * - list header: list_t type
- * - elements (objects/structures) for list must have list_t element included
- *   (spare extra call to malloc and free; save memory)
+ * - elements(objects/structures) for list must have list_t element included
+ *  (spare extra call to malloc and free; save memory)
  *
  * List usage on an example
 
@@ -34,7 +34,7 @@
  object1.le1.object = &object1			object2.le1.object = &object2;
 
  Same object can be in multiple list simultaneously if it have multiple list_h
- element data member (e.g. le2, le3).
+ element data member(e.g. le2, le3).
 */
 #pragma once
 
@@ -50,7 +50,7 @@ typedef struct _list_h_
 			  /* pointer to next list element */
 
 	void 		 *object;
-			  /* pointer to object (which contains this list_h) */
+			  /* pointer to object(which contains this list_h) */
 }
 list_h;
 
@@ -63,40 +63,40 @@ typedef struct _list_
 list_t;
 
 /* for static list elements initialization */
-#define LIST_H_NULL	{ NULL, NULL, NULL }
+#define LIST_H_NULL	{NULL, NULL, NULL}
 
-/* for static list initialization (empty list) */
-#define LIST_T_NULL	{ NULL, NULL }
+/* for static list initialization(empty list) */
+#define LIST_T_NULL	{NULL, NULL}
 
 #define FIRST	0	/* get first or last list element */
 #define LAST	1
 
-void list_init ( list_t *list );
+void list_init(list_t *list);
 
 /*! Add element to list, add to tail - as last element */
-void list_append ( list_t *list, void *object, list_h *hdr );
+void list_append(list_t *list, void *object, list_h *hdr);
 
 /*! Add element to list, add to head - as first element */
-void list_prepend ( list_t *list, void *object, list_h *hdr );
+void list_prepend(list_t *list, void *object, list_h *hdr);
 
 /*! Add element to sorted list */
-void list_sort_add ( list_t *list, void *object, list_h *hdr,
-				   int (*cmp) ( void *, void * ) );
+void list_sort_add(list_t *list, void *object, list_h *hdr,
+				   int(*cmp)(void *, void *));
 
 /*! Get pointer to first or last list element */
-void *list_get ( list_t *list, unsigned int flags );
+void *list_get(list_t *list, unsigned int flags);
 
 /*! Get pointer to next object in list */
-void *list_get_next ( list_h *hdr );
+void *list_get_next(list_h *hdr);
 
 /*!
- * Remove element from list: FIRST, LAST or given (ref)
+ * Remove element from list: FIRST, LAST or given(ref)
  * NOTE function assumes that ref element is in list - it doesn't check!!!
  */
-void *list_remove ( list_t *list, unsigned int flags, list_h *ref );
+void *list_remove(list_t *list, unsigned int flags, list_h *ref);
 
-/*! Find element in list (returns pointer to object, NULL if not found) */
-void *list_find ( list_t *list, list_h *ref );
+/*! Find element in list(returns pointer to object, NULL if not found) */
+void *list_find(list_t *list, list_h *ref);
 
 /*! Remove element from list if element is in list */
-void *list_find_and_remove ( list_t *list, list_h *ref );
+void *list_find_and_remove(list_t *list, list_h *ref);

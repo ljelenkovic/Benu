@@ -10,22 +10,22 @@
 #define UART0_FR	(UART0_BASE + 0x18)
 #define UART0_DR	(UART0_BASE + 0x00)
 
-static void uart0_putchar ( char c );
-static int uart0_init ( int flags );
-static int uart0_printf ( char *text );
+static void uart0_putchar(char c);
+static int uart0_init(int flags);
+static int uart0_printf(char *text);
 
 
 /*!
  * Send character on uart0
  * \param c Single character
  */
-static void uart0_putchar ( char c )
+static void uart0_putchar(char c)
 {
 	volatile unsigned int *uart_dr = (unsigned int *) UART0_DR;
 	volatile unsigned int *uart_fr = (unsigned int *) UART0_FR;
 
 	/* Wait for UART to become ready to transmit */
-	while ( (*uart_fr) & (1 << 5) )
+	while ((*uart_fr) &(1 << 5))
 		;
 
 	/* Transmit char */
@@ -34,7 +34,7 @@ static void uart0_putchar ( char c )
 }
 
 /*! Init console */
-int uart0_init ( int flags )
+int uart0_init(int flags)
 {
 	return 0;
 }
@@ -43,16 +43,16 @@ int uart0_init ( int flags )
  * Print text string on console, starting at current cursor position
  * \param text String to print
  */
-static int uart0_printf ( char *text )
+static int uart0_printf(char *text)
 {
-	if ( text == NULL )
+	if (text == NULL)
 		return 0;
 
 
-	while ( *text != '\0' ) /* Loop until end of string */
-		uart0_putchar ( *text++ );
+	while (*text != '\0') /* Loop until end of string */
+		uart0_putchar(*text++);
 
-	return strlen ( text );
+	return strlen(text);
 }
 
 
@@ -63,7 +63,7 @@ console_t uart0 = (console_t)
 	.print	= uart0_printf
 };
 
-static int _do_nothing_ ()
+static int _do_nothing_()
 {
 	return 0;
 }

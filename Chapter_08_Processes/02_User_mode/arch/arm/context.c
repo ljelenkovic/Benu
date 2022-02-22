@@ -12,13 +12,13 @@ volatile uint32 *arch_thr_context;
 
 /*! Create initial context for thread - it should start with defined function
  */
-void arch_create_thread_context ( context_t *context,
-		void (func) (void *), void *param, void (*thread_exit)(),
-		void *stack, size_t stack_size )
+void arch_create_thread_context(context_t *context,
+		void (func)(void *), void *param, void (*thread_exit)(),
+		void *stack, size_t stack_size)
 {
 	/* thread context is on stack */
 	context->context = (void *)
-		((uint32) stack) + stack_size - sizeof (arch_context_t);
+		((uint32) stack) + stack_size - sizeof(arch_context_t);
 
 	/* thread context */
 	context->context->pc = (uint32) func;
@@ -32,14 +32,14 @@ void arch_create_thread_context ( context_t *context,
 }
 
 /*! Select thread to return to from interrupt */
-void arch_select_thread ( context_t *context )
+void arch_select_thread(context_t *context)
 {
 	arch_active_thr_context = context;
 	arch_thr_context = (void *) context;
 	//arch_thr_context = (void *) &context->context;
 }
 
-/*! Cleanups on context when deleting thread (nothing to do) */
-void arch_destroy_thread_context ( context_t *context )
+/*! Cleanups on context when deleting thread(nothing to do) */
+void arch_destroy_thread_context(context_t *context)
 {
 }

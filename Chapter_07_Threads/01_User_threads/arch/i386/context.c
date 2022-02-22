@@ -7,13 +7,13 @@
 #include "descriptor.h"
 #include <kernel/memory.h>
 
-/*! context manipulation (user threads) ------------------------------------- */
+/*! context manipulation(user threads) ------------------------------------- */
 
 /*! Create initial context for thread - it should start with defined function
  */
-void arch_create_thread_context ( context_t *context,
-		void (func) (void *), void *param, void (*thread_exit)(),
-		void *stack, size_t stack_size )
+void arch_create_thread_context(context_t *context,
+		void (func)(void *), void *param, void (*thread_exit)(),
+		void *stack, size_t stack_size)
 {
 	uint32 *tstack;
 
@@ -21,12 +21,12 @@ void arch_create_thread_context ( context_t *context,
 	tstack = stack + stack_size;
 
 	/* put starting thread function parameter on stack */
-	*( --tstack ) = (uint32) param;
-	/* return address (when thread exits */
-	*( --tstack ) = (uint32) thread_exit;
+	*(--tstack) = (uint32) param;
+	/* return address(when thread exits */
+	*(--tstack) = (uint32) thread_exit;
 
 	/* thread context is on stack */
-	context->context = (void *) tstack - sizeof (arch_context_t);
+	context->context = (void *) tstack - sizeof(arch_context_t);
 
 	/* thread context */
 	context->context->eip = (uint32) func;
@@ -36,7 +36,7 @@ void arch_create_thread_context ( context_t *context,
 }
 
 /* switch from one thread to another */
-void arch_switch_to_thread ( context_t *from, context_t *to )
+void arch_switch_to_thread(context_t *from, context_t *to)
 {
 	asm volatile (
 		"cmpl	$0, %1		\n\t"	/* is "from" given? */

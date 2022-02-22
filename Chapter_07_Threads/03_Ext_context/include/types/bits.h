@@ -36,13 +36,13 @@
 
 /*! Random numbers */
 #define RAND_MAX_BITS		16
-#define RAND_MAX_BITS_SHIFT	( ( sizeof(uint) * 8 - RAND_MAX_BITS ) / 2 )
+#define RAND_MAX_BITS_SHIFT	((sizeof(uint) * 8 - RAND_MAX_BITS) / 2)
 
-#define RAND_MAX		( ( 1 << RAND_MAX_BITS ) - 1 )
+#define RAND_MAX		((1 << RAND_MAX_BITS) - 1)
 
-static inline uint rand ( uint *seed )
+static inline uint rand(uint *seed)
 {
 	*seed = (*seed) * 1103515245 + 12345;
 
-	return ( (*seed) >> RAND_MAX_BITS_SHIFT ) & RAND_MAX;
+	return ((*seed) >> RAND_MAX_BITS_SHIFT) & RAND_MAX;
 }

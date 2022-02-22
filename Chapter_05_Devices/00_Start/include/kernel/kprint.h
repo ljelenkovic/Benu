@@ -3,4 +3,4 @@
 
 #include <types/io.h>
 
-int kprintf ( char *format, ... );
+int kprintf(char *format, ...);

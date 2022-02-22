@@ -26,7 +26,7 @@ multiboot_header:
 
 /* THE starting point */
 arch_startup:
-	/* initialize processor (operating mode, stacks, interrupt subsystem) */
+	/* initialize processor(operating mode, stacks, interrupt subsystem) */
 	bl	arch_processor_init
 
 arch_jump_to_kernel:

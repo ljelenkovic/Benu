@@ -20,4 +20,4 @@ typedef struct _mseg_t_
 }
 mseg_t;
 
-mseg_t *arch_memory_init ();
+mseg_t *arch_memory_init();

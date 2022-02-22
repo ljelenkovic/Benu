@@ -1,4 +1,4 @@
-/*! System call - call to kernel from threads (via software interrupt) */
+/*! System call - call to kernel from threads(via software interrupt) */
 
 #define _K_SYSCALL_C_
 
@@ -18,7 +18,7 @@
 #include <arch/processor.h>
 
 /*! syscall handlers */
-static int (*k_sysfunc[SYSFUNCS]) ( void *params ) =
+static int(*k_sysfunc[SYSFUNCS])(void *params) =
 {
 	NULL,
 
@@ -82,23 +82,23 @@ static int (*k_sysfunc[SYSFUNCS]) ( void *params ) =
  * Process syscalls
  * (syscall is forwarded from arch interrupt subsystem to k_syscall)
  */
-void k_syscall ( uint irqn )
+void k_syscall(uint irqn)
 {
 	int id, retval;
 	void *context, *params;
 
-	ASSERT ( irqn == SOFTWARE_INTERRUPT );
+	ASSERT(irqn == SOFTWARE_INTERRUPT);
 
-	context = kthread_get_context ( NULL ); /* active thread context */
+	context = kthread_get_context(NULL); /* active thread context */
 
-	id = arch_syscall_get_id ( context );
+	id = arch_syscall_get_id(context);
 
-	ASSERT ( id >= 0 && id < SYSFUNCS );
+	ASSERT(id >= 0 && id < SYSFUNCS);
 
-	params = arch_syscall_get_params ( context );
+	params = arch_syscall_get_params(context);
 
-	retval = k_sysfunc[id] ( params );
+	retval = k_sysfunc[id](params);
 
-	if ( id != PTHREAD_EXIT )
-		arch_syscall_set_retval ( context, retval );
+	if (id != PTHREAD_EXIT)
+		arch_syscall_set_retval(context, retval);
 }

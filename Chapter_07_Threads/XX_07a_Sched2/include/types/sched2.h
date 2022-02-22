@@ -4,7 +4,7 @@
 #include <types/basic.h>
 #include <types/time.h>
 
-/*! Additional schedulers (scheduling policies) */
+/*! Additional schedulers(scheduling policies) */
 enum {
 	SCHED_RR = 1,
 	SCHED_EDF,
@@ -52,4 +52,3 @@ typedef union _sched_t_
 	sched_edf_t  edf;
 }
 sched_supp_t;
-

@@ -8,9 +8,9 @@
 /* symbols from user.ld */
 extern char user_code, user_end, user_heap, user_stack;
 
-extern int PROG_START_FUNC ( char *args[] );
+extern int PROG_START_FUNC(char *args[]);
 
-prog_info_t pi __attribute__ ((section (".program_header"))) =
+prog_info_t pi __attribute__((section(".program_header"))) =
 {
 	.magic =	{ PMAGIC1, ~PMAGIC1, PMAGIC2, ~PMAGIC2 },
 	.type = 	MS_PROGRAM,
@@ -24,19 +24,19 @@ prog_info_t pi __attribute__ ((section (".program_header"))) =
 	.prio =		THR_DEFAULT_PRIO,
 };
 
-int stdio_init (); /* implemented in stdio.c */
+int stdio_init(); /* implemented in stdio.c */
 
 /*! Initialize user process environment */
-void prog_init ( void *args )
+void prog_init(void *args)
 {
 	/* open stdin & stdout */
-	stdio_init ();
+	stdio_init();
 
 	/* initialize dynamic memory */
-	pi.mpool = mem_init ( pi.heap, pi.heap_size );
+	pi.mpool = mem_init(pi.heap, pi.heap_size);
 
 	/* call starting function */
-	( (void (*) ( void * ) ) pi.entry ) ( args );
+	((void (*)(void *)) pi.entry)(args);
 
-	pthread_exit ( NULL );
+	pthread_exit(NULL);
 }

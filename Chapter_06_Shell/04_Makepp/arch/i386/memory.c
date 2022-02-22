@@ -3,7 +3,7 @@
 #define _ARCH_
 #include <arch/memory.h>
 
-/*! kernel (interrupt) stack */
+/*! kernel(interrupt) stack */
 uint8 system_stack [ KERNEL_STACK_SIZE ];
 
 /* reserve space for segment descriptors */
@@ -13,7 +13,7 @@ static mseg_t mseg[3];
  * Create memory map:
  * - find where to place heap
  */
-mseg_t *arch_memory_init ()
+mseg_t *arch_memory_init()
 {
 	extern char kernel_code_addr, kernel_end_addr;
 

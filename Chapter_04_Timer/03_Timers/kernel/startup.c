@@ -20,74 +20,74 @@ uint kernel_features = FEATURE_SUPPORTED; /* initially set all to "on" state */
 /*!
  * First kernel function (after boot loader loads it to memory)
  */
-void k_startup ()
+void k_startup()
 {
 	extern console_t K_INITIAL_STDOUT, K_STDOUT;
 	extern console_t *k_stdout; /* console for kernel messages */
 
 	/* set initial stdout */
 	k_stdout = &K_INITIAL_STDOUT;
-	k_stdout->init (0);
+	k_stdout->init(0);
 
-	/* initialize memory subsystem (needed for boot) */
-	k_memory_init ();
+	/* initialize memory subsystem(needed for boot) */
+	k_memory_init();
 
 	/*! start with regular initialization */
 
 	/* interrupts */
-	arch_init_interrupts ();
+	arch_init_interrupts();
 
-	/* detect memory faults (qemu do not detect segment violations!) */
-	arch_register_interrupt_handler ( INT_MEM_FAULT, k_memory_fault );
-	arch_register_interrupt_handler ( INT_UNDEF_FAULT, k_memory_fault );
+	/* detect memory faults(qemu do not detect segment violations!) */
+	arch_register_interrupt_handler(INT_MEM_FAULT, k_memory_fault);
+	arch_register_interrupt_handler(INT_UNDEF_FAULT, k_memory_fault);
 
 	/* timer subsystem */
-	k_time_init ();
+	k_time_init();
 
 	/* switch to default 'stdout' for kernel */
 	k_stdout = &K_STDOUT;
-	k_stdout->init (0);
+	k_stdout->init(0);
 
-	kprintf ( "%s\n", system_info );
+	kprintf("%s\n", system_info);
 
 	/* enable interrupts */
-	enable_interrupts ();
+	enable_interrupts();
 
-	stdio_init (); /* initialize standard output devices */
+	stdio_init(); /* initialize standard output devices */
 
 	/* start desired program(s) */
-	hello_world ();
-	timer ();
-	/* segm_fault (); */
+	hello_world();
+	timer();
+	/* segm_fault(); */
 
-	kprintf ( "\nSystem halted!\n" );
-	halt ();
+	kprintf("\nSystem halted!\n");
+	halt();
 }
 
 /*! Turn kernel feature on/off */
-uint sys__feature ( uint features, int cmd, int enable )
+uint sys__feature(uint features, int cmd, int enable)
 {
 	uint prev_state = kernel_features & features;
 
-	ASSERT ( !( features & ~FEATURE_SUPPORTED ) );
+	ASSERT(!(features & ~FEATURE_SUPPORTED));
 
-	if ( cmd == FEATURE_GET )
+	if (cmd == FEATURE_GET)
 		return prev_state;
 
 	/* update state */
-	if ( enable )
+	if (enable)
 		kernel_features |= features;
 	else
 		kernel_features &= ~features;
 
 	/* action required? */
 
-	if ( ( features & FEATURE_INTERRUPTS ) )
+	if ((features & FEATURE_INTERRUPTS))
 	{
-		if ( enable )
-			enable_interrupts ();
+		if (enable)
+			enable_interrupts();
 		else
-			disable_interrupts ();
+			disable_interrupts();
 	}
 
 	return prev_state;

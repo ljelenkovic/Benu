@@ -13,24 +13,24 @@
 #define UART0_DR	(UART0_BASE + 0x00)
 #define UART0_IMSC	(UART0_BASE + 0x38)
 
-static void uart0_putchar ( char c );
-static int uart0_getchar ();
-static int uart0_init ();
-static int uart0_send ( void *data, size_t size, uint flags, device_t *dev );
-static int uart0_recv ( void *data, size_t size, uint flags, device_t *dev );
+static void uart0_putchar(char c);
+static int uart0_getchar();
+static int uart0_init();
+static int uart0_send(void *data, size_t size, uint flags, device_t *dev);
+static int uart0_recv(void *data, size_t size, uint flags, device_t *dev);
 
 
 /*!
  * Send character on uart0
  * \param c Single character
  */
-static void uart0_putchar ( char c )
+static void uart0_putchar(char c)
 {
 	volatile unsigned int *uart_dr = (unsigned int *) UART0_DR;
 	volatile unsigned int *uart_fr = (unsigned int *) UART0_FR;
 
 	/* Wait for UART to become ready to transmit */
-	while ( (*uart_fr) & (1 << 5) )
+	while ((*uart_fr) &(1 << 5))
 		;
 
 	/* Transmit char */
@@ -41,37 +41,37 @@ static void uart0_putchar ( char c )
 /*!
  * Get character from uart0
  */
-static int uart0_getchar ()
+static int uart0_getchar()
 {
 	volatile unsigned int *uart_dr = (unsigned int *) UART0_DR;
 	volatile unsigned int *uart_fr = (unsigned int *) UART0_FR;
 
-	if ( (*uart_fr) & (1 << 4) ) /* empty */
+	if ((*uart_fr) &(1 << 4)) /* empty */
 		return -1;
 
 	return *uart_dr;
 }
 
 /*! Init console */
-int uart0_init ( uint flags, void *params, device_t *dev )
+int uart0_init(uint flags, void *params, device_t *dev)
 {
 	return 0;
 }
 
 /*! Device wrapper for console */
-static int uart0_send ( void *data, size_t size, uint flags, device_t *dev )
+static int uart0_send(void *data, size_t size, uint flags, device_t *dev)
 {
 	char *text = data;
 
-	if ( dev->flags & DEV_TYPE_CONSOLE )
+	if (dev->flags & DEV_TYPE_CONSOLE)
 	{
-		if ( text == NULL )
+		if (text == NULL)
 			return 0;
 
-		while ( *text != '\0' ) /* Loop until end of string */
-			uart0_putchar ( *text++ );
+		while (*text != '\0') /* Loop until end of string */
+			uart0_putchar(*text++);
 
-		return strlen ( text );
+		return strlen(text);
 	}
 	else {
 		return EXIT_FAILURE;
@@ -81,33 +81,33 @@ static int uart0_send ( void *data, size_t size, uint flags, device_t *dev )
 /*!
  * Get character from uart0
  */
-static int uart0_recv ( void *data, size_t size, uint flags, device_t *dev )
+static int uart0_recv(void *data, size_t size, uint flags, device_t *dev)
 {
 	int c;
 
-	if ( !data || size < 1 )
+	if (!data || size < 1)
 		return -1;
 
-	c = uart0_getchar ();
+	c = uart0_getchar();
 
-	if ( c == -1 )	/* no new data */
+	if (c == -1)	/* no new data */
 		return 0;
 
-	*( (uint *) data ) = c;
+	*((uint *) data) = c;
 
 	return 1;
 }
 
 /*! Get status */
-static int uart_status ( uint flags, device_t *dev )
+static int uart_status(uint flags, device_t *dev)
 {
 	int rflags = 0;
 	volatile unsigned int *uart_fr = (unsigned int *) UART0_FR;
 
-	if ( !( (*uart_fr) & (1 << 4) ) ) /* Have something to read? */
+	if (!((*uart_fr) &(1 << 4))) /* Have something to read? */
 		rflags |= DEV_IN_READY;
 
-	if ( !( (*uart_fr) & (1 << 5) ) ) /* Is UART ready to transmit? */
+	if (!((*uart_fr) &(1 << 5))) /* Is UART ready to transmit? */
 		rflags |= DEV_OUT_READY;
 
 	return DEV_IN_READY;

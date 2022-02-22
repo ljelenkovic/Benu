@@ -17,93 +17,93 @@ char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "
 /* state of kernel features */
 uint kernel_features = FEATURE_SUPPORTED; /* initially set all to "on" state */
 
-static void run_all () __attribute__ ((unused));
+static void run_all() __attribute__((unused));
 
 /*!
  * First kernel function (after boot loader loads it to memory)
  */
-void k_startup ()
+void k_startup()
 {
 	extern void *k_stdout; /* console for kernel messages */
 
 	/* set initial stdout */
-	kdevice_set_initial_stdout ();
+	kdevice_set_initial_stdout();
 
-	/* initialize memory subsystem (needed for boot) */
-	k_memory_init ();
+	/* initialize memory subsystem(needed for boot) */
+	k_memory_init();
 
 	/*! start with regular initialization */
 
 	/* interrupts */
-	arch_init_interrupts ();
+	arch_init_interrupts();
 
-	/* detect memory faults (qemu do not detect segment violations!) */
-	arch_register_interrupt_handler ( INT_MEM_FAULT, k_memory_fault, NULL );
-	arch_register_interrupt_handler ( INT_UNDEF_FAULT, k_memory_fault, NULL );
+	/* detect memory faults(qemu do not detect segment violations!) */
+	arch_register_interrupt_handler(INT_MEM_FAULT, k_memory_fault, NULL);
+	arch_register_interrupt_handler(INT_UNDEF_FAULT, k_memory_fault, NULL);
 
 	/* timer subsystem */
-	k_time_init ();
+	k_time_init();
 
 	/* devices */
-	k_devices_init ();
+	k_devices_init();
 
 	/* switch to default 'stdout' for kernel */
-	k_stdout = k_device_open ( K_STDOUT, O_WRONLY );
+	k_stdout = k_device_open(K_STDOUT, O_WRONLY);
 
-	kprintf ( "%s\n", system_info );
+	kprintf("%s\n", system_info);
 
 	/* enable interrupts */
-	enable_interrupts ();
+	enable_interrupts();
 
-	stdio_init (); /* initialize standard input & output devices */
+	stdio_init(); /* initialize standard input & output devices */
 
 	/* starting program routine */
-	PROG_START_FUNC ( NULL );
+	PROG_START_FUNC(NULL);
 
-	kprintf ( "\nSystem halted!\n" );
-	halt ();
+	kprintf("\nSystem halted!\n");
+	halt();
 }
 
-static void run_all ()
+static void run_all()
 {
-	kprintf ( "\nStarting program: hello_world\n\n" );
-	hello_world ();
+	kprintf("\nStarting program: hello_world\n\n");
+	hello_world();
 
-	kprintf ( "\nStarting program: timer\n\n" );
-	timer ();
+	kprintf("\nStarting program: timer\n\n");
+	timer();
 #if 0
-	kprintf ( "\nStarting program: keyboard\n\n" );
-	keyboard ();
+	kprintf("\nStarting program: keyboard\n\n");
+	keyboard();
 
-	kprintf ( "\nStarting program: segm_fault\n\n" );
-	segm_fault ();
+	kprintf("\nStarting program: segm_fault\n\n");
+	segm_fault();
 #endif
 }
 
 /*! Turn kernel feature on/off */
-uint sys__feature ( uint features, int cmd, int enable )
+uint sys__feature(uint features, int cmd, int enable)
 {
 	uint prev_state = kernel_features & features;
 
-	ASSERT ( !( features & ~FEATURE_SUPPORTED ) );
+	ASSERT(!(features & ~FEATURE_SUPPORTED));
 
-	if ( cmd == FEATURE_GET )
+	if (cmd == FEATURE_GET)
 		return prev_state;
 
 	/* update state */
-	if ( enable )
+	if (enable)
 		kernel_features |= features;
 	else
 		kernel_features &= ~features;
 
 	/* action required? */
 
-	if ( ( features & FEATURE_INTERRUPTS ) )
+	if ((features & FEATURE_INTERRUPTS))
 	{
-		if ( enable )
-			enable_interrupts ();
+		if (enable)
+			enable_interrupts();
 		else
-			disable_interrupts ();
+			disable_interrupts();
 	}
 
 	return prev_state;

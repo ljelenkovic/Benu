@@ -4,7 +4,7 @@
 
 #include <api/malloc.h>
 
-extern int PROG_START_FUNC ( char *args[] );
+extern int PROG_START_FUNC(char *args[]);
 
 prog_info_t pi =
 {
@@ -17,17 +17,17 @@ prog_info_t pi =
 
 int _errno;	/* Error number that represent last syscall error */
 
-int stdio_init (); /* implemented in stdio.c */
+int stdio_init(); /* implemented in stdio.c */
 
 /*! Initialize user process environment */
-void prog_init ( void *args )
+void prog_init(void *args)
 {
 	/* open stdin & stdout */
-	stdio_init ();
+	stdio_init();
 
 	/* initialize dynamic memory */
-	pi.mpool = mem_init ( pi.heap, pi.heap_size );
+	pi.mpool = mem_init(pi.heap, pi.heap_size);
 
 	/* call starting function */
-	( (void (*) ( void * ) ) pi.entry ) ( args );
+	((void (*)(void *)) pi.entry)(args);
 }

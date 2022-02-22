@@ -17,59 +17,59 @@ MEM_ALLOC_T *k_mpool = NULL;
 static mseg_t *mseg = NULL;
 
 /*! Initial memory layout created in arch layer */
-void k_memory_init ()
+void k_memory_init()
 {
 	int i;
 
 	k_mpool = NULL;
-	mseg = arch_memory_init ();
+	mseg = arch_memory_init();
 
 	/* find kernel heap */
-	for ( i = 0; mseg[i].type != MS_END && !k_mpool; i++ )
+	for (i = 0; mseg[i].type != MS_END && !k_mpool; i++)
 	{
-		if ( mseg[i].type == MS_KHEAP )
+		if (mseg[i].type == MS_KHEAP)
 		{
-			k_mpool = k_mem_init ( mseg[i].start, mseg[i].size );
+			k_mpool = k_mem_init(mseg[i].start, mseg[i].size);
 			break;
 		}
 	}
 
-	ASSERT ( k_mpool );
+	ASSERT(k_mpool);
 }
 
-void *k_mem_init ( void *segment, size_t size )
+void *k_mem_init(void *segment, size_t size)
 {
-	return K_MEM_INIT ( segment, size );
+	return K_MEM_INIT(segment, size);
 }
-void *kmalloc ( size_t size )
+void *kmalloc(size_t size)
 {
-	return KMALLOC ( size );
+	return KMALLOC(size);
 }
-int kfree ( void *chunk )
+int kfree(void *chunk)
 {
-	return KFREE ( chunk );
+	return KFREE(chunk);
 }
 
 /*! print memory layout */
-void k_memory_info ()
+void k_memory_info()
 {
 	int i;
 
-	kprintf ( "Memory segments\n"
+	kprintf("Memory segments\n"
 		 "===============\n"
 		 "Type\tsize\t\tstart addres\n"
 	);
 
-	for ( i = 0; mseg[i].type != MS_END && i < 20; i++ )
+	for (i = 0; mseg[i].type != MS_END && i < 20; i++)
 	{
-		kprintf ( "%d\t%x\t%x\n", mseg[i].type, mseg[i].size,
-					  mseg[i].start );
+		kprintf("%d\t%x\t%x\n", mseg[i].type, mseg[i].size,
+					  mseg[i].start);
 	}
 }
 
-/*! Handle memory fault interrupt (and others undefined) */
-void k_memory_fault ()
+/*! Handle memory fault interrupt(and others undefined) */
+void k_memory_fault()
 {
-	LOG ( ERROR, "Undefined fault (exception)!!!");
-	halt ();
+	LOG(ERROR, "Undefined fault(exception)!!!");
+	halt();
 }

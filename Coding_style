@@ -15,17 +15,17 @@ Proposed style is best presented on examples.
 
 Clean code (using "strict" style) example:
 -------------------------------------------
-	if ( src_type == MSG_THREAD )
+	if (src_type == MSG_THREAD)
 	{
-		kthr = kthread_get_active ();
-		thrmsg = kthread_get_msgqs ( kthr );
+		kthr = kthread_get_active();
+		thrmsg = kthread_get_msgqs( kthr );
 		kmsgq = &thrmsg->msgq;
 	}
 	else { /* src_type == MSG_QUEUE */
 		msgq = src;
 		kgmsgq = msgq->handle;
-		ASSERT_ERRNO_AND_EXIT ( kgmsgq && kgmsgq->id == msgq->id,
-					E_INVALID_HANDLE );
+		ASSERT_ERRNO_AND_EXIT(kgmsgq && kgmsgq->id == msgq->id,
+					E_INVALID_HANDLE);
 		kmsgq = &kgmsgq->mq;
 	}
 
@@ -47,34 +47,34 @@ declaration.
 When breaking line on function call, I try to align next line with parameters,
 first with tabulator and last with spaces:
 
-	arch_create_thread_context ( &kthread->context, start_func, param,
-				     exit_func, stack, stack_size, proc );
+	arch_create_thread_context(&kthread->context, start_func, param,
+				    exit_func, stack, stack_size, proc);
 
 If that is not possible, various adaptations are used:
 
 example1:
-		new_kthr = kthread_create (
+		new_kthr = kthread_create(
 			thrmsg->signal_handler,
-			K2U_GET_ADR ( cmsg, proc ), proc->pi->exit, 0,
-			kthread_get_prio ( kthr ) + 1, NULL, 0, 1, proc
+			K2U_GET_ADR(cmsg, proc), proc->pi->exit, 0,
+			kthread_get_prio(kthr) + 1, NULL, 0, 1, proc
 		);
 example2:
-				if ( first->thread )
+				if (first->thread)
 				{ /* alarm scheduled by thread */
-				proc = kthread_get_process ( first->thread );
-				kthread_create (
+				proc = kthread_get_process(first->thread);
+				kthread_create(
 					first->alarm.action,
 					first->alarm.param,
 					proc->pi->exit,
 					0,
-					kthread_get_prio ( first->thread ) + 1,
+					kthread_get_prio(first->thread) + 1,
 					NULL, 0, 1,
 					proc
 				);
 				resched_thr++;
 				}
 				else { /* alarm scheduled by kernel */
-				first->alarm.action ( first->alarm.param );
+				first->alarm.action first->alarm.param);
 				}
 
 In example2 indentation in "if" is skipped so that code would not go to far

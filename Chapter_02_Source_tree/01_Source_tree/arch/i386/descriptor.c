@@ -14,19 +14,19 @@ static GDT_t gdt[] =
 };
 
 /*! Set up context */
-void arch_descriptors_init ()
+void arch_descriptors_init()
 {
 	GDTR_t gdtr;
 
 	/* initial update of segment descriptors */
-	arch_upd_segm_descr (SEGM_CODE, NULL, (size_t) 0xffffffff, PRIV_KERNEL);
-	arch_upd_segm_descr (SEGM_DATA, NULL, (size_t) 0xffffffff, PRIV_KERNEL);
+	arch_upd_segm_descr(SEGM_CODE, NULL, (size_t) 0xffffffff, PRIV_KERNEL);
+	arch_upd_segm_descr(SEGM_DATA, NULL, (size_t) 0xffffffff, PRIV_KERNEL);
 
 	gdtr.gdt = gdt;
 	gdtr.limit = sizeof(gdt) - 1;
 
 	/* load GDT address into register */
-	asm ( "lgdt	%0\n\t" :: "m" (gdtr) );
+	asm ("lgdt	%0\n\t" :: "m" (gdtr));
 
 	/* update segment registers */
 	asm volatile (
@@ -40,23 +40,23 @@ void arch_descriptors_init ()
 			"mov	%%ax, %%gs	\n\t"
 			"mov	%%ax, %%ss	\n\t"
 
-		:: "i" ( GDT_DESCRIPTOR ( SEGM_CODE, GDT, PRIV_KERNEL ) ),
-		   "i" ( GDT_DESCRIPTOR ( SEGM_DATA, GDT, PRIV_KERNEL ) )
+		:: "i" (GDT_DESCRIPTOR(SEGM_CODE, GDT, PRIV_KERNEL)),
+		   "i" (GDT_DESCRIPTOR(SEGM_DATA, GDT, PRIV_KERNEL))
 		: "memory"
 	);
 }
 
 /*! Update segment descriptor with starting address, size and privilege level */
-static void arch_upd_segm_descr ( int id, void *start_addr, size_t size,
-				  int priv_level )
+static void arch_upd_segm_descr(int id, void *start_addr, size_t size,
+				  int priv_level)
 {
 	uint32 addr = (uint32) start_addr;
 	uint32 gsize = size;
 
-	if ( !(id > 0 && id < 3) )
+	if (!(id > 0 && id < 3))
 	{
-		kconsole_print_word (
-			"Error: descriptor ID out of range [0,2]\n" );
+		kconsole_print_word(
+			"Error: descriptor ID out of range [0,2]\n");
 		halt();
 	}
 

@@ -35,7 +35,7 @@ restore:
 	pop	{r0-r12,lr}	/* registers */
 
 	pop	{pc}		/* 1st time=thread func,
-				   other times: addr. of next instr. (2) */
+				   other times: addr. of next instr.(2) */
 
 return:
 	mov	pc, lr		/* return from function */
@@ -51,7 +51,7 @@ _system_stack_:		.word	system_stack + KERNEL_STACK_SIZE
 
 arch_thread_exit_with_stack_switch:
 	/* r0 = kthread, r1 = exit_status, r2 = force */
-	/* temporary switch to bootup stack (thread's own will be destroyed) */
+	/* temporary switch to bootup stack(thread's own will be destroyed) */
 	ldr	sp, _system_stack_
 
 	/* call kthread_exit2 function */

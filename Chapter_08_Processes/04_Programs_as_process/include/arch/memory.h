@@ -21,7 +21,7 @@ typedef struct _mseg_t_
 }
 mseg_t;
 
-mseg_t *arch_memory_init ();
+mseg_t *arch_memory_init();
 
 
 /*! modules in system images */
@@ -64,7 +64,7 @@ typedef struct program_loaded_as_module
 module_program_t;
 
 /*
- * Memory map of module: (addresses grows downward!)
+ * Memory map of module:(addresses grows downward!)
  * +--------------------------------------------------------------------------+
  * |                               module_t header                            |
  * +--------------------------------------------------------------------------+
@@ -74,8 +74,8 @@ module_program_t;
  * When module contains a program:
  * +--------------------------------------------------------------------------+
  * |                              process_t header                            |
- * |             (includes module_t and program_t header parts)               |
+ * |            (includes module_t and program_t header parts)               |
  * +--------------------------------------------------------------------------+
- * |                .text, .*data*, .bss, ... (compiled sections)             |
+ * |                .text, .*data*, .bss, ...(compiled sections)             |
  * +--------------------------------------------------------------------------+
  */

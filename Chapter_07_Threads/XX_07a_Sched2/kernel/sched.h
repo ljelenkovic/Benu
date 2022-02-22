@@ -4,9 +4,9 @@
  * same priority.
  *
  * Secondary schedulers can influence scheduling of their threads by adjusting
- * priority of tasks (threads) they are "scheduling".
+ * priority of tasks(threads) they are "scheduling".
  * For more information on how to implement particular scheduler look at example
- * given with Round Robin scheduling (sched_rr.h/c).
+ * given with Round Robin scheduling(sched_rr.h/c).
  */
 #pragma once
 
@@ -17,10 +17,10 @@
 /*! ------------------------------------------------------------------------- */
 #include "thread.h"
 
-void ksched_init ();
-void kthread_move_to_ready ( kthread_t *kthread, int where );
-kthread_t *kthread_remove_from_ready ( kthread_t *kthread );
-void kthreads_schedule ();
+void ksched_init();
+void kthread_move_to_ready(kthread_t *kthread, int where);
+kthread_t *kthread_remove_from_ready(kthread_t *kthread);
+void kthreads_schedule();
 
 #ifdef _K_SCHED_C_
 
@@ -46,7 +46,7 @@ sched_ready_t;
 
 
 /*! ------------------------------------------------------------------------- */
-/*! Secondary schedulers (visible only to schedulers and thread.c) ---------- */
+/*! Secondary schedulers(visible only to schedulers and thread.c) ---------- */
 /*! ------------------------------------------------------------------------- */
 #ifdef _K_SCHED_
 
@@ -54,7 +54,7 @@ sched_ready_t;
 #include "sched_rr.h"
 #include "sched_edf.h"
 
-/*! Thread specific data/interface (for scheduler, nor for user) ------------ */
+/*! Thread specific data/interface(for scheduler, nor for user) ------------ */
 
 /*! Union of per thread specific data types required by all schedulers */
 typedef union _kthread_sched_params_t_
@@ -70,12 +70,12 @@ typedef union _kthread_sched_params_t_
 }
 kthread_sched_params_t;
 
-/*! Scheduling parameters for each thread (included in thread descriptor) */
+/*! Scheduling parameters for each thread(included in thread descriptor) */
 typedef struct _kthread_sched2_t_
 {
 	int  activated;
 	     /* disable multiple activation/deactivation calls when thread
-	      * becomes active (or stop being active) */
+	      * becomes active(or stop being active) */
 
 	kthread_sched_params_t  params;
 				/* scheduler per thread specific data */
@@ -88,16 +88,16 @@ kthread_sched2_t;
 struct _ksched_t_;
 typedef struct _ksched_t_ ksched_t;
 
-ksched_t *ksched2_get ( int sched_policy );
+ksched_t *ksched2_get(int sched_policy);
 
-int ksched2_thread_add ( kthread_t *kthread, int sched_policy,
-			 int sched_priority, sched_supp_t *sched_param );
-int ksched2_thread_remove ( kthread_t *kthread );
-int ksched2_activate_thread ( kthread_t *kthread );
-int ksched2_deactivate_thread ( kthread_t *kthread );
-int ksched2_setsched_param ( kthread_t *kthread, sched_supp_t *sched_param );
+int ksched2_thread_add(kthread_t *kthread, int sched_policy,
+			 int sched_priority, sched_supp_t *sched_param);
+int ksched2_thread_remove(kthread_t *kthread);
+int ksched2_activate_thread(kthread_t *kthread);
+int ksched2_deactivate_thread(kthread_t *kthread);
+int ksched2_setsched_param(kthread_t *kthread, sched_supp_t *sched_param);
 
-void ksched2_schedule ( int sched_policy );
+void ksched2_schedule(int sched_policy);
 
 
 /*! Global scheduler specific data/interface -------------------------------- */
@@ -121,31 +121,31 @@ struct _ksched_t_
 	int  sched_id;
 	     /* scheduler ID, e.g. SCHED_FIFO */
 
-	int  (*init) ( ksched_t *ksched );
+	int (*init)(ksched_t *ksched);
 	     /* initialize scheduler */
 
-	int  (*schedule) ( ksched_t *ksched );
+	int (*schedule)(ksched_t *ksched);
 	     /* schedule - pick next active thread */
 
-	int  (*thread_add) ( ksched_t *ksched, kthread_t *kthread,
-			     int sched_priority, sched_supp_t *sched_param );
+	int (*thread_add)(ksched_t *ksched, kthread_t *kthread,
+			     int sched_priority, sched_supp_t *sched_param);
 	/* actions when thread is created or when it switch to this scheduler */
 
-	int  (*thread_remove) ( ksched_t *ksched, kthread_t *kthread );
+	int (*thread_remove)(ksched_t *ksched, kthread_t *kthread);
 	/* actions when thread is removed from this scheduler */
 
-	int  (*thread_activate) ( ksched_t *ksched, kthread_t *kthread );
+	int (*thread_activate)(ksched_t *ksched, kthread_t *kthread);
 	     /* actions when thread is to become active */
 
-	int  (*thread_deactivate) ( ksched_t *ksched, kthread_t *kthread );
+	int (*thread_deactivate)(ksched_t *ksched, kthread_t *kthread);
 	     /* actions when thread stopped to be active */
 
-	int  (*set_thread_sched_parameters) (
-	       ksched_t *ksched, kthread_t *kthread, sched_supp_t *param );
+	int (*set_thread_sched_parameters)(
+	       ksched_t *ksched, kthread_t *kthread, sched_supp_t *param);
 	     /* set scheduler specific parameters to thread */
 
-	int  (*get_thread_sched_parameters) (
-	       ksched_t *ksched, kthread_t *kthread, sched_supp_t *param );
+	int (*get_thread_sched_parameters)(
+	       ksched_t *ksched, kthread_t *kthread, sched_supp_t *param);
 	     /* get scheduler specific parameters from thread */
 
 	ksched_params_t  params;

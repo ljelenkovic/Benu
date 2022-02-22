@@ -1,4 +1,4 @@
-/*! Interrupt handling - 'arch' layer (only basic operations) */
+/*! Interrupt handling - 'arch' layer(only basic operations) */
 
 #pragma once
 

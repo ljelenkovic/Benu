@@ -13,13 +13,13 @@
 #define LDT	1
 
 #define GDT_DESCRIPTOR(ID, TABLE, PRIV_LEVEL)	\
-	( ((ID) << 3) | ((TABLE) << 2) | (PRIV_LEVEL) )
+	(((ID) << 3) |((TABLE) << 2) |(PRIV_LEVEL))
 
 #ifndef ASM_FILE
 
 #include <types/basic.h>
 
-void arch_descriptors_init ();
+void arch_descriptors_init();
 
 #endif
 
@@ -81,7 +81,7 @@ __attribute__((__packed__)) GDTR_t;
 
 /* Third element (with index 2) describes data segment
  * Since no protection is used so far, we turn this off by allowing data from
- * any memory location, within available 4 GB (rw-)
+ * any memory location, within available 4 GB(rw-)
  */
 #define GDT_DATA 			\
 {	0xffff,	/* segm_limit0	*/	\
@@ -99,6 +99,6 @@ __attribute__((__packed__)) GDTR_t;
 	0	/* base_addr2	*/	\
 }
 
-static void arch_upd_segm_descr (int id, void *start, size_t size, int priv);
+static void arch_upd_segm_descr(int id, void *start, size_t size, int priv);
 
 #endif /* _ARCH_DESCRIPTORS_C_ */

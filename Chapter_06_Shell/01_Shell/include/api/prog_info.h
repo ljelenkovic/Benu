@@ -4,11 +4,11 @@
 #include <types/basic.h>
 
 /* "programs" */
-int hello_world ();
-int timer ();
-int keyboard ();
-int shell ();
-int segm_fault ();
+int hello_world();
+int timer();
+int keyboard();
+int shell();
+int segm_fault();
 
 #define	hello_world_PROG_HELP	"Print 'Hello world'."
 #define	timer_PROG_HELP		"Timer interface demonstration: "	\
@@ -22,10 +22,10 @@ int segm_fault ();
 
 #define PROGRAMS_FOR_SHELL					\
 {								\
-{ hello_world,	"hello",	hello_world_PROG_HELP },	\
-{ timer, 	"timer",	timer_PROG_HELP },		\
-{ keyboard,	"keyboard",	keyboard_PROG_HELP },		\
-{ shell,	"shell",	shell_PROG_HELP },		\
-{ segm_fault,	"segm_fault", 	segm_fault_PROG_HELP },		\
-{ NULL, 	NULL, 		NULL }				\
+{hello_world,	"hello",	hello_world_PROG_HELP},	\
+{timer, 	"timer",	timer_PROG_HELP},		\
+{keyboard,	"keyboard",	keyboard_PROG_HELP},		\
+{shell,		"shell",	shell_PROG_HELP},		\
+{segm_fault,	"segm_fault", 	segm_fault_PROG_HELP},		\
+{NULL, 		NULL, 		NULL}				\
 }

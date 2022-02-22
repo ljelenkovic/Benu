@@ -1,4 +1,4 @@
-/*! PrimeCell Vectored Interrupt Controller (VIC, PL190) */
+/*! PrimeCell Vectored Interrupt Controller(VIC, PL190) */
 #ifdef PL190
 
 #pragma once
@@ -12,7 +12,7 @@
  * RealView Platform Baseboard for ARM926EJ-S™, HBI-0117, User Guide
  */
 
-/*! Primary interrupt controller (VIC, PL190) --------------------------------- */
+/*! Primary interrupt controller(VIC, PL190) --------------------------------- */
 
 /*! VIC control registers */
 
@@ -40,10 +40,10 @@
 #endif
 
 
-/*! Interrupts generated through VIC (connected to VIC) */
+/*! Interrupts generated through VIC(connected to VIC) */
 enum {
 /*0*/	WATCHDOG = 0,	/* Watchdog timer */
-/*1*/	SWI,		/* Software interrupt (not one generated with SVC/SWI) */
+/*1*/	SWI,		/* Software interrupt(not one generated with SVC/SWI) */
 /*2*/	COM_RX,		/* Debug communications receive interrupt */
 /*3*/	COM_TX,		/* Debug communications transmit interrupt */
 /*4*/	TIMER01,	/* Timer 0 or 1 Timers on development chip */
@@ -77,23 +77,23 @@ enum {
 };
 
 
-/*! Secondary interrupt controller (SIC) -------------------------------------- */
+/*! Secondary interrupt controller(SIC) -------------------------------------- */
 /* A secondary interrupt controller is implemented as a custom design in the
  * FPGA and connected to 31 pin of primary controller. */
 
 /* 	Name 		Address	  Access	 Description */
-#define SIC_STATUS	0x0000 /* R	Status of interrupt (after mask) */
-#define SIC_RAWSTAT	0x0004 /* R	Status of interrupt (before mask) */
+#define SIC_STATUS	0x0000 /* R	Status of interrupt(after mask) */
+#define SIC_RAWSTAT	0x0004 /* R	Status of interrupt(before mask) */
 #define SIC_ENABLE	0x0008 /* R	Interrupt mask */
 #define SIC_ENSET	0x0008 /* W	Set bits HIGH to enable the corresponding interrupt signals */
 #define SIC_ENCLR	0x000C /* W	Set bits HIGH to mask the corresponding interrupt signals */
 #define SIC_SOFTINTSET	0x0010 /* R/W	Set software interrupt */
 #define SIC_SOFTINTCLR	0x0014 /* W	Clear software interrupt */
-#define SIC_PICENABLE	0x0020 /* R	Read status of pass-through mask (allows interrupt to pass directly to the primary interrupt controller) */
+#define SIC_PICENABLE	0x0020 /* R	Read status of pass-through mask(allows interrupt to pass directly to the primary interrupt controller) */
 #define SIC_PICENSET	0x0020 /* W	Set bits HIGH to set the corresponding interrupt pass-through mask bits */
 #define SIC_PICENCLR	0x0024 /* W	Set bits HIGH to clear the corresponding interrupt pass-through mask bits */
 
-/*! Interrupts generated through SIC (connected to SIC) */
+/*! Interrupts generated through SIC(connected to SIC) */
 enum {
 /*0*/	SOFTINT2 = 0,	/* Software interrupt from secondary controller */
 /*1*/	MMCI0B,		/* Multimedia card 0B interrupt */

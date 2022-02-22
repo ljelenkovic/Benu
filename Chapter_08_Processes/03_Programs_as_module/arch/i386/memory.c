@@ -3,7 +3,7 @@
 #define _ARCH_
 #include <arch/memory.h>
 
-/*! kernel (interrupt) stack */
+/*! kernel(interrupt) stack */
 uint8 system_stack [ KERNEL_STACK_SIZE ];
 
 /* adjust if more than 16 programs are used */
@@ -20,7 +20,7 @@ unsigned long arch_mb_magic, arch_mb_info;
  * Create memory map:
  * - find place for heap
  */
-mseg_t *arch_memory_init ()
+mseg_t *arch_memory_init()
 {
 	extern char kernel_code_addr, kernel_end_addr;
 	uint addr, end = (uint) &kernel_end_addr;
@@ -41,12 +41,12 @@ mseg_t *arch_memory_init ()
 	mseg[i].size = (uint) &kernel_end_addr - (uint) &kernel_code_addr;
 	i++;
 
-	for ( addr = end; addr < SYSTEM_MEMORY; addr+=4 )
+	for (addr = end; addr < SYSTEM_MEMORY; addr+=4)
 	{
 		mod = (module_t *) addr;
 
-		if ( mod->magic[0] == PMAGIC1 && mod->magic[1] == ~PMAGIC1 &&
-			mod->magic[2] == PMAGIC2 && mod->magic[3] == ~PMAGIC2 )
+		if (mod->magic[0] == PMAGIC1 && mod->magic[1] == ~PMAGIC1 &&
+			mod->magic[2] == PMAGIC2 && mod->magic[3] == ~PMAGIC2)
 		{
 			/* found module at addr */
 			mseg[i].type = mod->type;

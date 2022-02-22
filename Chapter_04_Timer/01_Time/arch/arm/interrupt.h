@@ -1,4 +1,4 @@
-/*! Interrupt handling - 'arch' layer (only basic operations) */
+/*! Interrupt handling - 'arch' layer(only basic operations) */
 
 #pragma once
 
@@ -19,27 +19,27 @@
 #define INT_UNDEF_FAULT		INT_SRC_UNDEF
 
 /*! IRQ interrupts: 0-31 from primary controller, 0-31 from secondary */
-#define INTERRUPTS	( INT_SRC_NUM + 32 + 32 )
+#define INTERRUPTS	(INT_SRC_NUM + 32 + 32)
 #define IRQ_OFFSET	INT_SRC_NUM
 
 #ifndef ASM_FILE
 
 #include <arch/interrupt.h>
 
-/*! (Hardware) Interrupt controller interface */
+/*!(Hardware) Interrupt controller interface */
 typedef struct _interrupt_controller_
 {
-	void   (*init) ();
-	void   (*disable_irq) ( unsigned int irq );
-	void   (*enable_irq) ( unsigned int irq );
-	void   (*at_exit) ( unsigned int irq );
-	int    (*get_irq) ();
+	void  (*init)();
+	void  (*disable_irq)(unsigned int irq);
+	void  (*enable_irq)(unsigned int irq);
+	void  (*at_exit)(unsigned int irq);
+	int   (*get_irq)();
 
-	char  *(*int_descr) ( unsigned int irq );
+	char  *(*int_descr)(unsigned int irq);
 }
 arch_ic_t;
 
-/* PrimeCell Vectored Interrupt Controller (PL190) */
+/* PrimeCell Vectored Interrupt Controller(PL190) */
 #include <ARCH/drivers/pl190.h>
 
 #endif /* ASM_FILE */

@@ -1,4 +1,4 @@
-/*! interrupts.S - low level (arch) interrupt handling */
+/*! interrupts.S - low level(arch) interrupt handling */
 
 /*
  * Used ideas from:
@@ -81,13 +81,13 @@ arch_int_hndl:
 	push	{r0-r1}		/* cpsr, spsr */
 
 	ldr	r2, _arch_thr_context_
-	str	sp, [r2]	/* save thread context address (stack addr.) */
+	str	sp, [r2]	/* save thread context address(stack addr.) */
 
 	/* change to system mode and handle interrupt/system call */
 	msr	cpsr, #(CPSR_MODE_SYS|CPSR_IRQ)
 	ldr	sp, _system_stack_	/* set kernel stack */
 
-	/* jump to interrupt handler (r0=cpsr) */
+	/* jump to interrupt handler(r0=cpsr) */
 	bl	arch_interrupt_handler
 
 arch_return_to_thread:
@@ -106,7 +106,7 @@ arch_return_to_thread:
 	and	r0, #0x1f		/* leave only mode bits */
 	cmp	r0, #CPSR_MODE_SVC	/* is it SVC interrupt? */
 
-	ldmfd	sp, {r4-r14}^	/* restore thread context (incl. stack p.) */
+	ldmfd	sp, {r4-r14}^	/* restore thread context(incl. stack p.) */
 	add	sp, sp, #(11*4)
 	ldmfd	sp, {r0-r3}
 

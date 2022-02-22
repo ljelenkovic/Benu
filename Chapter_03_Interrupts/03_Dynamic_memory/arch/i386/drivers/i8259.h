@@ -1,4 +1,4 @@
-/*! Intel 8259 programmable interrupt controller (PIC) */
+/*! Intel 8259 programmable interrupt controller(PIC) */
 #ifdef I8259
 
 #pragma once
@@ -37,6 +37,6 @@ enum {
 
 #endif /* ASM_FILE */
 
-#define NUM_IRQS	( SOFT_IRQ + 1 )
+#define NUM_IRQS	(SOFT_IRQ + 1)
 
 #endif /* I8259 */

@@ -9,11 +9,11 @@
 /* symbols from user.ld */
 extern char user_code, user_end;
 
-extern int PROG_START_FUNC ( char *args[] );
+extern int PROG_START_FUNC(char *args[]);
 extern char PROG_HELP[];
 
 module_program_t _program_module_header_
-__attribute__ ((section (".program_header"))) =
+__attribute__((section(".program_header"))) =
 {
 	.prog = {
 		.magic =	{ PMAGIC1, ~PMAGIC1, PMAGIC2, ~PMAGIC2 },
@@ -40,21 +40,21 @@ __attribute__ ((section (".program_header"))) =
 /* used in runtime */
 process_t *_uproc_;
 
-int stdio_init (); /* implemented in stdio.c */
+int stdio_init(); /* implemented in stdio.c */
 
 /*! Initialize process environment */
-void prog_init ( void *args )
+void prog_init(void *args)
 {
 	_uproc_ = &_program_module_header_.proc;
 
 	/* open stdin & stdout */
-	stdio_init ();
+	stdio_init();
 
 	/* initialize dynamic memory */
-	_uproc_->mpool = mem_init ( _uproc_->heap, _uproc_->p.heap_size );
+	_uproc_->mpool = mem_init(_uproc_->heap, _uproc_->p.heap_size);
 
 	/* call starting function */
-	( (void (*) ( void * ) ) _uproc_->p.entry ) ( args );
+	((void (*)(void *)) _uproc_->p.entry)(args);
 
-	pthread_exit ( NULL );
+	pthread_exit(NULL);
 }

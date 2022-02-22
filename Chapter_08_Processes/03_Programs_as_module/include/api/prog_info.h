@@ -35,4 +35,4 @@ typedef struct _prog_info_t_
 }
 prog_info_t;
 
-void prog_init ( void *args );
+void prog_init(void *args);

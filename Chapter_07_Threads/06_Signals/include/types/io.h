@@ -11,29 +11,29 @@
 #define ESC_COLOR_DEFAULT	39
 /*
  * look in arch/i386/drivers/vga_text.c for supported escape sequences for that
- * device (vga_text)
+ * device(vga_text)
  */
 
-#define CONSOLE_PRINT	( 1 << 1 )
-#define CONSOLE_RAW	( 1 << 2 )	/* raw input/output */
-#define CONSOLE_ASCII	( 1 << 3 )	/* send/get only ascii */
+#define CONSOLE_PRINT	(1 << 1)
+#define CONSOLE_RAW	(1 << 2)	/* raw input/output */
+#define CONSOLE_ASCII	(1 << 3)	/* send/get only ascii */
 #define CONSOLE_MAXLEN	200
 
 
 /*! flags for operation on devices and other objects */
-#define O_CREAT			( 1 << 0 )
-#define O_EXCL			( 1 << 1 )
-#define O_NONBLOCK		( 1 << 2 )
-#define O_RDONLY		( 1 << 3 )
-#define O_WRONLY		( 1 << 4 )
-#define O_RDWR			( O_RDONLY | O_WRONLY )
+#define O_CREAT			(1 << 0)
+#define O_EXCL			(1 << 1)
+#define O_NONBLOCK		(1 << 2)
+#define O_RDONLY		(1 << 3)
+#define O_WRONLY		(1 << 4)
+#define O_RDWR			(O_RDONLY | O_WRONLY)
 
-#define DEV_OPEN		( 1 << 28 )
-#define DEV_TYPE_SHARED		( 1 << 28 )
-#define DEV_TYPE_NOTSHARED	( 1 << 29 )
-#define DEV_TYPE_CONSOLE	( 1 << 30 )	/* "console mode" = text mode */
+#define DEV_OPEN		(1 << 28)
+#define DEV_TYPE_SHARED		(1 << 28)
+#define DEV_TYPE_NOTSHARED	(1 << 29)
+#define DEV_TYPE_CONSOLE	(1 << 30)	/* "console mode" = text mode */
 
-/*! limits for name lengths of named system objects (as message queues) */
+/*! limits for name lengths of named system objects(as message queues) */
 #define	PATH_MAX		255
 #define	NAME_MAX		255
 
@@ -41,9 +41,9 @@
 
 
 /*! Device status: have new data / can new data be sent to device */
-#define DEV_IN_READY		( 1 << 0 )   /* have data to read from device */
-#define DEV_OUT_READY		( 1 << 1 )   /* can send data to device */
-#define DEV_INT_RQ		( 1 << 2 )   /* device raised interrupt req. */
+#define DEV_IN_READY		(1 << 0)   /* have data to read from device */
+#define DEV_OUT_READY		(1 << 1)   /* can send data to device */
+#define DEV_INT_RQ		(1 << 2)   /* device raised interrupt req. */
 
 
 /*! input/output multiplexing - get IO status */
@@ -59,7 +59,7 @@ struct pollfd {
 
 typedef unsigned int nfds_t; //number of file descriptors
 
-/* int poll ( struct pollfd fds[], nfds_t nfds, int timeout ); */
+/* int poll(struct pollfd fds[], nfds_t nfds, int timeout); */
 
 #define POLLIN		(1<<0)
 /* Data other than high-priority data may be read without blocking. */
@@ -83,13 +83,13 @@ typedef unsigned int nfds_t; //number of file descriptors
 /* Priority data may be written. */
 
 #define POLLERR		(1<<7)
-/* An error has occurred (revents only). */
+/* An error has occurred(revents only). */
 
 #define POLLHUP		(1<<8)
-/* Device has been disconnected (revents only). */
+/* Device has been disconnected(revents only). */
 
 #define POLLNVAL	(1<<9)
-/* Invalid fd member (revents only). */
+/* Invalid fd member(revents only). */
 
 #if 0
 

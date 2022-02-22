@@ -3,12 +3,12 @@
 #include <api/stdio.h>
 #include <kernel/kprint.h>
 
-int console_init ()
+int console_init()
 {
-	return kconsole_init ();
+	return kconsole_init();
 }
 
-int console_print_word ( char *word )
+int console_print_word(char *word)
 {
-	return kconsole_print_word ( word );
+	return kconsole_print_word(word);
 }
