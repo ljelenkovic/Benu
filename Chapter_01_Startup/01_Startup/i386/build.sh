@@ -29,7 +29,7 @@ fi #"compile"
 
 if [ $# -gt 0 ] && [ $1 = "qemu" ]; then
 	echo Starting...
-	qemu-system-i386 -m 2 -no-kvm -kernel $PROJECT
+	qemu-system-i386 -m 2 -machine accel=tcg -kernel $PROJECT
 
 elif [ $# -gt 0 ] && [ $1 = "cleanall" ]; then
 	echo Cleaning...

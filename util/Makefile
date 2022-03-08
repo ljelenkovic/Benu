@@ -22,7 +22,7 @@ $(CDIMAGE):
 ARCH ?= i386
 QEMU_MEM = 8
 QEMU = qemu-system-$(ARCH)
-QFLAGS = -m $(QEMU_MEM)M -no-kvm -serial stdio
+QFLAGS = -m $(QEMU_MEM)M -machine accel=tcg -serial stdio
 QMSG = "Starting qemu (pop-up window)"
 
 qemu: $(CDIMAGE)
