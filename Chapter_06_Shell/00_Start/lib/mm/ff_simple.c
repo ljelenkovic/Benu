@@ -53,8 +53,8 @@ void *ffs_init(void *mem_segm, size_t size)
 }
 
 /*!
- * Get free chunk with required size(or slightly bigger)
- * \param mpool Memory pool to be used(if NULL default pool is used)
+ * Get free chunk with required size (or slightly bigger)
+ * \param mpool Memory pool to be used (if NULL default pool is used)
  * \param size Requested chunk size
  * \return Block address, NULL if can't find adequate free chunk
  */
@@ -103,8 +103,8 @@ void *ffs_alloc(ffs_mpool_t *mpool, size_t size)
 
 /*!
  * Free memory chunk
- * \param mpool Memory pool to be used(if NULL default pool is used)
- * \param chunk Chunk location(starting address)
+ * \param mpool Memory pool to be used (if NULL default pool is used)
+ * \param chunk Chunk location (starting address)
  * \return 0 if successful, -1 otherwise
  */
 int ffs_free(ffs_mpool_t *mpool, void *chunk_to_be_freed)
@@ -146,7 +146,7 @@ int ffs_free(ffs_mpool_t *mpool, void *chunk_to_be_freed)
 }
 
 /*!
- * Routine that removes an chunk from 'free' list(free_list)
+ * Routine that removes a chunk from 'free' list (free_list)
  * \param mpool Memory pool to be used
  * \param chunk Chunk header
  */
@@ -162,7 +162,7 @@ static void ffs_remove_chunk(ffs_mpool_t *mpool, ffs_hdr_t *chunk)
 }
 
 /*!
- * Routine that insert chunk into 'free' list(free_list)
+ * Routine that insert a chunk into 'free' list (free_list)
  * \param mpool Memory pool to be used
  * \param chunk Chunk header
  */

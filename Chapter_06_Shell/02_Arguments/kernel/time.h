@@ -44,7 +44,7 @@ struct _ktimer_t_
 		      /* interval timers {it_value, it_interval} */
 
 	void	     *param;
-		      /* additional parameter(remainder for sleep)*/
+		      /* additional parameter (remainder for sleep)*/
 
 	list_h	      list;
 		      /* active timers are in sorted list */

@@ -3,7 +3,7 @@
 
 #include <types/pthread.h>
 
-/*! interface for threads(via software interrupt) -------------------------- */
+/*! interface for threads (via software interrupt) -------------------------- */
 int sys__pthread_create(pthread_t *thread, pthread_attr_t *attr,
 			  void *(*start_routine)(void *), void *arg);
 int sys__pthread_exit(void *retval);

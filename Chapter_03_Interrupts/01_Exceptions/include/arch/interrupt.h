@@ -1,7 +1,7 @@
-/*! Interrupt handling - 'arch' layer(only basic operations) */
+/*! Interrupt handling - 'arch' layer (only basic operations) */
 #pragma once
 
-/*! Initialize interrupt subsystem(in 'arch' layer) */
+/*! Initialize interrupt susubsystem (in 'arch' layer) */
 void arch_init_interrupts();
 
 /*! Register handler function for particular interrupt number */

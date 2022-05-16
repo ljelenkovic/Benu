@@ -1,4 +1,4 @@
-/*! System call - call to kernel from threads(via software interrupt) */
+/*! System call - call to kernel from threads (via software interrupt) */
 #pragma once
 
 /*! syscall id's */

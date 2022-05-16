@@ -28,7 +28,7 @@ void k_startup()
 	/* set initial stdout */
 	kdevice_set_initial_stdout();
 
-	/* initialize memory subsystem(needed for boot) */
+	/* initialize memory subsystem (needed for boot) */
 	k_memory_init();
 
 	/*! start with regular initialization */
@@ -36,7 +36,7 @@ void k_startup()
 	/* interrupts */
 	arch_init_interrupts();
 
-	/* detect memory faults(qemu do not detect segment violations!) */
+	/* detect memory faults (qemu do not detect segment violations!) */
 	arch_register_interrupt_handler(INT_MEM_FAULT, k_memory_fault, NULL);
 	arch_register_interrupt_handler(INT_UNDEF_FAULT, k_memory_fault, NULL);
 

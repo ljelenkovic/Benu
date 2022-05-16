@@ -1,4 +1,4 @@
-/*! POSIX threads and related operations(synchronization and communication) */
+/*! POSIX threads and related operations (synchronization and communication) */
 
 #include <api/pthread.h>
 

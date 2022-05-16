@@ -17,7 +17,7 @@
 /*! Threads ----------------------------------------------------------------- */
 
 /*!
- * Create new thread(params on user stack!)
+ * Create new thread (params on user stack!)
  * \param thread User level thread descriptor
  * \param attr Thread attributes
  * \param start_routine Starting function for new thread
@@ -84,7 +84,7 @@ int sys__pthread_create(void *p)
 }
 
 /*!
- * End current thread(exit from it)
+ * End current thread (exit from it)
  * \param retval Pointer to exit status
  */
 int sys__pthread_exit(void *p)
@@ -99,7 +99,7 @@ int sys__pthread_exit(void *p)
 
 /*!
  * Wait for thread termination
- * \param thread Thread descriptor(user level descriptor)
+ * \param thread Thread descriptor (user level descriptor)
  * \param retval Where to store exit status of joined thread
  * \return 0 if thread already gone; -1 if not finished and 'wait' not set;
  *         'thread exit status' otherwise
@@ -147,7 +147,7 @@ int sys__pthread_join(void *p)
 }
 
 /*! Return calling thread descriptor
- * \param thread Thread descriptor(user level descriptor)
+ * \param thread Thread descriptor (user level descriptor)
  * \return 0
  */
 int sys__pthread_self(void *p)
@@ -168,7 +168,7 @@ int sys__pthread_self(void *p)
  * Change scheduling parameters
  * \param thread User level thread descriptor
  * \param policy Thread scheduling policy
- * \param param Additional scheduling parameters(when policy != SCHED_FIFO)
+ * \param param Additional scheduling parameters (when policy != SCHED_FIFO)
  * \return 0
  */
 int sys__pthread_setschedparam(void *p)
@@ -227,7 +227,7 @@ int sys__get_errno_ptr(void *p)
 
 /*!
  * Initialize mutex object
- * \param mutex Mutex descriptor(user level descriptor)
+ * \param mutex Mutex descriptor (user level descriptor)
  * \param mutexattr Mutex parameters
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
@@ -262,7 +262,7 @@ int sys__pthread_mutex_init(void *p)
 
 /*!
  * Destroy mutex object
- * \param mutex Mutex descriptor(user level descriptor)
+ * \param mutex Mutex descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
 int sys__pthread_mutex_destroy(void *p)
@@ -291,7 +291,7 @@ int sys__pthread_mutex_destroy(void *p)
 
 	kmutex->ref_cnt--;
 
-	/* additional cleanup here(e.g. if mutex is shared leave it) */
+	/* additional cleanup here (e.g. if mutex is shared leave it) */
 	if (kmutex->ref_cnt)
 		EXIT2(EBUSY, EXIT_FAILURE);
 
@@ -307,7 +307,7 @@ static int mutex_lock(kpthread_mutex_t *kmutex, kthread_t *kthread);
 
 /*!
  * Lock mutex object
- * \param mutex Mutex descriptor(user level descriptor)
+ * \param mutex Mutex descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
 int sys__pthread_mutex_lock(void *p)
@@ -366,7 +366,7 @@ static int mutex_lock(kpthread_mutex_t *kmutex, kthread_t *kthread)
 
 /*!
  * Unlock mutex object
- * \param mutex Mutex descriptor(user level descriptor)
+ * \param mutex Mutex descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
 int sys__pthread_mutex_unlock(void *p)
@@ -408,8 +408,8 @@ int sys__pthread_mutex_unlock(void *p)
 
 /*!
  * Initialize conditional variable object
- * \param cond conditional variable descriptor(user level descriptor)
- * \param condattr conditional variable descriptor(user level descriptor)
+ * \param cond conditional variable descriptor (user level descriptor)
+ * \param condattr conditional variable descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
 int sys__pthread_cond_init(void *p)
@@ -442,7 +442,7 @@ int sys__pthread_cond_init(void *p)
 
 /*!
  * Destroy conditional variable object
- * \param cond conditional variable descriptor(user level descriptor)
+ * \param cond conditional variable descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
 int sys__pthread_cond_destroy(void *p)
@@ -464,7 +464,7 @@ int sys__pthread_cond_destroy(void *p)
 
 	kcond->ref_cnt--;
 
-	/* additional cleanup here(e.g. if cond.var. is shared leave it) */
+	/* additional cleanup here (e.g. if cond.var. is shared leave it) */
 	if (kcond->ref_cnt)
 		EXIT2(EBUSY, EXIT_FAILURE);
 
@@ -478,8 +478,8 @@ int sys__pthread_cond_destroy(void *p)
 
 /*!
  * Wait on conditional variable
- * \param cond conditional variable descriptor(user level descriptor)
- * \param mutex Mutex descriptor(user level descriptor)
+ * \param cond conditional variable descriptor (user level descriptor)
+ * \param mutex Mutex descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
 int sys__pthread_cond_wait(void *p)
@@ -534,7 +534,7 @@ static int cond_release(void *p, int release_all);
 
 /*!
  * Restart thread waiting on conditional variable
- * \param cond conditional variable descriptor(user level descriptor)
+ * \param cond conditional variable descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
 int sys__pthread_cond_signal(void *p)
@@ -544,7 +544,7 @@ int sys__pthread_cond_signal(void *p)
 
 /*!
  * Restart all threads waiting on conditional variable
- * \param cond conditional variable descriptor(user level descriptor)
+ * \param cond conditional variable descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
 int sys__pthread_cond_broadcast(void *p)
@@ -600,7 +600,7 @@ static int cond_release(void *p, int release_all)
 
 /*!
  * Initialize semaphore object
- * \param sem Semaphore descriptor(user level descriptor)
+ * \param sem Semaphore descriptor (user level descriptor)
  * \param pshared Shall semaphore object be shared between processes
  * \param value Initial semaphore value
  * \return 0 if successful, -1 otherwise and appropriate error number is set
@@ -642,7 +642,7 @@ int sys__sem_init(void *p)
 
 /*!
  * Destroy semaphore object
- * \param sem Semaphore descriptor(user level descriptor)
+ * \param sem Semaphore descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
 int sys__sem_destroy(void *p)
@@ -667,7 +667,7 @@ int sys__sem_destroy(void *p)
 
 	ksem->ref_cnt--;
 
-	/* additional cleanup here(e.g. if semaphore is shared leave it) */
+	/* additional cleanup here (e.g. if semaphore is shared leave it) */
 	if (ksem->ref_cnt)
 		EXIT2(EBUSY, EXIT_FAILURE);
 
@@ -680,8 +680,8 @@ int sys__sem_destroy(void *p)
 }
 
 /*!
- * Decrement(lock) semaphore value by 1(if not 0 when thread is blocked)
- * \param sem Semaphore descriptor(user level descriptor)
+ * Decrement (lock) semaphore value by 1 (if not 0 when thread is blocked)
+ * \param sem Semaphore descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
 int sys__sem_wait(void *p)
@@ -720,8 +720,8 @@ int sys__sem_wait(void *p)
 }
 
 /*!
- * Increment(lock) semaphore value by 1(or unblock one thread that is blocked)
- * \param sem Semaphore descriptor(user level descriptor)
+ * Increment (lock) semaphore value by 1 (or unblock one thread that is blocked)
+ * \param sem Semaphore descriptor (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
 int sys__sem_post(void *p)
@@ -751,9 +751,9 @@ int sys__sem_post(void *p)
 
 	if (!released || ksem->sem_value < 0)
 	{
-		/* if initial semaphore value(set by sem_init) was negative,
+		/* if initial semaphore value (set by sem_init) was negative,
 		 * semaphore will not release threads until until its value
-		 * reaches zero(small extension of POSIX semaphore) */
+		 * reaches zero (small extension of POSIX semaphore) */
 		ksem->sem_value++;
 	}
 	else {
@@ -773,9 +773,9 @@ static list_t kmq_queue = LIST_T_NULL;
  * Open a message queue
  * \param name Queue name
  * \param oflag Opening flags
- * \param mode Permissions on created queue(only when O_CREAT is set)
- * \param attr Message queue attributes(only when O_CREAT is set)
- * \param mqdes Return queue descriptor address(user level descriptor)
+ * \param mode Permissions on created queue (only when O_CREAT is set)
+ * \param attr Message queue attributes (only when O_CREAT is set)
+ * \param mqdes Return queue descriptor address (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
 int sys__mq_open(void *p)
@@ -848,7 +848,7 @@ int sys__mq_open(void *p)
 
 /*!
  * Close a message queue
- * \param mqdes Queue descriptor address(user level descriptor)
+ * \param mqdes Queue descriptor address (user level descriptor)
  * \return 0 if successful, -1 otherwise and appropriate error number is set
  */
 int sys__mq_close(void *p)
@@ -920,7 +920,7 @@ static int kmq_receive(void *p, kthread_t *sender);
 
 /*!
  * Send a message to a message queue
- * \param mqdes Queue descriptor address(user level descriptor)
+ * \param mqdes Queue descriptor address (user level descriptor)
  * \param msg_ptr Message to be sent
  * \param msg_len Message size
  * \param msg_prio Message priority
@@ -1038,14 +1038,14 @@ static int kmq_send(void *p, kthread_t *sender)
 
 /*!
  * Receive a message from a message queue
- * \param mqdes Queue descriptor address(user level descriptor)
+ * \param mqdes Queue descriptor address (user level descriptor)
  * \param msg_ptr Address to store message
  * \param msg_len Maximum message size
  * \param msg_prio Address to store message priority
  * \return length of selected message, -1 if error
  *
  * NOTE: since mq_receive returns size of received message, if error occurs
- *       returned error numbers are internally negated(only for this function!)
+ *       returned error numbers are internally negated (only for this function!)
  */
 int sys__mq_receive(void *p)
 {

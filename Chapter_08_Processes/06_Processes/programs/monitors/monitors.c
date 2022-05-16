@@ -1,4 +1,4 @@
-/*! Monitor example(threads) */
+/*! Monitor example (threads) */
 
 #include <stdio.h>
 #include <pthread.h>

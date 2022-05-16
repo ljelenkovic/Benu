@@ -7,7 +7,7 @@
 #include "descriptor.h"
 #include <kernel/memory.h>
 
-/*! kernel(interrupt) stack(defined in memory.c) */
+/*! kernel (interrupt) stack (defined in memory.c) */
 extern uint8 system_stack [];
 
 /*! interrupt handler stack */
@@ -21,7 +21,7 @@ uint32 arch_sse_supported = 0; /* is SSE supported by processor? */
 uint32 arch_sse_mmx_fpu;	/* where to save extended thread context */
 #endif
 
-/*! Set up context(normal and interrupt=kernel) */
+/*! Set up context (normal and interrupt=kernel) */
 void arch_context_init()
 {
 	arch_interrupt_stack = (void *) &system_stack [ KERNEL_STACK_SIZE ];
@@ -44,7 +44,7 @@ void arch_create_thread_context(context_t *context,
 
 	/* put starting thread function parameter on stack */
 	*(--tstack) = (uint32) param;
-	/* return address(when thread exits */
+	/* return address (when thread exits */
 	*(--tstack) = (uint32) thread_exit;
 
 	/* thread context is on stack */

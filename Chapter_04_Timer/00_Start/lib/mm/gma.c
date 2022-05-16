@@ -81,9 +81,9 @@ gma_t *gma_init(void *memory_segment, size_t size, size_t min_chunk_size,
 
 /*!
  * Memory allocation for chunk of size 'size'
- * \param mpool Memory pool pointer, or NULL(for default)
+ * \param mpool Memory pool pointer, or NULL (for default)
  * \param size Requested memory chunk size
- * \return allocated chunk address(after header),
+ * \return allocated chunk address (after header),
            NULL if don't have enough free memory
  */
 void *gma_alloc(gma_t *mpool, size_t size)
@@ -121,7 +121,7 @@ void *gma_alloc(gma_t *mpool, size_t size)
 
 /*!
  * Free chunk
- * \param address Block address(after header - 'usable' memory)
+ * \param address Block address (after header - 'usable' memory)
  */
 int gma_free(gma_t *mpool, void *address)
 {
@@ -160,10 +160,10 @@ int gma_free(gma_t *mpool, void *address)
 }
 
 /*!
- * Return indexes(first and second level) of list where we put free chunk
+ * Return indexes (first and second level) of list where we put free chunk
  * (when 'insert' != 0), or where we start search for free chunk
  * (when 'insert' == 0)
- * \param mpool Memory pool pointer(must not be NULL!)
+ * \param mpool Memory pool pointer (must not be NULL!)
  * \param size Block size
  * \param fl Address for first level index
  * \param al Address for second level index

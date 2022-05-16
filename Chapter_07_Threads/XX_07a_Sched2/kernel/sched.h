@@ -4,9 +4,9 @@
  * same priority.
  *
  * Secondary schedulers can influence scheduling of their threads by adjusting
- * priority of tasks(threads) they are "scheduling".
+ * priority of tasks (threads) they are "scheduling".
  * For more information on how to implement particular scheduler look at example
- * given with Round Robin scheduling(sched_rr.h/c).
+ * given with Round Robin scheduling (sched_rr.h/c).
  */
 #pragma once
 
@@ -46,7 +46,7 @@ sched_ready_t;
 
 
 /*! ------------------------------------------------------------------------- */
-/*! Secondary schedulers(visible only to schedulers and thread.c) ---------- */
+/*! Secondary schedulers (visible only to schedulers and thread.c) ---------- */
 /*! ------------------------------------------------------------------------- */
 #ifdef _K_SCHED_
 
@@ -54,7 +54,7 @@ sched_ready_t;
 #include "sched_rr.h"
 #include "sched_edf.h"
 
-/*! Thread specific data/interface(for scheduler, nor for user) ------------ */
+/*! Thread specific data/interface (for scheduler, nor for user) ------------ */
 
 /*! Union of per thread specific data types required by all schedulers */
 typedef union _kthread_sched_params_t_
@@ -70,12 +70,12 @@ typedef union _kthread_sched_params_t_
 }
 kthread_sched_params_t;
 
-/*! Scheduling parameters for each thread(included in thread descriptor) */
+/*! Scheduling parameters for each thread (included in thread descriptor) */
 typedef struct _kthread_sched2_t_
 {
 	int  activated;
 	     /* disable multiple activation/deactivation calls when thread
-	      * becomes active(or stop being active) */
+	      * becomes active (or stop being active) */
 
 	kthread_sched_params_t  params;
 				/* scheduler per thread specific data */

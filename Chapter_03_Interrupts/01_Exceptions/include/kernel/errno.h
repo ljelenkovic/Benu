@@ -1,4 +1,4 @@
-/*! Error numbers, macros, ...(for kernel and arch layer) */
+/*! Error numbers, macros, ... (for kernel and arch layer) */
 #pragma once
 
 #include <types/errno.h>
@@ -8,7 +8,7 @@
 /*! macros that are removed in release versions - depend on DEBUG */
 #ifdef DEBUG
 
-/* Debugging outputs(includes files and line numbers!) */
+/* Debugging outputs (includes files and line numbers!) */
 #define LOG(LEVEL, format, ...)	\
 kprintf("[" #LEVEL ":%s:%d]" format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 
@@ -23,7 +23,7 @@ kprintf("[" #LEVEL ":%s:%d]" format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 #endif /* DEBUG */
 
 /*! macros that are not removed in release versions - don't depend on DEBUG */
-/* Debugging outputs(includes files and line numbers!) */
+/* Debugging outputs (includes files and line numbers!) */
 #define log(LEVEL, format, ...)	\
 kprintf("[" #LEVEL ":%s:%d]" format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 

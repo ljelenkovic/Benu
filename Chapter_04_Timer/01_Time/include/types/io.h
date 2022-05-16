@@ -11,7 +11,7 @@
 #define ESC_COLOR_DEFAULT	39
 /*
  * look in arch/i386/drivers/vga_text.c for supported escape sequences for that
- * device(vga_text)
+ * device (vga_text)
  */
 
 #define CONSOLE_PRINT	(1 << 1)

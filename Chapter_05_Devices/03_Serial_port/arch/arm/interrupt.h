@@ -1,4 +1,4 @@
-/*! Interrupt handling - 'arch' layer(only basic operations) */
+/*! Interrupt handling - 'arch' layer (only basic operations) */
 
 #pragma once
 
@@ -26,7 +26,7 @@
 
 #include <arch/interrupt.h>
 
-/*!(Hardware) Interrupt controller interface */
+/*! (Hardware) Interrupt controller interface */
 typedef struct _interrupt_controller_
 {
 	void  (*init)();
@@ -39,7 +39,7 @@ typedef struct _interrupt_controller_
 }
 arch_ic_t;
 
-/* PrimeCell Vectored Interrupt Controller(PL190) */
+/* PrimeCell Vectored Interrupt Controller (PL190) */
 #include <ARCH/drivers/pl190.h>
 
 #endif /* ASM_FILE */

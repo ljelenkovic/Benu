@@ -15,16 +15,16 @@
 typedef struct _arch_context_t_
 {
 	uint32  cpsr;	/* interrupt mode */
-	uint32  spsr;	/* thread mode(system) */
+	uint32  spsr;	/* thread mode (system) */
 	uint32  pc;	/* 1st time: thread starting function */
 	uint32  rh[11];	/* {r4-r14} */
-	uint32  rl[4];	/* {r0-r3}(parameters to syscall) */
+	uint32  rl[4];	/* {r0-r3} (parameters to syscall) */
 }
 arch_context_t;
 /* __attribute__((__packed__)) not required since all elem. are 32 bits wide */
 
 /*
- * NOTE on push/pop(arm processor)
+ * NOTE on push/pop (arm processor)
  * The lowest numbered register is transferred to or from the lowest
  * memory address accessed, and the highest numbered register to or from the
  * highest address accessed. The order of the registers in the register list

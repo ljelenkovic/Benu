@@ -44,7 +44,7 @@ struct _ktimer_t_
 		      /* interval timers {it_value, it_interval} */
 
 	void	     *param;
-		      /* additional parameter(remainder for sleep)*/
+		      /* additional parameter (remainder for sleep)*/
 };
 
 #define TIMER_IS_ARMED(T)	TIME_IS_SET(&(T)->itimer.it_value)

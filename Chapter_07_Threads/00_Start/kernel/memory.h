@@ -41,7 +41,7 @@ extern list_t kobjects;
 void k_memory_init();
 void k_memory_info();
 
-/*! Object referenced in programs(kernel object reference + additional info) */
+/*! Object referenced in programs (kernel object reference + additional info) */
 struct _kobject_t_
 {
 	void	*kobject;

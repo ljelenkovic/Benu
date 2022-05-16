@@ -4,7 +4,7 @@
 #include <kernel/thread.h>
 #include <lib/list.h>
 
-/*! kernel thread descriptor(used only as a pointer outside thread.c) */
+/*! kernel thread descriptor (used only as a pointer outside thread.c) */
 #ifndef _K_THREAD_C_
 typedef void kthread_t;
 #else
@@ -18,7 +18,7 @@ typedef struct _kthread_t_ kthread_t;
 #include "signal.h"
 #include "time.h"
 
-/*! Interface for kernel(this and other subsystems) ------------------------ */
+/*! Interface for kernel (this and other subsystems) ------------------------ */
 void kthreads_init();
 kthread_t *kthread_start_process(char *prog_name, void *param, int prio);
 kthread_t *kthread_create(void *start_routine, void *arg, uint flags,
@@ -67,7 +67,7 @@ int kthread_setschedparam(kthread_t *kthread, int policy,
 /*! get thread scheduling policy */
 int kthread_get_sched_policy(kthread_t *kthread);
 
-/*! get/set(set=change) thread priority */
+/*! get/set (set=change) thread priority */
 int kthread_get_prio(kthread_t *kthread);
 int kthread_set_prio(kthread_t *kthread, int prio);
 
@@ -118,10 +118,10 @@ kthread_q *kthread_get_queue(kthread_t *kthread);
 typedef struct _kthread_state_t_
 {
 	int	   state;
-		   /* thread state(active,ready,wait,susp.) */
+		   /* thread state (active,ready,wait,susp.) */
 
 	int	   flags;
-		   /* various flags(as detachable, cancelable) */
+		   /* various flags (as detachable, cancelable) */
 
 	context_t  context;
 		   /* storage for thread context */
@@ -136,7 +136,7 @@ typedef struct _kthread_state_t_
 		   /* is thread interruptable by signals */
 
 	sigset_t   sigmask;
-		   /* signal mask(which signals are blocked...) */
+		   /* signal mask (which signals are blocked...) */
 
 	void	 (*cancel_suspend_handler)(kthread_t *, void *);
 	void	  *cancel_suspend_param;
@@ -151,7 +151,7 @@ typedef struct _kthread_state_t_
 
 	void	  *stack;
 	uint	   stack_size;
-		   /* stack address and size(for deallocation) */
+		   /* stack address and size (for deallocation) */
 
 	list_t	   cleanup;
 		   /* cleanups when state is to be destroyed */
@@ -177,7 +177,7 @@ kthread_state_cleanup_t;
 struct _kthread_t_
 {
 	id_t		    id;
-			    /* thread id(number) */
+			    /* thread id (number) */
 
 	kprocess_t 	   *proc;
 			    /* process this thread belongs to */
@@ -193,7 +193,7 @@ struct _kthread_t_
 			    /* priority - primary scheduling parameter */
 
 	kthread_q	   *queue;
-			    /* in which queue thread is(if not active) */
+			    /* in which queue thread is (if not active) */
 
 	kthread_q	    join_queue;
 			    /* queue for threads waiting for this to end */

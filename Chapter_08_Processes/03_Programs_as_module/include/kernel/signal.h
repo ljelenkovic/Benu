@@ -3,7 +3,7 @@
 
 #include <types/signal.h>
 
-/*! interface to threads(via syscall) */
+/*! interface to threads (via syscall) */
 
 /* int sys__sigqueue(pid_t pid, int signo, sigval_t sigval); */
 int sys__sigqueue(void *p);

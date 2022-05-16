@@ -63,7 +63,7 @@ kdevice_t *k_device_add(device_t *dev)
 	return kdev;
 }
 
-/*! Initialize device(and call its initializer, if set) */
+/*! Initialize device (and call its initializer, if set) */
 int k_device_init(kdevice_t *kdev, int flags, void *params, void *callback)
 {
 	int retval = 0;
@@ -181,7 +181,7 @@ kdevice_t *k_device_open(char *name, int flags)
 	return NULL;
 }
 
-/*! Close device(close exclusive use, if defined) */
+/*! Close device (close exclusive use, if defined) */
 void k_device_close(kdevice_t *kdev)
 {
 	kdev->ref_cnt--;

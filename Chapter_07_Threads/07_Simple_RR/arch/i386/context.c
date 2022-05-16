@@ -26,7 +26,7 @@ void arch_create_thread_context(context_t *context,
 
 	/* put starting thread function parameter on stack */
 	*(--tstack) = (uint32) param;
-	/* return address(when thread exits */
+	/* return address (when thread exits */
 	*(--tstack) = (uint32) thread_exit;
 
 	/* thread context is on stack */

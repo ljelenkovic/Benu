@@ -14,14 +14,14 @@ struct _device_t_
 		/* device name */
 
 	int     irq_num;
-		/* which IRQ is using?(if any, -1 otherwise) */
+		/* which IRQ is using? (if any, -1 otherwise) */
 
 	int  (*irq_handler)(int irq_num, void *device);
-		/* interrupt handler function(test if device is interrupt
+		/* interrupt handler function (test if device is interrupt
 		 * source and handle it if it is) */
 
 	int  (*callback)(int irq_num, void *device);
-		/* callback function(to kernel) - when event require
+		/* callback function (to kernel) - when event require
 		 * kernel action */
 
 	/* device interface */

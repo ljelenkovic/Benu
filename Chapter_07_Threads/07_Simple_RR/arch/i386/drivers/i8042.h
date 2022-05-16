@@ -10,13 +10,13 @@ Keystroke is represented by single 32-bit number with format:
 
 31------16 15--8 7---0
  x|||||||| ||||| ^^^^^ - ASCII code for key
- x|||||||| ^^^^^ - code for special keys(pressed or released)
+ x|||||||| ^^^^^ - code for special keys (pressed or released)
   ^^^^^^^^ - special keys that are held while other key is pressed or released
 
-(last bit(31th) is not used)
+(last bit (31th) is not used)
 */
 
-/* internal code for held special keys(not keyboard codes), for bits 30-16 */
+/* internal code for held special keys (not keyboard codes), for bits 30-16 */
 #define LSHIFT		((int32) 1 << 16)
 #define RSHIFT		((int32) 1 << 17)
 #define LALT		((int32) 1 << 18)
@@ -25,7 +25,7 @@ Keystroke is represented by single 32-bit number with format:
 #define	RCTRL		((int32) 1 << 21)
 #define CAPSL		((int32) 1 << 22)
 
-/* internal code for special keys(as left and right Ctrl, Shift, Alt)
+/* internal code for special keys (as left and right Ctrl, Shift, Alt)
    to recognize when such key is pressed or released; for bits 15-8 */
 enum {
 	K_LSHIFT_DOWN = 1,

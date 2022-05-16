@@ -109,7 +109,7 @@ id_t k_new_id()
 
 	elem = last_id / WBITS;
 	mask = idmask [elem] |((1 << (last_id % WBITS)) - 1);
-	/* do not look at lower bits(for now) */
+	/* do not look at lower bits (for now) */
 
 	if (~mask) /* current 'elem' has free ids from last_id forward */
 	{
@@ -148,7 +148,7 @@ void k_free_id(id_t id)
 	idmask [ id / WBITS ] &= ~(1 << (id % WBITS));
 }
 
-/*! Check if "id" is used(if object is alive) */
+/*! Check if "id" is used (if object is alive) */
 int k_check_id(id_t id)
 {
 	if (

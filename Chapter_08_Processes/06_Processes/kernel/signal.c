@@ -172,7 +172,7 @@ static void ksignal_add_to_pending(ksignal_handling_t *sh, siginfo_t *sig)
 			ksignal_compare); */
 }
 
-/*! Process pending signals for thread(called from kthreads_schedule()) */
+/*! Process pending signals for thread (called from kthreads_schedule()) */
 int ksignal_process_pending(kthread_t *kthread)
 {
 	ksignal_handling_t *sh;
@@ -348,8 +348,8 @@ int ksignal_process_event(sigevent_t *evp, kthread_t *kthread, int code)
 /*! Interface to threads ---------------------------------------------------- */
 
 /*!
- * Send signal to thread(from thread)
- * \param pid Thread descriptor(user level descriptor)
+ * Send signal to thread (from thread)
+ * \param pid Thread descriptor (user level descriptor)
  * \param signo Signal number
  * \param sigval Parameter to send with signal
  * \return 0 if successful, -1 otherwise and appropriate error number is set

@@ -4,7 +4,7 @@
 
 char PROG_HELP[] = "Generate segmentation fault.";
 
-/* detect memory faults(qemu do not detect segment violations!) */
+/* detect memory faults (qemu do not detect segment violations!) */
 
 int segm_fault(char *argv[])
 {

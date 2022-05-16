@@ -1,7 +1,7 @@
 /*! Memory management */
 #pragma once
 
-/*! interface to threads(via syscall) */
+/*! interface to threads (via syscall) */
 int sys__sysinfo(void *p);
 
 #ifdef _KERNEL_ /* (for kernel and arch layer) */

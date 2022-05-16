@@ -44,7 +44,7 @@ void ksched_init()
 }
 
 /*!
- * Move given thread(its descriptor) to ready threads
+ * Move given thread (its descriptor) to ready threads
  * (as last or first in its priority queue)
  */
 void kthread_move_to_ready(kthread_t *kthread, int where)
@@ -69,7 +69,7 @@ void kthread_move_to_ready(kthread_t *kthread, int where)
 	ready.mask[i] |= (uint)(1 << j);
 }
 
-/*! Remove given thread(its descriptor) from ready threads */
+/*! Remove given thread (its descriptor) from ready threads */
 kthread_t *kthread_remove_from_ready(kthread_t *kthread)
 {
 	int i, j, prio;
@@ -113,7 +113,7 @@ static kthread_t *get_first_ready()
 
 /*!
  * Select ready thread with highest priority  as active
- * - if different from current, move current into ready queue(id not NULL) and
+ * - if different from current, move current into ready queue (id not NULL) and
  *   move selected thread from ready queue to active queue
  */
 void kthreads_schedule()
@@ -155,7 +155,7 @@ void kthreads_schedule()
 		ksched2_activate_thread(next);
 	}
 
-	/* process pending signals(if any) */
+	/* process pending signals (if any) */
 	ksignal_process_pending(kthread_get_active());
 
 	if (curr != kthread_get_active())
@@ -170,14 +170,14 @@ void kthreads_schedule()
 extern ksched_t ksched_rr;
 extern ksched_t ksched_edf;
 
-/*! Statically defined schedulers(could be easily extended to dynamically) */
+/*! Statically defined schedulers (could be easily extended to dynamically) */
 static ksched_t *ksched[] = {
 	NULL,		/* SCHED_FIFO */
 	&ksched_rr,	/* SCHED_RR */
 	&ksched_edf	/* SCHED_EDF */
 };
 
-/*! Initialize all(known) schedulers(called from 'kthreads_init') */
+/*! Initialize all (known) schedulers (called from 'kthreads_init') */
 static void ksched2_init()
 {
 	int i;
@@ -195,7 +195,7 @@ ksched_t *ksched2_get(int sched_policy)
 	return ksched[sched_policy];
 }
 
-/*! Add thread to scheduling policy(if required by policy) */
+/*! Add thread to scheduling policy (if required by policy) */
 int ksched2_thread_add(kthread_t *kthread, int sched_policy,
 			 int sched_priority, sched_supp_t *sched_param)
 {
@@ -212,7 +212,7 @@ int ksched2_thread_add(kthread_t *kthread, int sched_policy,
 	return 0;
 }
 
-/*! Remove thread from scheduling policy(if required by policy) */
+/*! Remove thread from scheduling policy (if required by policy) */
 int ksched2_thread_remove(kthread_t *kthread)
 {
 	int sched_policy = kthread_get_sched_policy(kthread);
@@ -262,7 +262,7 @@ int ksched2_deactivate_thread(kthread_t *kthread)
 	return activated;
 }
 
-/*! Change(set) scheduling parameters(extra parameters) */
+/*! Change (set) scheduling parameters (extra parameters) */
 int ksched2_setsched_param(kthread_t *kthread, sched_supp_t *sched_param)
 {
 	int sched = kthread_get_sched_policy(kthread);

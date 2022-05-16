@@ -1,4 +1,4 @@
-/*! System call(syscall) interface
+/*! System call (syscall) interface
  *  used by kernel to retrieve syscall parameters
  */
 
@@ -9,7 +9,7 @@
 
 /* syscall is from threads called as: int syscall(id, arg1, arg2, ...);
  *
- * parameters are on thread stack(top to bottom):
+ * parameters are on thread stack (top to bottom):
  *	[return addres] [id] [arg1] [arg2] ...
  */
 
@@ -19,7 +19,7 @@ static inline uint arch_syscall_get_id(context_t *cntx)
 	return *(((uint *)(cntx->context + 1)) + 1);
 }
 
-/*! Get address of first parameter to syscall(not including id) */
+/*! Get address of first parameter to syscall (not including id) */
 static inline void *arch_syscall_get_params(context_t *cntx)
 {
 	return (void *)(((uint *)(cntx->context + 1)) + 2);

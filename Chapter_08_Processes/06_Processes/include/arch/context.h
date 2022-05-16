@@ -7,7 +7,7 @@
 
 struct _context_t_; typedef struct _context_t_ context_t;
 
-/*! Set up context(normal and interrupt=kernel) */
+/*! Set up context (normal and interrupt=kernel) */
 void arch_context_init();
 
 /*! Create initial context for thread - it should start with defined function
@@ -23,7 +23,7 @@ void arch_create_thread_context(
 /*! Cleanups on context when deleting thread */
 void arch_destroy_thread_context(context_t *context);
 
-/*! Select thread to return to from interrupt(from syscall) */
+/*! Select thread to return to from interrupt (from syscall) */
 void arch_select_thread(context_t *cntx);
 
 /*!

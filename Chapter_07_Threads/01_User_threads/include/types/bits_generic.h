@@ -37,7 +37,7 @@
 #endif /* REQUIRE_LSB_INDEX */
 #endif
 
-/* All implementation assume num > 0(functions don't check it) */
+/* All implementation assume num > 0 (functions don't check it) */
 
 /* optimized for 32-bit system */
 static inline uint32 msb_index_32(uint32 num)

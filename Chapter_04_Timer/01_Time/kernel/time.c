@@ -50,7 +50,7 @@ int kclock_settime(clockid_t clockid, timespec_t *time)
  * Get current time
  * \param clockid Clock to use
  * \param time Pointer where to store time
- * \return status(0 if successful, -1 otherwise)
+ * \return status (0 if successful, -1 otherwise)
  */
 int sys__clock_gettime(clockid_t clockid, timespec_t *time)
 {

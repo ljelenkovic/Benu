@@ -1,4 +1,4 @@
-/*! Interrupt handling - 'arch' layer(only basic operations) */
+/*! Interrupt handling - 'arch' layer (only basic operations) */
 
 #define _ARCH_INTERRUPTS_C_
 #include "interrupt.h"
@@ -14,7 +14,7 @@ static arch_ic_t *icdev = &IC_DEV;
 /*! interrupt handlers */
 static void (*ihandler[INTERRUPTS])(unsigned int);
 
-/*! Initialize interrupt subsystem(in 'arch' layer) */
+/*! Initialize interrupt susubsystem (in 'arch' layer) */
 void arch_init_interrupts()
 {
 	icdev->init();
@@ -24,7 +24,7 @@ void arch_init_interrupts()
 
 /*!
  * enable and disable interrupts generated outside processor, controller by
- * interrupt controller(PIC or APIC or ...)
+ * interrupt controller (PIC or APIC or ...)
  */
 void arch_irq_enable(unsigned int irq)
 {
@@ -97,7 +97,7 @@ void arch_interrupt_handler(int cpsr)
 }
 
 /*
- * Interrupt handlers written in C(not used; defined in interrupt.S)
+ * Interrupt handlers written in C (not used; defined in interrupt.S)
  * - all interrupt handler functions redirect to same handler
  */
 /*void __attribute__((interrupt("UNDEF"))) arch_undef_hndl()

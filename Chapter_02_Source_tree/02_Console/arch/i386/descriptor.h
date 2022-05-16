@@ -81,7 +81,7 @@ __attribute__((__packed__)) GDTR_t;
 
 /* Third element (with index 2) describes data segment
  * Since no protection is used so far, we turn this off by allowing data from
- * any memory location, within available 4 GB(rw-)
+ * any memory location, within available 4 GB (rw-)
  */
 #define GDT_DATA 			\
 {	0xffff,	/* segm_limit0	*/	\

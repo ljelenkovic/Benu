@@ -1,4 +1,4 @@
-/*! standalone memory allocator test(stress tests for errors) */
+/*! standalone memory allocator test (stress tests for errors) */
 
 #include <stdio.h>
 #include <stdlib.h>

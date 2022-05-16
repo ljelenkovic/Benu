@@ -11,7 +11,7 @@ int _errno;	/* Error number that represent last syscall error */
 static descriptor_t std_desc[MAX_USER_DESCRIPTORS];
 static int _stdin, _stdout, _stderr;
 
-/*! Initialize standard descriptors(input, output, error) */
+/*! Initialize standard descriptors (input, output, error) */
 int stdio_init()
 {
 	int i;

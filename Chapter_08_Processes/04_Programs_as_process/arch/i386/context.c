@@ -7,7 +7,7 @@
 #include "descriptor.h"
 #include <kernel/memory.h>
 
-/*! kernel(interrupt) stack(defined in memory.c) */
+/*! kernel (interrupt) stack (defined in memory.c) */
 extern uint8 system_stack [];
 
 /*! interrupt handler stack */
@@ -21,7 +21,7 @@ uint32 arch_sse_supported = 0; /* is SSE supported by processor? */
 uint32 arch_sse_mmx_fpu;	/* where to save extended thread context */
 #endif
 
-/*! Set up context(normal and interrupt=kernel) */
+/*! Set up context (normal and interrupt=kernel) */
 void arch_context_init()
 {
 	arch_thr_context_ss = GDT_DESCRIPTOR(SEGM_K_DATA, GDT, PRIV_KERNEL);
@@ -45,7 +45,7 @@ void arch_create_thread_context(context_t *context,
 	*(--context->context.esp) = (uint32) 0;
 	/* put starting thread function parameter on stack */
 	*(--context->context.esp) = (uint32) param;
-	/* return address(when thread exits) */
+	/* return address (when thread exits) */
 	*(--context->context.esp) = (uint32) thread_exit;
 
 	/* interrupt frame */
@@ -67,7 +67,7 @@ void arch_create_thread_context(context_t *context,
 	context->proc = proc;
 
 	context->context.esp = K2U_GET_ADR(context->context.esp, proc);
-	/* stack pointer(as eip) must be in process relative addresses */
+	/* stack pointer (as eip) must be in process relative addresses */
 
 #ifdef USE_SSE
 	if (arch_sse_supported)

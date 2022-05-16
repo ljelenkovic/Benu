@@ -101,7 +101,7 @@ void *memmove(void *dest, const void *src, size_t n)
  *
  * \param dest	Destination address
  * \param src	Source address
- * \param n 	Number of words(16-bit) to copy
+ * \param n 	Number of words (16-bit) to copy
  * \return dest
  */
 void *memmovew(void *dest, const void *src, size_t n)

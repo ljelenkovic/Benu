@@ -11,7 +11,7 @@
 #define ESC_COLOR_DEFAULT	39
 /*
  * look in arch/i386/drivers/vga_text.c for supported escape sequences for that
- * device(vga_text)
+ * device (vga_text)
  */
 
 #define CONSOLE_PRINT	(1 << 1)
@@ -33,7 +33,7 @@
 #define DEV_TYPE_NOTSHARED	(1 << 29)
 #define DEV_TYPE_CONSOLE	(1 << 30)	/* "console mode" = text mode */
 
-/*! limits for name lengths of named system objects(as message queues) */
+/*! limits for name lengths of named system objects (as message queues) */
 #define	PATH_MAX		255
 #define	NAME_MAX		255
 
@@ -83,13 +83,13 @@ typedef unsigned int nfds_t; //number of file descriptors
 /* Priority data may be written. */
 
 #define POLLERR		(1<<7)
-/* An error has occurred(revents only). */
+/* An error has occurred (revents only). */
 
 #define POLLHUP		(1<<8)
-/* Device has been disconnected(revents only). */
+/* Device has been disconnected (revents only). */
 
 #define POLLNVAL	(1<<9)
-/* Invalid fd member(revents only). */
+/* Invalid fd member (revents only). */
 
 #if 0
 

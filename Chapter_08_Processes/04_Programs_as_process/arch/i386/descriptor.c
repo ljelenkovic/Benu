@@ -22,7 +22,7 @@ static IDT_t idt[INTERRUPTS];
 static tss_t tss;
 
 
-/*! Set up context(normal and interrupt=kernel) */
+/*! Set up context (normal and interrupt=kernel) */
 void arch_descriptors_init()
 {
 	GDT_init();

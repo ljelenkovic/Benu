@@ -40,7 +40,7 @@ void k_memory_init();
 void k_memory_info();
 
 
-/*! Available(loaded) programs */
+/*! Available (loaded) programs */
 struct _kprog_t_
 {
 	program_t  *prog;
@@ -86,7 +86,7 @@ struct _kprocess_t_
 	list_h	      list;
 };
 
-/*! Object referenced in process(kernel object reference + additional info) */
+/*! Object referenced in process (kernel object reference + additional info) */
 struct _kobject_t_
 {
 	void	*kobject;

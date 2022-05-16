@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <api/prog_info.h>
 
-/* detect memory faults(qemu do not detect segment violations!) */
+/* detect memory faults (qemu do not detect segment violations!) */
 
 int segm_fault()
 {

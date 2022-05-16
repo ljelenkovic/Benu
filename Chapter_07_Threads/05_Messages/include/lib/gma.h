@@ -1,15 +1,15 @@
-/*! Dynamic memory allocator - Grid Memory Allocator(GMA), based on TLSF */
+/*! Dynamic memory allocator - Grid Memory Allocator (GMA), based on TLSF */
 
 /*
-  Memory allocator is named Grid Memory Allocator(GMA) because of two level
-  list organization(like grid). GMA implements TLSF algorithm.
+  Memory allocator is named Grid Memory Allocator (GMA) because of two level
+  list organization (like grid). GMA implements TLSF algorithm.
 
   TLSF - short explanation
   ========================
  (look at authors site: http://rtportal.upv.es/rtmalloc/ for more details)
 
   TLSF - Two Level Segregate First is an Good-Fit memory allocator that uses
-  two dimensional array of lists for free chunks: chunk[fl][sl](each element
+  two dimensional array of lists for free chunks: chunk[fl][sl] (each element
   is an list). Sizes of chunks in particular list depends on indexes:
 	fl(first level) and sl(second level).
 
@@ -40,7 +40,7 @@
   When searching for free chunk of 'size' we can't use same formulas! In list
   chunk[fl][sl] might be chunk of requested size or may not be. If it is, it
   might be after many smaller ones. For search to be in O(1) we look in list
-  that surely have chunk of requested size. That's first next list(exception is
+  that surely have chunk of requested size. That's first next list (exception is
   when requested size is equal to minimum size of chunks that list holds).
 
   To use same formulas we first increase requested size by step(x)-1:
@@ -55,7 +55,7 @@
    However, calculated list might be empty! Using bitmaps we can find first next
    list with larger free chunks in O(1).
    Bitmaps:
-	FL_bitmap - bitmap for first level index(in which rows there are free
+	FL_bitmap - bitmap for first level index (in which rows there are free
 		    chunks, which SL_bitmaps[x] is not zero)
 	SL_bitmap[] - bitmaps for second level index: each bit of SL_bitmap[i]
 		      represent one list in chunk[i][j]; when j-th bit is set,
@@ -74,33 +74,33 @@
     from: 2^fl + sl * 2^(fl-5)
     to:   2^fl + (sl+1) * 2^(fl-5) - 1
 
-  list        - size_from - size_to(in Bytes)
+  list        - size_from - size_to (in Bytes)
   ---------------------------------------------
   chunk[5][0]	32-32
-  chunk[5][1]	33-33(list is always empty because of alignment)
-  chunk[5][2]	34-34(list is always empty because of alignment)
-  chunk[5][3]	35-35(list is always empty because of alignment)
+  chunk[5][1]	33-33 (list is always empty because of alignment)
+  chunk[5][2]	34-34 (list is always empty because of alignment)
+  chunk[5][3]	35-35 (list is always empty because of alignment)
   chunk[5][4]	36-36
   ...
-  chunk[5][31]	63-63(list is always empty because of alignment)
+  chunk[5][31]	63-63 (list is always empty because of alignment)
 
-  chunk[6][0]	64-65(64, because of alignment)
-  chunk[6][1]	66-67(list is always empty because of alignment)
-  chunk[6][2]	68-69(68, because of alignment)
+  chunk[6][0]	64-65 (64, because of alignment)
+  chunk[6][1]	66-67 (list is always empty because of alignment)
+  chunk[6][2]	68-69 (68, because of alignment)
   ...
-  chunk[6][31]	126-127(list is always empty because of alignment)
+  chunk[6][31]	126-127 (list is always empty because of alignment)
 
-  chunk[7][0]	128-131(128, because of alignment)
-  chunk[7][1]	132-135(132, because of alignment)
+  chunk[7][0]	128-131 (128, because of alignment)
+  chunk[7][1]	132-135 (132, because of alignment)
   ...
-  chunk[7][31]	252-255(252, because of alignment)
-  chunk[8][0]	256-263(256, 260,  because of alignment)
-  chunk[8][1]	264-271(264, 268,  because of alignment)
+  chunk[7][31]	252-255 (252, because of alignment)
+  chunk[8][0]	256-263 (256, 260,  because of alignment)
+  chunk[8][1]	264-271 (264, 268,  because of alignment)
   ...
-  chunk[10][0]	1024 - 1055(1024, 1028, ... 1052)
+  chunk[10][0]	1024 - 1055 (1024, 1028, ... 1052)
   ...
 
-  Memory chunk organization is similar to DL malloc(Doug Lea)
+  Memory chunk organization is similar to DL malloc (Doug Lea)
   ============================================================
 
   "In use" chunks looks like: {[size]}{"in-use" part}
@@ -109,18 +109,18 @@
   'size' field: [size_of_chunk:C:B]
   Since 'size' is aligned at least 4 bytes boundary, its last 2 bits are not
   required and are used for special flags C and B:
-  * C(Current) is 1 for chunks in use, 0 for free ones
-  * B(Before) is 1 if chunk before this is in use, 0 if its free
-    Only when B is 0, ptr->bsize may be used(chunk before is free chunk)
+  * C (Current) is 1 for chunks in use, 0 for free ones
+  * B (Before) is 1 if chunk before this is in use, 0 if its free
+    Only when B is 0, ptr->bsize may be used (chunk before is free chunk)
 
   Pointer 'prev' and 'next' (used only in free chunks) do not require last 2
-  bits(because of alignment) so last bit of 'prev' is used to indicate if this
+  bits (because of alignment) so last bit of 'prev' is used to indicate if this
   is first chunk in list.
   Bit is marked as F. If F==1 then content of 'prev' is address of list header!
   E.g. list in variable: mchunk_t *list; 'prev' element for first element in
   list has address of 'list': x->prev = 1 + (void *) &list;
-  This is used to get list header faster(without calculating 'fl' and 'sl')
-  when removing free chunk from list(for merging it with just freed one).
+  This is used to get list header faster (without calculating 'fl' and 'sl')
+  when removing free chunk from list (for merging it with just freed one).
 
   "In use" chunk:
   ===============
@@ -167,9 +167,9 @@
         v                                                       v
 
 
-  To mark end of available memory(to allocator) special chunk is used:
+  To mark end of available memory (to allocator) special chunk is used:
   "border chunk" - chunk that consist only of header that has only size element,
-  and its set to sizeof(size_t).
+  and its set to sizeof (size_t).
   This BORDER_CHUNK is placed on both side of memory segments used in allocator.
 */
 
@@ -177,7 +177,7 @@
 
 #include <types/basic.h>
 
-/*! interface to kernel and other code(not for gma.c) */
+/*! interface to kernel and other code (not for gma.c) */
 #ifndef _GMA_C_
 
 #define gma_t	void
@@ -193,7 +193,7 @@ int gma_free(gma_t *mpool, void *address);
 
 #include <types/bits.h>
 
-/* 'L' is defined with processor's word size(tested only on 32 bit machine!) */
+/* 'L' is defined with processor's word size (tested only on 32 bit machine!) */
 #if	__WORD_SIZE == 8
 #define	L 3
 #elif	__WORD_SIZE == 16
@@ -231,7 +231,7 @@ typedef struct _gma_t_
 
 	mchunk_t     *(*chunk)[SL_DIM];
 		      /* 2-level array list headers  */
-		      /* chunk[i][j] is of type(mchunk_t *) */
+		      /* chunk[i][j] is of type (mchunk_t *) */
 
 	/*
 	 * for future extend and shrink operations:
@@ -242,11 +242,11 @@ typedef struct _gma_t_
 gma_t;
 
 
-/*! Memory chunk organization is similar to DL malloc(Doug Lea) */
+/*! Memory chunk organization is similar to DL malloc (Doug Lea) */
 struct _mchunk_t_
 {
 	size_t		    bsize;
-			    /* Size of chunk before this(if free)
+			    /* Size of chunk before this (if free)
 			     * NOT PART OF THIS CHUNK!!! */
 
 	size_t		    size;
@@ -261,14 +261,14 @@ struct _mchunk_t_
 
 /*! Constants and macros for chunk operations */
 
-/*! Alignment constants and macros(macro heaven and hell) */
+/*! Alignment constants and macros (macro heaven and hell) */
 #define MIN_ALIGN		(sizeof(size_t) >= 4 ? sizeof(size_t) : 4)
-/* Align chunks sizes on following alignment(change '1' if required) */
+/* Align chunks sizes on following alignment (change '1' if required) */
 #define CHUNK_ALIGN_VAL		((size_t) MIN_ALIGN * 1)
 
 #define CHUNK_ALIGN_MASK	(~((size_t)(CHUNK_ALIGN_VAL - 1)))
 /* e.g. if size_t is 32 bit integer:
- CHUNK_ALIGN_VAL = 4, CHUNK_ALIGN_MASK = 0xfffffffc(binary: 111...11100) */
+ CHUNK_ALIGN_VAL = 4, CHUNK_ALIGN_MASK = 0xfffffffc (binary: 111...11100) */
 
 #define CHUNK_ALIGN(P)		(((size_t)(P)) & CHUNK_ALIGN_MASK)
 #define CHUNK_ALIGN_FW(P)	CHUNK_ALIGN(((size_t)(P))+ (CHUNK_ALIGN_VAL-1))
@@ -295,7 +295,7 @@ do {(CHUNK)->size = (SIZE) |((CHUNK)->size & 3); } while (0)
 #define SET_CHUNK_BINUSE(CHUNK)      do {(CHUNK)->size |= BINUSE; } while (0)
 #define CLEAR_CHUNK_BINUSE(CHUNK)    do {(CHUNK)->size &= ~BINUSE; } while (0)
 
-/*! Chunks before and after(by address) if its free; NULL otherwise */
+/*! Chunks before and after (by address) if its free; NULL otherwise */
 #define GET_CHUNK_BEFORE(CHUNK)	\
 (GET_CHUNK_BINUSE(CHUNK) ? NULL : \
 ((mchunk_t *)(((void *)(CHUNK)) - ((CHUNK)->bsize & CHUNK_ALIGN_MASK))))
@@ -343,8 +343,8 @@ do {(CHUNK)->prev = (mchunk_t *)(((size_t)(CHUNK)->prev) | 1); } while (0)
 #define EXACT_LIMIT_SIZE	\
 	(EXACT_LIMIT_SIZE_1 * (CHUNK_ALIGN_VAL / sizeof(size_t)))
 /* Lists with chunks smaller than EXACT_LIMIT_SIZE have only one sized chunks
- * in list(due to chunk size alignment). Many lists in first few levels might
- * be unused because of alignment(if they are reserved for sizes that are not
+ * in list (due to chunk size alignment). Many lists in first few levels might
+ * be unused because of alignment (if they are reserved for sizes that are not
  * aligned).
  */
 
@@ -379,7 +379,7 @@ static void *make_first_chunk(void *addr, size_t size)
 	chunk = GET_CHUNK_AFTER(border);
 	SET_CHUNK_SIZE(chunk, size - 2 * BORDER_CHUNK_SIZE);
 	SET_CHUNK_INUSE(chunk); /* mark chunk as in use */
-	SET_CHUNK_BINUSE(chunk); /* previous("border") chunk is in use */
+	SET_CHUNK_BINUSE(chunk); /* previous ("border") chunk is in use */
 
 	/* mark end of usable region */
 
@@ -390,7 +390,7 @@ static void *make_first_chunk(void *addr, size_t size)
 	return GET_CHUNK_USABLE_ADDR(chunk);
 }
 
-/*! insert free chunk at head of the list(as first element) */
+/*! insert free chunk at head of the list (as first element) */
 static void insert_chunk_in_list(mchunk_t **list, mchunk_t *chunk)
 {
 	mchunk_t *after;
@@ -406,7 +406,7 @@ static void insert_chunk_in_list(mchunk_t **list, mchunk_t *chunk)
 	CLEAR_CHUNK_INUSE(chunk);
 	CLONE_CHUNK_SIZE(chunk);
 
-	/* clear BINUSE bit in chunk after("after" by address) */
+	/* clear BINUSE bit in chunk after ("after" by address) */
 	after = GET_CHUNK_AFTER(chunk);
 	CLEAR_CHUNK_BINUSE(after); /* chunk after must be in-use chunk! */
 }
@@ -415,7 +415,7 @@ static void insert_chunk_in_list(mchunk_t **list, mchunk_t *chunk)
  * Remove chunk from list
  * \param chunk Pointer to chunk header
  * \return 0 if list still not empty after removing this chunk, otherwise 1
- *           is returned(to mark that list as empty)
+ *           is returned (to mark that list as empty)
  */
 static size_t remove_chunk_from_list(mchunk_t *chunk)
 {

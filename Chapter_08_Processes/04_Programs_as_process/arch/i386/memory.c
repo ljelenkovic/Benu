@@ -3,7 +3,7 @@
 #define _ARCH_
 #include <arch/memory.h>
 
-/*! kernel(interrupt) stack */
+/*! kernel (interrupt) stack */
 uint8 system_stack [ KERNEL_STACK_SIZE ];
 
 /* adjust if more than 16 programs are used */

@@ -1,4 +1,4 @@
-/*! System call(syscall) interface
+/*! System call (syscall) interface
  *  used by kernel to retrieve syscall parameters
  */
 
@@ -22,7 +22,7 @@ static inline uint arch_syscall_get_id(context_t *cntx)
 	return cntx->context->rl[0];
 }
 
-/*! Get address of first parameter to syscall(not including id) */
+/*! Get address of first parameter to syscall (not including id) */
 static inline void *arch_syscall_get_params(context_t *cntx)
 {
 	return (void *) &cntx->context->rl[1];

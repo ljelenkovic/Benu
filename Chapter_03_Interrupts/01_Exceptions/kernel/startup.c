@@ -37,7 +37,7 @@ void k_startup()
 	/* interrupts */
 	arch_init_interrupts();
 
-	/* detect memory faults(qemu do not detect segment violations!) */
+	/* detect memory faults (qemu do not detect segment violations!) */
 	arch_register_interrupt_handler(INT_MEM_FAULT, k_memory_fault);
 	arch_register_interrupt_handler(INT_UNDEF_FAULT, k_memory_fault);
 

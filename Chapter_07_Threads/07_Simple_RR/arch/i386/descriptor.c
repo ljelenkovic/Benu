@@ -61,7 +61,7 @@ static void GDT_init()
 		: "memory"
 	);
 
-	/* load TSS descriptor into TR(not used but still required) */
+	/* load TSS descriptor into TR (not used but still required) */
 	asm ("ltrw %w0\n\t" :: "r" GDT_DESCRIPTOR(SEGM_TSS, GDT, PRIV_KERNEL));
 }
 

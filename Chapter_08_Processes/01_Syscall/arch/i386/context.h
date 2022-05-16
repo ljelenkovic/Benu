@@ -48,7 +48,7 @@ static inline void arch_create_uthread_context(ucontext_t *context,
 
 	*(--context->esp) = INIT_EFLAGS;	/* EFLAGS register */
 
-	/* set initial values for all general purpose registers(8) on stack */
+	/* set initial values for all general purpose registers (8) on stack */
 	*(--context->esp) = 0;	/* EAX */
 	*(--context->esp) = 0;	/* ECX */
 	*(--context->esp) = 0;	/* EDX */
@@ -58,7 +58,7 @@ static inline void arch_create_uthread_context(ucontext_t *context,
 	*(--context->esp) = 0;	/* ESI */
 	*(--context->esp) = 0;	/* EDI */
 
-	/* stack(context->esp) is now ready for 'context_restore' function */
+	/* stack (context->esp) is now ready for 'context_restore' function */
 }
 
 static inline void arch_switch_to_uthread(ucontext_t *from, ucontext_t *to)

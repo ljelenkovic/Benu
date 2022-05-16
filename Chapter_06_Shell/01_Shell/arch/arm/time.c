@@ -14,7 +14,7 @@ static timespec_t last_load;/* last time equivalent loaded to counter */
 static timespec_t threshold;/* timer->min_interval / 2 */
 
 static void (*alarm_handler)(); /* kernel function - call when alarm given by
-				    kernel('delay') expires */
+				    kernel ('delay') expires */
 
 static void arch_timer_handler(); /* whenever timer expires call this */
 

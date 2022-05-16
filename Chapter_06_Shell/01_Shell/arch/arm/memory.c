@@ -3,7 +3,7 @@
 #define _ARCH_
 #include <arch/memory.h>
 
-/*! kernel(interrupt) stack */
+/*! kernel (interrupt) stack */
 uint8 system_stack [ STACK_SIZE ];
 
 /* reserve space for segment descriptors */

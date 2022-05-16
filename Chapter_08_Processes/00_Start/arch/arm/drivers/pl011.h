@@ -24,7 +24,7 @@
 #define DR_ERR_MASK	0x0f00
 
 /* boaud rate calculation */
-#define UART_HZ		24000000	/* uart input frequency(assuming 24 MHz) */
+#define UART_HZ		24000000	/* uart input frequency (assuming 24 MHz) */
 #define UART_BIT_RATE	115200		/* desired bit rate */
 
 #define UART_IBRD_V	(UART_HZ /(16 * UART_BIT_RATE))
@@ -49,7 +49,7 @@
 #define BUFFER_SIZE	256	/* software buffer size */
 
 
-/* parameters for configuring serial port(for future implementations) */
+/* parameters for configuring serial port (for future implementations) */
 typedef struct _uart_t_
 {
 	int   speed;		/* baud rate				*/

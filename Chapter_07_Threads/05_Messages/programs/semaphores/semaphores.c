@@ -1,4 +1,4 @@
-/*! Semaphore example(threads) */
+/*! Semaphore example (threads) */
 
 #include <stdio.h>
 #include <pthread.h>

@@ -70,7 +70,7 @@ int kclock_settime(clockid_t clockid, timespec_t *time)
 }
 
 /*!
- * Resume suspended thread(called on timer activation)
+ * Resume suspended thread (called on timer activation)
  * \param sigval Thread that should be released
  */
 static void kclock_wake_thread(sigval_t sigval)
@@ -140,7 +140,7 @@ static void kclock_interrupt_sleep(kthread_t *kthread, void *param)
 /*! Timers ------------------------------------------------------------------ */
 
 /*!
- * Compare timers by expiration times(used when inserting new timer in list)
+ * Compare timers by expiration times (used when inserting new timer in list)
  * \param a First timer
  * \param b Second timer
  * \return -1 when a < b, 0 when a == b, 1 when a > b
@@ -200,7 +200,7 @@ int ktimer_delete(ktimer_t *ktimer)
 		return ENOENT;
 	}
 
-	/* remove from active timers(if it was there) */
+	/* remove from active timers (if it was there) */
 	if (TIMER_IS_ARMED(ktimer))
 	{
 		list_remove(&ktimers, 0, &ktimer->list);
@@ -217,8 +217,8 @@ int ktimer_delete(ktimer_t *ktimer)
  * Arm/disarm timer
  * \param ktimer	Timer
  * \param flags		Various flags
- * \param value		Set timer values(it_value+it_period)
- * \param ovalue	Where to store time to next timer expiration(+period)
+ * \param value		Set timer values (it_value+it_period)
+ * \param ovalue	Where to store time to next timer expiration (+period)
  * \return status	0 for success
  */
 int ktimer_settime(ktimer_t *ktimer, int flags, itimerspec_t *value,
@@ -264,7 +264,7 @@ int ktimer_settime(ktimer_t *ktimer, int flags, itimerspec_t *value,
 /*!
  * Get timer expiration time
  * \param ktimer	Timer
- * \param value		Where to store time to next timer expiration(+period)
+ * \param value		Where to store time to next timer expiration (+period)
  * \return status	0 for success
  */
 int ktimer_gettime(ktimer_t *ktimer, itimerspec_t *value)
@@ -435,7 +435,7 @@ static int ktimer_process_event(sigevent_t *evp, kthread_t *kthread)
  * Get current time
  * \param clockid Clock to use
  * \param time Pointer where to store time
- * \return status(0 if successful, -1 otherwise)
+ * \return status (0 if successful, -1 otherwise)
  */
 int sys__clock_gettime(clockid_t clockid, timespec_t *time)
 {
@@ -479,7 +479,7 @@ int sys__clock_settime(clockid_t clockid, timespec_t *time)
 /*!
  * Suspend thread until given time elapses
  * \param clockid Clock to use
- * \param flags Flags(TIMER_ABSTIME)
+ * \param flags flags (TIMER_ABSTIME)
  * \param request Suspend duration
  * \param remain Remainder time if interrupted during suspension
  * \return status
@@ -568,7 +568,7 @@ int sys__timer_create(clockid_t clockid, sigevent_t *evp, timer_t *timerid)
 
 /*!
  * Delete timer
- * \param timerid	Timer descriptor(user descriptor)
+ * \param timerid	Timer descriptor (user descriptor)
  * \return status	0 for success
  */
 int sys__timer_delete(timer_t *timerid)
@@ -597,10 +597,10 @@ int sys__timer_delete(timer_t *timerid)
 
 /*!
  * Arm/disarm timer
- * \param timerid	Timer descriptor(user descriptor)
+ * \param timerid	Timer descriptor (user descriptor)
  * \param flags		Various flags
- * \param value		Set timer values(it_value+it_period)
- * \param ovalue	Where to store time to next timer expiration(+period)
+ * \param value		Set timer values (it_value+it_period)
+ * \param ovalue	Where to store time to next timer expiration (+period)
  * \return status	0 for success
  */
 int sys__timer_settime(timer_t *timerid, int flags,
@@ -628,8 +628,8 @@ int sys__timer_settime(timer_t *timerid, int flags,
 
 /*!
  * Get timer expiration time
- * \param timerid	Timer descriptor(user descriptor)
- * \param value		Where to store time to next timer expiration(+period)
+ * \param timerid	Timer descriptor (user descriptor)
+ * \param value		Where to store time to next timer expiration (+period)
  * \return status	0 for success
  */
 int sys__timer_gettime(timer_t *timerid, itimerspec_t *value)

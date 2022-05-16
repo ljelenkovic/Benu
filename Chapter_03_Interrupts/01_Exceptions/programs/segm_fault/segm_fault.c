@@ -7,7 +7,7 @@
 
 #define TEST	1
 
-/* detect memory faults(qemu do not detect segment violations!) */
+/* detect memory faults (qemu do not detect segment violations!) */
 
 #if TEST == 1
 static void test1(uint irqn)

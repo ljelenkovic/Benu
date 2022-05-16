@@ -7,7 +7,7 @@
 #include "descriptor.h"
 #include <kernel/memory.h>
 
-/*! context manipulation(user threads) ------------------------------------- */
+/*! context manipulation (user threads) ------------------------------------- */
 
 /*! Create initial context for thread - it should start with defined function
  */
@@ -22,7 +22,7 @@ void arch_create_thread_context(context_t *context,
 
 	/* put starting thread function parameter on stack */
 	*(--tstack) = (uint32) param;
-	/* return address(when thread exits */
+	/* return address (when thread exits */
 	*(--tstack) = (uint32) thread_exit;
 
 	/* thread context is on stack */

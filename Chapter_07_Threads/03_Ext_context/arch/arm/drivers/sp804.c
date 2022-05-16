@@ -1,4 +1,4 @@
-/*! sp804 counter(timer device) */
+/*! sp804 counter (timer device) */
 #ifdef SP804
 
 #include "sp804.h"
@@ -65,7 +65,7 @@ static void sp804_set(uint cnt)
 	*ptr = cnt;
 }
 
-/*! Read sp804 counter(its current value) */
+/*! Read sp804 counter (its current value) */
 static uint sp804_get()
 {
 	volatile uint32 *ptr;

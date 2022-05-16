@@ -1,4 +1,4 @@
-/*! Intel 8259 programmable interrupt controller(PIC) */
+/*! Intel 8259 programmable interrupt controller (PIC) */
 #ifdef I8259
 
 #include "i8259.h"
@@ -132,7 +132,7 @@ static char *arch_int_desc[] =
 	"Intel reserved",
 	"Intel reserved",
 
-	/* External interrupts(generated outside processor) */
+	/* External interrupts (generated outside processor) */
 	"IRQ_TIMER",
 	"IRQ_KEYBOARD",
 	"IRQ_SLAVE_PIC",

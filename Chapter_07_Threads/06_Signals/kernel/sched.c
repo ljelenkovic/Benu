@@ -36,7 +36,7 @@ void ksched_init()
 }
 
 /*!
- * Move given thread(its descriptor) to ready threads
+ * Move given thread (its descriptor) to ready threads
  * (as last or first in its priority queue)
  */
 void kthread_move_to_ready(kthread_t *kthread, int where)
@@ -61,7 +61,7 @@ void kthread_move_to_ready(kthread_t *kthread, int where)
 	ready.mask[i] |= (uint)(1 << j);
 }
 
-/*! Remove given thread(its descriptor) from ready threads */
+/*! Remove given thread (its descriptor) from ready threads */
 kthread_t *kthread_remove_from_ready(kthread_t *kthread)
 {
 	int i, j, prio;
@@ -105,7 +105,7 @@ static kthread_t *get_first_ready()
 
 /*!
  * Select ready thread with highest priority  as active
- * - if different from current, move current into ready queue(id not NULL) and
+ * - if different from current, move current into ready queue (id not NULL) and
  *   move selected thread from ready queue to active queue
  */
 void kthreads_schedule()
@@ -143,7 +143,7 @@ void kthreads_schedule()
 		kthread_set_active(next);
 	}
 
-	/* process pending signals(if any) */
+	/* process pending signals (if any) */
 	ksignal_process_pending(kthread_get_active());
 
 	if (curr != kthread_get_active())

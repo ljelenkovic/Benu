@@ -4,7 +4,7 @@
 
 #include <types/time.h>
 
-/*!(arch) timer interface */
+/*! (arch) timer interface */
 typedef struct _arch_timer_t_
 {
 	timespec_t  min_interval;

@@ -7,7 +7,7 @@
 
 console_t *u_stdout, *u_stderr;
 
-/*! Initialize standard descriptors(input, output, error) */
+/*! Initialize standard descriptors (input, output, error) */
 int stdio_init()
 {
 	extern console_t U_STDOUT, U_STDERR;

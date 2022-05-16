@@ -1,4 +1,4 @@
-/*! Interrupt handling - 'arch' layer(only basic operations) */
+/*! Interrupt handling - 'arch' layer (only basic operations) */
 
 #define _ARCH_INTERRUPTS_C_
 #include "interrupt.h"
@@ -22,7 +22,7 @@ struct ihndlr
 	list_h list;
 };
 
-/*! Initialize interrupt subsystem(in 'arch' layer) */
+/*! Initialize interrupt susubsystem (in 'arch' layer) */
 void arch_init_interrupts()
 {
 	int i;
@@ -35,7 +35,7 @@ void arch_init_interrupts()
 
 /*!
  * enable and disable interrupts generated outside processor, controller by
- * interrupt controller(PIC or APIC or ...)
+ * interrupt controller (PIC or APIC or ...)
  */
 void arch_irq_enable(unsigned int irq)
 {

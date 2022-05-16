@@ -15,7 +15,7 @@
 /*! Threads ----------------------------------------------------------------- */
 
 /*!
- * Create new thread(params on user stack!)
+ * Create new thread (params on user stack!)
  * \param thread User level thread descriptor
  * \param attr Thread attributes
  * \param start_routine Starting function for new thread
@@ -73,7 +73,7 @@ int sys__pthread_create(pthread_t *thread, pthread_attr_t *attr,
 }
 
 /*!
- * End current thread(exit from it)
+ * End current thread (exit from it)
  * \param retval Pointer to exit status
  */
 int sys__pthread_exit(void *retval)
@@ -89,7 +89,7 @@ int sys__pthread_exit(void *retval)
 
 /*!
  * Wait for thread termination
- * \param thread Thread descriptor(user level descriptor)
+ * \param thread Thread descriptor (user level descriptor)
  * \param retval Where to store exit status of joined thread
  * \return 0 if thread already gone; -1 if not finished and 'wait' not set;
  *         'thread exit status' otherwise
@@ -132,7 +132,7 @@ int sys__pthread_join(pthread_t *thread, void **retval)
 }
 
 /*! Return calling thread descriptor
- * \param thread Thread descriptor(user level descriptor)
+ * \param thread Thread descriptor (user level descriptor)
  * \return 0
  */
 int sys__pthread_self(pthread_t *thread)
@@ -151,7 +151,7 @@ int sys__pthread_self(pthread_t *thread)
  * Change scheduling parameters
  * \param thread User level thread descriptor
  * \param policy Thread scheduling policy
- * \param param Additional scheduling parameters(when policy != SCHED_FIFO)
+ * \param param Additional scheduling parameters (when policy != SCHED_FIFO)
  * \return 0
  */
 int sys__pthread_setschedparam(pthread_t *thread, int policy,

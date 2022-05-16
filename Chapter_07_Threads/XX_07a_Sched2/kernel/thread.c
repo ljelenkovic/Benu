@@ -53,7 +53,7 @@ void kthreads_init()
  * \param arg Parameter sent to starting function
  * \param sched_policy Thread scheduling policy
  * \param sched_priority Thread priority
- * \param stackaddr Address of thread stack(if not NULL)
+ * \param stackaddr Address of thread stack (if not NULL)
  * \param stacksize Stack size
  * \return Pointer to descriptor of created kernel thread
  */
@@ -109,7 +109,7 @@ void kthread_create_new_state(kthread_t *kthread,
 {
 	ASSERT(kthread);
 
-	/* save old state if requested(put it at beginning of state list) */
+	/* save old state if requested (put it at beginning of state list) */
 	if (save_old_state)
 	{
 		kthread_state_t *state = kmalloc(sizeof(kthread_state_t));
@@ -150,7 +150,7 @@ void kthread_create_new_state(kthread_t *kthread,
 	list_init(&kthread->state.cleanup);
 }
 
-/*! restore previously saved state(last saved) */
+/*! restore previously saved state (last saved) */
 int kthread_restore_state(kthread_t *kthread)
 {
 	ASSERT(kthread);
@@ -170,7 +170,7 @@ int kthread_restore_state(kthread_t *kthread)
 
 	int retval = FALSE;
 
-	/* overwrite state with first from list(if not empty) */
+	/* overwrite state with first from list (if not empty) */
 	state = list_remove(&kthread->states, FIRST, NULL);
 	if (state)
 	{
@@ -182,7 +182,7 @@ int kthread_restore_state(kthread_t *kthread)
 	return retval;
 }
 
-/*! Suspend thread(kthreads_schedule() must follow this call) */
+/*! Suspend thread (kthreads_schedule() must follow this call) */
 int kthread_suspend(kthread_t *kthread, void *wakeup_action,
 			     void *param)
 {
@@ -202,7 +202,7 @@ int kthread_suspend(kthread_t *kthread, void *wakeup_action,
 	return 0;
 }
 
-/*! Set signal(or other) interrupt handler for suspended or blocked thread */
+/*! Set signal (or other) interrupt handler for suspended or blocked thread */
 int kthread_set_signal_interrupt_handler(
 	kthread_t *kthread, void *wakeup_action, void *param)
 {
@@ -259,7 +259,7 @@ void kthread_param_free(param_t p1, param_t p2, param_t p3)
 }
 
 /*!
- * Cancel thread(or restore it to previous state)
+ * Cancel thread (or restore it to previous state)
  * \param kthread Thread descriptor
  */
 int kthread_exit2(kthread_t *kthread, void *exit_status, int force);
@@ -300,7 +300,7 @@ int kthread_exit2(kthread_t *kthread, void *exit_status, int force)
 		{
 			kthread->state.state = THR_STATE_ACTIVE;
 
-			/* process pending signals(if any) */
+			/* process pending signals (if any) */
 			ksignal_process_pending(active_thread);
 
 			arch_switch_to_thread(NULL, &active_thread->state.context);
@@ -382,7 +382,7 @@ int kthread_exit2(kthread_t *kthread, void *exit_status, int force)
 	return EXIT_SUCCESS;
 }
 
-/*! Internal function for removing(freeing) thread descriptor */
+/*! Internal function for removing (freeing) thread descriptor */
 static void kthread_remove_descriptor(kthread_t *kthread)
 {
 	ASSERT(kthread);
@@ -400,7 +400,7 @@ static void kthread_remove_descriptor(kthread_t *kthread)
 }
 
 /*!
- * Put given thread or active thread(when kthread == NULL) into queue of
+ * Put given thread or active thread (when kthread == NULL) into queue of
  * "waited" thread
  */
 void kthread_wait_thread(kthread_t *waiting, kthread_t *waited)
@@ -411,7 +411,7 @@ void kthread_wait_thread(kthread_t *waiting, kthread_t *waited)
 	kthread_enqueue(waiting, &waited->join_queue, 0, NULL, NULL);
 }
 
-/*! Get exit status of finished thread(and free descriptor) */
+/*! Get exit status of finished thread (and free descriptor) */
 void kthread_collect_status(kthread_t *waited, void **retval)
 {
 	ASSERT(waited);
@@ -436,10 +436,10 @@ void kthread_switch_to_thread(kthread_t *from, kthread_t *to)
 }
 
 
-/*! operations on thread queues(blocked threads) --------------------------- */
+/*! operations on thread queues (blocked threads) --------------------------- */
 
 /*!
- * Put given thread or active thread(when kthread == NULL) into queue 'q_id'
+ * Put given thread or active thread (when kthread == NULL) into queue 'q_id'
  * - if kthread != NULL, thread must not be in any list and
  *   'kthreads_schedule' should follow this call before exiting from kernel!
  * \param kthread thread descriptor
@@ -468,7 +468,7 @@ void kthread_enqueue(kthread_t *kthread, kthread_q *q, int sig_int,
 }
 
 /*!
- * Release single thread from given queue(if queue not empty)
+ * Release single thread from given queue (if queue not empty)
  * \param q Queue
  * \return 1 if thread was released, 0 if queue was empty
  */
@@ -493,7 +493,7 @@ int kthreadq_release(kthread_q *q)
 }
 
 /*!
- * Release all threads from given queue(if queue not empty)
+ * Release all threads from given queue (if queue not empty)
  * \param q Queue
  * \return number of thread released, 0 if queue was empty
  */
@@ -738,7 +738,7 @@ kthread_q *kthread_get_queue(kthread_t *kthread)
 }
 
 
-/*! Temporary storage for blocked thread(save specific context before wait) */
+/*! Temporary storage for blocked thread (save specific context before wait) */
 void kthread_set_private_param(kthread_t *kthread, void *pparam)
 {
 	if (!kthread)
@@ -824,7 +824,7 @@ int kthread_info()
 }
 
 /*! Idle thread ------------------------------------------------------------- */
-/*! Idle thread starting(and only) function */
+/*! Idle thread starting (and only) function */
 static void idle_thread(void *param)
 {
 	while (1)

@@ -39,7 +39,7 @@ void arch_select_thread(context_t *context)
 	//arch_thr_context = (void *) &context->context;
 }
 
-/*! Cleanups on context when deleting thread(nothing to do) */
+/*! Cleanups on context when deleting thread (nothing to do) */
 void arch_destroy_thread_context(context_t *context)
 {
 }

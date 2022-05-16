@@ -167,7 +167,7 @@ static int edf_set_thread_sched_parameters(ksched_t *ksched,
 			if (kthread == ksched->params.edf.active)
 				ksched->params.edf.active = NULL;
 
-			/* set(separate) alarm for deadline
+			/* set (separate) alarm for deadline
 			 * (periodic alarm is set only once as periodic) */
 
 			TIME_RESET(&alarm.it_interval);
@@ -404,7 +404,7 @@ static void edf_deadline_alarm(sigval_t sigev_value)
 	else {
 	/*
 	 * thread is not in edf.wait queue, but might be running or its
-	 * blocked - it is probable(almost certain) that it missed deadline
+	 * blocked - it is probable (almost certain) that it missed deadline
 	 */
 	EDF_LOG("%x [Not in edf.wait. Missed deadline?]", kthread);
 
@@ -464,7 +464,7 @@ static void edf_deadline_alarm(sigval_t sigev_value)
 /*!
  * Deactivate thread because:
  * 1. higher priority thread becomes active
- * 2. this thread blocks on some queue(not in edf_ready)
+ * 2. this thread blocks on some queue (not in edf_ready)
  */
 static int edf_thread_deactivate(ksched_t *ksched, kthread_t *kthread)
 {

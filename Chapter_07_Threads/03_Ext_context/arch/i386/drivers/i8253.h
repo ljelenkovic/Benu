@@ -1,4 +1,4 @@
-/*! i8253 counter(timer device) - included from only i8253.c ! */
+/*! i8253 counter (timer device) - included from only i8253.c ! */
 #ifdef I8253
 
 #pragma once
@@ -17,7 +17,7 @@
 #define COUNT_TO_TIME(C, T)	\
 do {(T)->tv_sec = 0;(T)->tv_nsec = mul_div_32(C, N1E9, I8253_FREQ); } while (0)
 /* generally would be:
-	T.tv_sec = C / I8253_FREQ; but is zero because max(C) < I8253_FREQ!
+	T.tv_sec = C / I8253_FREQ; but is zero because max (C) < I8253_FREQ!
 	T.tv_nsec = (C % I8253_FREQ) * 1.E9 / I8253_FREQ; */
 
 /* Calculate counter value from time */

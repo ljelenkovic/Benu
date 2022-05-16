@@ -1,8 +1,8 @@
-/*! Dynamic memory allocator - first fit(simple)
+/*! Dynamic memory allocator - first fit (simple)
  *
  * In this implementation double linked list are used.
  * Free list is not sorted. Search is started from first element until chunk
- * with adequate size is found(same or greater than required).
+ * with adequate size is found (same or greater than required).
  * When chunk is freed, first join is tried with left and right neighbor chunk
  * (by address). If not joined, chunk is marked as free and put at list start.
  */
@@ -23,7 +23,7 @@ int ffs_free(ffs_mpool_t *mpool, void *chunk_to_be_freed);
 /*! rest is only for first_fit.c */
 #else /* _FF_SIMPLE_C_ */
 
-/* free chunk header(in use chunk header is just 'size') */
+/* free chunk header (in use chunk header is just 'size') */
 typedef struct _ffs_hdr_t_
 {
 	size_t		     size;
@@ -35,7 +35,7 @@ typedef struct _ffs_hdr_t_
 }
 ffs_hdr_t;
 
-/* chunk tail(and header for in use chunks) */
+/* chunk tail (and header for in use chunks) */
 typedef struct _ffs_tail_t_
 {
 	size_t  size;
@@ -51,7 +51,7 @@ ffs_mpool_t;
 
 #define HEADER_SIZE	(sizeof(ffs_hdr_t) + sizeof(ffs_tail_t))
 
-/* use LSB of 'size' to mark chunk as used(otherwise size is always even) */
+/* use LSB of 'size' to mark chunk as used (otherwise size is always even) */
 #define MARK_USED(HDR)	do {(HDR)->size |= 1;  } while (0)
 #define MARK_FREE(HDR)	do {(HDR)->size &= ~1; } while (0)
 

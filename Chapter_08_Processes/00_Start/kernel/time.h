@@ -47,7 +47,7 @@ struct _ktimer_t_
 		      /* owner threads or NULL if kernel timer */
 
 	void	     *param;
-		      /* additional parameter(remainder for sleep)*/
+		      /* additional parameter (remainder for sleep)*/
 
 	list_h	      list;
 		      /* active timers are in sorted list */

@@ -1,4 +1,4 @@
-/*! Error numbers, macros, ...(for kernel and arch layer) */
+/*! Error numbers, macros, ... (for kernel and arch layer) */
 #pragma once
 
 #ifdef _KERNEL_
@@ -10,13 +10,13 @@
 #include <arch/processor.h>
 
 
-/* error number is defined globally(saved in variable _errno) */
+/* error number is defined globally (saved in variable _errno) */
 
 /* set errno */
 #define SET_ERRNO(ENUM)		set_errno(ENUM)
 
 
-/* syscall enter procedures(mark IE flag and disable interrupts) */
+/* syscall enter procedures (mark IE flag and disable interrupts) */
 #define SYS_ENTRY()		int __FUNCTION__ ## ei = set_interrupts(FALSE)
 
 /* return from syscall with return value: restore interrupts, don't set errno */
@@ -34,7 +34,7 @@ do { SET_ERRNO(ENUM); SYS_RETURN(RETVAL); } while (0)
 /*! macros that are removed in release versions - depend on DEBUG */
 #ifdef DEBUG
 
-/* Debugging outputs(includes files and line numbers!) */
+/* Debugging outputs (includes files and line numbers!) */
 #define LOG(LEVEL, format, ...)	\
 kprintf("[" #LEVEL ":%s:%d]" format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 
@@ -59,7 +59,7 @@ do if (!(expr)) { LOG(ASSERT, ""); SYS_EXIT(errnum, EXIT_FAILURE); } while (0)
 #endif /* DEBUG */
 
 /*! macros that are not removed in release versions - don't depend on DEBUG */
-/* Debugging outputs(includes files and line numbers!) */
+/* Debugging outputs (includes files and line numbers!) */
 #define log(LEVEL, format, ...)	\
 kprintf("[" #LEVEL ":%s:%d]" format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 

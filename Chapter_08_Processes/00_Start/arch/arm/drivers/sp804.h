@@ -1,4 +1,4 @@
-/*! sp804 counter(timer device) - included from only sp804.c ! */
+/*! sp804 counter (timer device) - included from only sp804.c ! */
 #ifdef SP804
 
 #pragma once
@@ -38,11 +38,11 @@ do {									 \
 #define TIMER_BGLOAD	0x00000018
 
 /*! Timer controll register */
-#define TIMER_ENABLE		(1<<7)	/* enable timer(counting) */
+#define TIMER_ENABLE		(1<<7)	/* enable timer (counting) */
 #define TIMER_MODE_PERIODIC	(1<<6)	/* periodic */
 #define TIMER_INT_ENABLE	(1<<5)	/* enable timer interrupt */
 /* bit 4 - reserved */
-/* bits 3-2: prescale(divisor): 0-1;1-16;2->256;3-not in use*/
+/* bits 3-2: prescale (divisor): 0-1;1-16;2->256;3-not in use*/
 #define TIMER_SIZE_32		(1<<1)	/* 32-bit */
 #define TIMER_ONESHOT		(1<<0)	/* one shot */
 

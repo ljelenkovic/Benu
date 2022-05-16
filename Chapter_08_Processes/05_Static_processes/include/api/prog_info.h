@@ -6,8 +6,8 @@
 void prog_init(void *args);
 
 /*!
- * Parameters that define a program(on disk, in memory, before starting)
- * Its used as a header for program(that include instructions, constants, data)
+ * Parameters that define a program (on disk, in memory, before starting)
+ * Its used as a header for program (that include instructions, constants, data)
  */
 typedef struct _program_t_
 {
@@ -18,7 +18,7 @@ typedef struct _program_t_
 	/* defined in compile time */
 	void   *start;
 		/* memory address for which this program was prepared,
-		 * starting address(physical or logical) of this program */
+		 * starting address (physical or logical) of this program */
 	void   *end; /* for calculating size */
 
 	char    name[16];	/* program name */
@@ -38,7 +38,7 @@ typedef struct _program_t_
 program_t;
 
 /*!
- * Process runtime parameters, required from within process(its threads)
+ * Process runtime parameters, required from within process (its threads)
  * (not kernel descriptor!)
  */
 typedef struct _process_t_
@@ -52,18 +52,18 @@ typedef struct _process_t_
 	//void   *heap_brk;
 
 	/*
-	 * could put other process data here(accessible to program)
+	 * could put other process data here (accessible to program)
 	 * e.g file descriptors
 	 */
 }
 process_t;
 
 /*
- * Memory map of program:(addresses grows downward!)
+ * Memory map of program: (addresses grows downward!)
  * +--------------------------------------------------------------------------+
  * |                       program_t header + process_t exp.                  |
  * +--------------------------------------------------------------------------+
- * |                .text, .*data*, .bss, ...(compiled sections)             |
+ * |                .text, .*data*, .bss, ... (compiled sections)             |
  * +--------------------------------------------------------------------------+
  *
  * Heap and stack are added when program is started and becomes process

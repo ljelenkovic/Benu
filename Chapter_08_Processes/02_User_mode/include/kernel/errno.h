@@ -1,4 +1,4 @@
-/*! Error numbers, macros, ...(for kernel and arch layer) */
+/*! Error numbers, macros, ... (for kernel and arch layer) */
 #pragma once
 
 int sys__set_errno(void *p);
@@ -14,7 +14,7 @@ int sys__get_errno_ptr(void *p);
 #include <arch/processor.h>
 
 
-/* error number is defined per thread(saved in thread descriptor) */
+/* error number is defined per thread (saved in thread descriptor) */
 
 /* set errno */
 #define SET_ERRNO(ENUM)		kthread_set_errno(NULL, ENUM)
@@ -31,7 +31,7 @@ do { int ec=ENUM; SET_ERRNO(ec); return (ec ? EXIT_FAILURE : 0); } while (0)
 /*! macros that are removed in release versions - depend on DEBUG */
 #ifdef DEBUG
 
-/* Debugging outputs(includes files and line numbers!) */
+/* Debugging outputs (includes files and line numbers!) */
 #define LOG(LEVEL, format, ...)	\
 kprintf("[" #LEVEL ":%s:%d]" format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 
@@ -56,7 +56,7 @@ do if (!(expr)) { LOG(ASSERT, ""); EXIT(errnum); } while (0)
 #endif /* DEBUG */
 
 /*! macros that are not removed in release versions - don't depend on DEBUG */
-/* Debugging outputs(includes files and line numbers!) */
+/* Debugging outputs (includes files and line numbers!) */
 #define log(LEVEL, format, ...)	\
 kprintf("[" #LEVEL ":%s:%d]" format "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 

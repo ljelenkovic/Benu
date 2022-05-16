@@ -4,7 +4,7 @@
 #include <types/basic.h>
 #include <types/time.h>
 
-/*! Additional schedulers(scheduling policies) */
+/*! Additional schedulers (scheduling policies) */
 enum {
 	SCHED_RR = 1,
 	SCHED_EDF,

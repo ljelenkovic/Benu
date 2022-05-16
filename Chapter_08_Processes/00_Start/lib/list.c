@@ -3,9 +3,9 @@
  *
  * properties:
  * - double linked list
- * - unsorted(FIFO & LIFO) or sorted list(compare function must be provided)
+ * - unsorted (FIFO & LIFO) or sorted list (compare function must be provided)
  * - list header: list_t type
- * - elements(objects/structures) for list must have list_t element
+ * - elements (objects/structures) for list must have list_t element
  *  (spare extra call to malloc and free; save memory)
  */
 
@@ -26,7 +26,7 @@ void list_append(list_t *list, void *object, list_h *hdr)
 	ASSERT(list && object && hdr);
 
 	hdr->object = object; /* save reference to object */
-	hdr->next = NULL; /* put it at list end(as last element) */
+	hdr->next = NULL; /* put it at list end (as last element) */
 
 	if (list->first)
 	{
@@ -46,7 +46,7 @@ void list_prepend(list_t *list, void *object, list_h *hdr)
 	ASSERT(list && object && hdr);
 
 	hdr->object = object; /* save reference to object */
-	hdr->prev = NULL; /* put it at list start(as first element) */
+	hdr->prev = NULL; /* put it at list start (as first element) */
 
 	hdr->next = list->first;
 
@@ -135,10 +135,10 @@ void *list_get_next(list_h *hdr)
 
 /*!
  * Remove element from list
- * \param list	List identifier(pointer)
+ * \param list	List identifier (pointer)
  * \param flags	Constant: FIRST(0) or LAST(1) - which element to remove from
  *		list and return pointer to it
- * \param ref	Reference(pointer) to element to be removed from list
+ * \param ref	Reference (pointer) to element to be removed from list
  * \return pointer to removed list element, NULL if list is empty
  * NOTE function assumes that element is in list - it doesn't check!!!
  */
@@ -178,8 +178,8 @@ void *list_remove(list_t *list, unsigned int flags, list_h *ref)
 
 /*!
  * Find element in list
- * \param list	List identifier(pointer)
- * \param ref	Reference(pointer) to element to be removed from list
+ * \param list	List identifier (pointer)
+ * \param ref	Reference (pointer) to element to be removed from list
  * \return pointer to found list element, NULL if not found
  */
 void *list_find(list_t *list, list_h *ref)
@@ -202,8 +202,8 @@ void *list_find(list_t *list, list_h *ref)
 
 /*!
  * Remove element from list if element is in list
- * \param list	List identifier(pointer)
- * \param ref	Reference(pointer) to element to be removed from list
+ * \param list	List identifier (pointer)
+ * \param ref	Reference (pointer) to element to be removed from list
  * \return pointer to removed list element, NULL if element not found
  */
 void *list_find_and_remove(list_t *list, list_h *ref)

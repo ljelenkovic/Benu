@@ -5,7 +5,7 @@
 
 #include <types/sched2.h>
 
-/*! POSIX thread descriptor(user space) */
+/*! POSIX thread descriptor (user space) */
 typedef descriptor_t pthread_t;
 typedef pthread_t pid_t;
 

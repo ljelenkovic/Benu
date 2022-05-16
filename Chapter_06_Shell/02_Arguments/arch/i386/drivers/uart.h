@@ -1,4 +1,4 @@
-/*! 'serial port' module(UART) */
+/*! 'serial port' module (UART) */
 #ifdef UART
 
 #pragma once
@@ -6,7 +6,7 @@
 #include <arch/device.h>
 #include <types/io.h>
 
-/*! serial port(UART) ------------------------------------------------------ */
+/*! serial port (UART) ------------------------------------------------------ */
 /* commands */
 #define UART_SETCONF	(1 << 30)	/* reconfigure port */
 #define UART_GETCONF	(1 << 31)	/* read configuration */

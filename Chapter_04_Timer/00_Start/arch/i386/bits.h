@@ -8,7 +8,7 @@
 #define ARCH_MUL_DIV_32
 
 /*!
- * Returns index of MSB(Most Significant Bit) that is not zero
+ * Returns index of MSB (Most Significant Bit) that is not zero
  * \param num	Unsigned number
  * \return MSB index
  */
@@ -24,7 +24,7 @@ static inline uint32 arch_msb_index(uint32 num)
 }
 
 /*!
- * Returns index of LSB(Least Significant Bit) that is not zero
+ * Returns index of LSB (Least Significant Bit) that is not zero
  * \param num	Unsigned number
  * \return LSB index
  */
@@ -39,7 +39,7 @@ static inline uint32 arch_lsb_index(uint32 num)
 }
 
 /*!
- * Calculate a*b/c(all operands are 32 bit unsigned integers)
+ * Calculate a*b/c (all operands are 32 bit unsigned integers)
  * \param a
  * \param b
  * \param c

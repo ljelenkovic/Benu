@@ -23,7 +23,7 @@ arch_context_t;
 /* __attribute__((__packed__)) not required since all elem. are 32 bits wide */
 
 /*
- * NOTE on push/pop(arm processor)
+ * NOTE on push/pop (arm processor)
  * The lowest numbered register is transferred to or from the lowest
  * memory address accessed, and the highest numbered register to or from the
  * highest address accessed. The order of the registers in the register list

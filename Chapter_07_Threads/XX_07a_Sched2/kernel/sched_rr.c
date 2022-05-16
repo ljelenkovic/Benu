@@ -52,7 +52,7 @@ static int rr_init(ksched_t *ksched)
 	return 0;
 }
 
-/*! Add thread to RR scheduler(give him initial time slice) */
+/*! Add thread to RR scheduler (give him initial time slice) */
 static int rr_thread_add(ksched_t *ksched, kthread_t *kthread,
 			   int sched_priority, sched_supp_t *sched_param)
 {
@@ -63,7 +63,7 @@ static int rr_thread_add(ksched_t *ksched, kthread_t *kthread,
 	return 0;
 }
 
-/*! Remove thread from RR scheduler(disarm timer) */
+/*! Remove thread from RR scheduler (disarm timer) */
 static int rr_thread_del(ksched_t *ksched, kthread_t *kthread)
 {
 	if (kthread == kthread_get_active(kthread))
@@ -78,7 +78,7 @@ static int rr_thread_del(ksched_t *ksched, kthread_t *kthread)
 }
 
 
-/*! Start time slice for thread(or continue interrupted one) */
+/*! Start time slice for thread (or continue interrupted one) */
 static int rr_thread_activate(ksched_t *ksched, kthread_t *kthread)
 {
 	kthread_sched2_t *tsched = kthread_get_sched2_param(kthread);

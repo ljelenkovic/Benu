@@ -28,7 +28,7 @@ volatile static unsigned char *video = (void *) VIDEO;
 /*!
  * Supported escape sequences:
  * - "\x1b[2J"		=> clear screen
- * - "\x1b[x;yH"	=> move cursor to y,x(y=row, x=column)
+ * - "\x1b[x;yH"	=> move cursor to y,x (y=row, x=column)
  * - "\x1b[31m"		=> font color = COLOR_RED
  * - "\x1b[32m"		=> font color = COLOR_GREEN
  * - "\x1b[37m"		=> font color = COLOR_WHITE
@@ -104,7 +104,7 @@ static int vga_process_escape_sequence(char *text)
 	int i = 0, n, m;
 
 	if (text[i] != '[')
-		return i; /* not supported(valid) escape sequence */
+		return i; /* not supported (valid) escape sequence */
 
 	i++;
 	if (text[i] >= '0' && text[i] <= '9') {
@@ -169,7 +169,7 @@ static int vga_process_escape_sequence(char *text)
  * \param data String to print
  * \param size size of data
  * \param flags flags for dev
- * \param dev device interface(should be pointer to "vga_text_dev")
+ * \param dev device interface (should be pointer to "vga_text_dev")
  * \return number of characters printed
  */
 static int vga_text_send(void *data, size_t size, uint flags, device_t *dev)

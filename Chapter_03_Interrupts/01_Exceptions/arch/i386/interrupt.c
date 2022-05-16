@@ -1,4 +1,4 @@
-/*! Interrupt handling - 'arch' layer(only basic operations) */
+/*! Interrupt handling - 'arch' layer (only basic operations) */
 
 #define _ARCH_INTERRUPTS_C_
 #include "interrupt.h"
@@ -10,7 +10,7 @@
 /*! interrupt handlers */
 static void (*ihandler[INTERRUPTS])(unsigned int);
 
-/*! Initialize interrupt subsystem(in 'arch' layer) */
+/*! Initialize interrupt susubsystem (in 'arch' layer) */
 void arch_init_interrupts()
 {
 	memset(ihandler, 0, sizeof(ihandler));

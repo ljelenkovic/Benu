@@ -1,4 +1,4 @@
-/*! PrimeCell Vectored Interrupt Controller(VIC, PL190) */
+/*! PrimeCell Vectored Interrupt Controller (VIC, PL190) */
 #ifdef PL190
 
 #include "pl190.h"
@@ -129,7 +129,7 @@ static int pl190_get_irq()
 }
 
 #ifdef DEBUG
-/*! Interrupts descriptions(IRQs) */
+/*! Interrupts descriptions (IRQs) */
 static char *arch_irq_desc[INTERRUPTS] =
 {
 	/* Processor interrupts */
@@ -140,9 +140,9 @@ static char *arch_irq_desc[INTERRUPTS] =
 	"Interrupt Request",
 	"Fast Interrupt Request",
 
-	/* Primary interrupt controller(VIC) */
+	/* Primary interrupt Controller (VIC) */
 	"Watchdog timer",
-	"Software interrupt(not one generated with SVC/SWI)",
+	"Software interrupt (not one generated with SVC/SWI)",
 	"Debug communications receive interrupt",
 	"Debug communications transmit interrupt",
 	"Timer 0 or 1 Timers on development chip",
@@ -174,7 +174,7 @@ static char *arch_irq_desc[INTERRUPTS] =
 	"External",
 	"External interrupt from secondary controller",
 
-	/* Secondary interrupt controller(SIC) */
+	/* Secondary interrupt controller (SIC) */
 	"Software interrupt from secondary controller",
 	"Multimedia card 0B interrupt",
 	"Multimedia card 1B interrupt",

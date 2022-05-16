@@ -1,4 +1,4 @@
-/*! 'keyboard' module(with i8042 chip) */
+/*! 'keyboard' module (with i8042 chip) */
 #ifdef I8042
 
 #include "i8042.h"
@@ -12,7 +12,7 @@
 #define KEYB_DR		0x60	/* data register */
 #define KEYB_SR		0x64	/* status register */
 
-#define KEYB_BUFF_SIZE	256	/* keyboard buffer size(software buffer) */
+#define KEYB_BUFF_SIZE	256	/* keyboard buffer size (software buffer) */
 
 #define CAPSLED		0x04	/* code for turning on Caps Lock LED */
 
@@ -41,7 +41,7 @@ static volatile int buf_first;
 static volatile int buf_last;
 static volatile int buf_size;
 
-/*! which special keys(Shift, Ctrl, Alt) are pressed */
+/*! which special keys (Shift, Ctrl, Alt) are pressed */
 static volatile int32 spec_keys_down;
 
 static volatile uint32 keyb_flags; /*! echo any key pressed? */
@@ -203,8 +203,8 @@ static int32 i8042_read()
 }
 
 /*!
- * Translate keyboard code into more appropriate code(defined in keyboard.h)
- * process only(some) simple keystrokes and(some) two byte keystroke codes
+ * Translate keyboard code into more appropriate code (defined in keyboard.h)
+ * process only (some) simple keystrokes and (some) two byte keystroke codes
  */
 static int32 i8042_prepare_char(int c)
 {

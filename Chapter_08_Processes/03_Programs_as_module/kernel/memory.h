@@ -54,7 +54,7 @@ struct _kprog_t_
 		      /* kobject_t elements */
 };
 
-/*! Object referenced in programs(kernel object reference + additional info) */
+/*! Object referenced in programs (kernel object reference + additional info) */
 struct _kobject_t_
 {
 	void	*kobject;

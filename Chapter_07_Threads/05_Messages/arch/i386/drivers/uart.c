@@ -1,4 +1,4 @@
-/*! 'serial port' module(UART) */
+/*! 'serial port' module (UART) */
 #ifdef UART
 
 #include "uart.h"
@@ -89,7 +89,7 @@ static int uart_config(device_t *dev, uart_t *params)
 	/* first disable interrupts */
 	outb(up->port + IER, 0);
 
-	/* clear FIFO(set FCR) */
+	/* clear FIFO (set FCR) */
 	if (up->uart_type > UT8250)
 	{
 		setting = FCR_ENABLE | FCR_CLEAR;
@@ -215,7 +215,7 @@ static void uart_write(arch_uart_t *up)
 	}
 }
 
-/*! Send data to UART device(through software buffer) */
+/*! Send data to UART device (through software buffer) */
 static int uart_send(void *data, size_t size, uint flags, device_t *dev)
 {
 	arch_uart_t *up;
@@ -268,7 +268,7 @@ static void uart_read(arch_uart_t *up)
 	}
 }
 
-/*! Read from UART(using software buffer) */
+/*! Read from UART (using software buffer) */
 static int uart_recv(void *data, size_t size, uint flags, device_t *dev)
 {
 	arch_uart_t *up;

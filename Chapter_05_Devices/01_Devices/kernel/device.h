@@ -17,7 +17,7 @@ typedef void kdevice_t;
 typedef struct _kdevice_t_
 {
 	device_t   dev;
-		   /* device descriptor(with interface) */
+		   /* device descriptor (with interface) */
 
 	id_t	   id;
 		   /* system level id */

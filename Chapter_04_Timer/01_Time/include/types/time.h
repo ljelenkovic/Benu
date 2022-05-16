@@ -26,7 +26,7 @@ typedef uint clockid_t;
 /*! Short functions - timespec_t manipulation -------------------------- */
 
 /*!
- * Calculate a = a + b(both represent time)
+ * Calculate a = a + b (both represent time)
  * \param a First time
  * \param b Second time
  */
@@ -43,7 +43,7 @@ static inline void time_add(timespec_t *a, timespec_t *b)
 }
 
 /*!
- * Calculate a = a - b(both represent time)
+ * Calculate a = a - b (both represent time)
  * \param a First time
  * \param b Second time
  * NOTE: assumes a > b, does not check this!

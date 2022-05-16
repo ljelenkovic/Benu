@@ -1,4 +1,4 @@
-/*! Interrupt handling - 'arch' layer(only basic operations) */
+/*! Interrupt handling - 'arch' layer (only basic operations) */
 
 #pragma once
 
@@ -13,7 +13,7 @@
 
 #include <arch/interrupt.h>
 
-/*!(Hardware) Interrupt controller interface */
+/*! (Hardware) Interrupt controller interface */
 typedef struct _interrupt_controller_
 {
 	void  (*init)();
@@ -27,7 +27,7 @@ arch_ic_t;
 
 #endif /* ASM_FILE */
 
-/* Programmable Interrupt controllers(currently implemented only one, i8259) */
+/* Programmable Interrupt controllers (currently implemented only one, i8259) */
 #include <ARCH/drivers/i8259.h>
 
 #define INTERRUPTS		(SOFT_IRQ + 1)

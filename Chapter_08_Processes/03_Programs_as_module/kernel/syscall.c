@@ -1,4 +1,4 @@
-/*! System call - call to kernel from threads(via software interrupt) */
+/*! System call - call to kernel from threads (via software interrupt) */
 
 #define _K_SYSCALL_C_
 

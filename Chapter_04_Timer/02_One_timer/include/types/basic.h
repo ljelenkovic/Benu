@@ -34,6 +34,6 @@ typedef struct _descriptor_
 	       /* identification number of system resource */
 
 	void  *ptr;
-	       /* pointer to kernel descriptor(in kernel address space */
+	       /* pointer to kernel descriptor (in kernel address space */
 }
 descriptor_t;

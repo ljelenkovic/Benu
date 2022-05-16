@@ -161,7 +161,7 @@ static void uart_read(arch_uart_t *up)
 	}
 }
 
-/*! Read from UART(using software buffer) */
+/*! Read from UART (using software buffer) */
 static int uart_recv(void *data, size_t size, uint flags, device_t *dev)
 {
 	arch_uart_t *up;

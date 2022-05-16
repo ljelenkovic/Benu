@@ -162,7 +162,7 @@ static void i8253_set(uint cnt)
 	outb(I8253_CH0, counter);
 }
 
-/*! Read i8253 counter(its current value) */
+/*! Read i8253 counter (its current value) */
 static uint i8253_get()
 {
 	uint lower_byte, higher_byte;

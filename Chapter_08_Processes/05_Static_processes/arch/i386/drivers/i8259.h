@@ -1,4 +1,4 @@
-/*! Intel 8259 programmable interrupt controller(PIC) */
+/*! Intel 8259 programmable interrupt controller (PIC) */
 #ifdef I8259
 
 #pragma once

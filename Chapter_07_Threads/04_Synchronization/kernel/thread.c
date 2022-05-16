@@ -53,7 +53,7 @@ void kthreads_init()
  * \param arg Parameter sent to starting function
  * \param sched_policy Thread scheduling policy
  * \param sched_priority Thread priority
- * \param stackaddr Address of thread stack(if not NULL)
+ * \param stackaddr Address of thread stack (if not NULL)
  * \param stacksize Stack size
  * \return Pointer to descriptor of created kernel thread
  */
@@ -116,7 +116,7 @@ kthread_t *kthread_create(void *start_routine, void *arg, uint flags,
 	return kthread;
 }
 
-/*! Suspend thread(kthreads_schedule must follow this call) */
+/*! Suspend thread (kthreads_schedule must follow this call) */
 int kthread_suspend(kthread_t *kthread, void *wakeup_action,
 			     void *param)
 {
@@ -227,7 +227,7 @@ int kthread_exit2(kthread_t *kthread, void *exit_status)
 	return EXIT_SUCCESS;
 }
 
-/*! Internal function for removing(freeing) thread descriptor */
+/*! Internal function for removing (freeing) thread descriptor */
 static void kthread_remove_descriptor(kthread_t *kthread)
 {
 	ASSERT(kthread);
@@ -245,7 +245,7 @@ static void kthread_remove_descriptor(kthread_t *kthread)
 }
 
 /*!
- * Put given thread or active thread(when kthread == NULL) into queue of
+ * Put given thread or active thread (when kthread == NULL) into queue of
  * "waited" thread
  */
 void kthread_wait_thread(kthread_t *waiting, kthread_t *waited)
@@ -256,7 +256,7 @@ void kthread_wait_thread(kthread_t *waiting, kthread_t *waited)
 	kthread_enqueue(waiting, &waited->join_queue);
 }
 
-/*! Get exit status of finished thread(and free descriptor) */
+/*! Get exit status of finished thread (and free descriptor) */
 void kthread_collect_status(kthread_t *waited, void **retval)
 {
 	ASSERT(waited);
@@ -281,10 +281,10 @@ void kthread_switch_to_thread(kthread_t *from, kthread_t *to)
 }
 
 
-/*! operations on thread queues(blocked threads) --------------------------- */
+/*! operations on thread queues (blocked threads) --------------------------- */
 
 /*!
- * Put given thread or active thread(when kthread == NULL) into queue 'q_id'
+ * Put given thread or active thread (when kthread == NULL) into queue 'q_id'
  * - if kthread != NULL, thread must not be in any list and 'kthreads_schedule'
  *   should follow this call before exiting from kernel!
  */
@@ -302,7 +302,7 @@ void kthread_enqueue(kthread_t *kthread, kthread_q *q)
 }
 
 /*!
- * Release single thread from given queue(if queue not empty)
+ * Release single thread from given queue (if queue not empty)
  * \param q Queue
  * \return 1 if thread was released, 0 if queue was empty
  */
@@ -325,7 +325,7 @@ int kthreadq_release(kthread_q *q)
 }
 
 /*!
- * Release all threads from given queue(if queue not empty)
+ * Release all threads from given queue (if queue not empty)
  * \param q Queue
  * \return number of thread released, 0 if queue was empty
  */
@@ -546,7 +546,7 @@ kthread_q *kthread_get_queue(kthread_t *kthread)
 }
 
 
-/*! Temporary storage for blocked thread(save specific context before wait) */
+/*! Temporary storage for blocked thread (save specific context before wait) */
 void kthread_set_private_param(kthread_t *kthread, void *pparam)
 {
 	if (!kthread)
@@ -632,7 +632,7 @@ int kthread_info()
 }
 
 /*! Idle thread ------------------------------------------------------------- */
-/*! Idle thread starting(and only) function */
+/*! Idle thread starting (and only) function */
 static void idle_thread(void *param)
 {
 	while (1)

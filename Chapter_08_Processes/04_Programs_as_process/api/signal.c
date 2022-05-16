@@ -24,8 +24,8 @@ int sigaction(int sig, sigaction_t *act, sigaction_t *oact)
 }
 
 /*!
- * Send signal to thread(from thread)
- * \param pid Thread descriptor(user level descriptor)
+ * Send signal to thread (from thread)
+ * \param pid Thread descriptor (user level descriptor)
  * \param signo Signal number
  * \param sigval Parameter to send with signal
  * \return 0 if successful, -1 otherwise and appropriate error number is set
