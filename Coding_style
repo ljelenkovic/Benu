@@ -31,6 +31,9 @@ Clean code (using "strict" style) example:
 
 Type definitions:
 ------------------
+All (or almost all) structures a typedef-ed in the code.
+E.g. for messages in kernel, a structure is typedef-ed:
+
 /*! message */
 typedef struct _kmsg_t_
 {
@@ -39,11 +42,27 @@ typedef struct _kmsg_t_
 }
 kmsg_t;
 
-Some argue that "kmsg_t" hide information, but I do not see any more
-information on "struct kmsg_t" (as they propose), so I use shorter type
-declaration.
+and only kmsg_t is used.
+
+However, there is a trend that structures which elements are used in code should
+remain structures. Therefore, above code should be rewritten to:
+
+/*! message */
+typedef struct kmsg
+{
+	list_h  list;
+	msg_t   msg; /* message (variable length!) */
+}
+kmsg_t;
+
+and "struct kmsg" should be used in files that access its elements,
+while kmsg_t should be used elsewhere, where elements aren't needed, and where
+is a good thing to "hide" internal elements.
+Maybe in the future the code will be rewritten with this concepts.
 
 
+Line breaking, indentation, alignment
+--------------------------------------
 When breaking line on function call, I try to align next line with parameters,
 first with tabulator and last with spaces:
 

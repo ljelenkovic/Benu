@@ -1,0 +1,30 @@
+In this example is shown a demonstration of some possibilities of memory layout
+using linker script.
+
+In the example, ROM is at address ROM_ADDR and RAM at RAM_ADDR.
+Only boot code is run directly from ROM, all else is first copied to RAM.
+
+ROM layout:
+
+address		contains
+---------------------------
+boot_code_ROM	boot code (startup.S, copy_to_RAM.c)
+kern_code_ROM	all instructions from files from: arch, kernel and lib
+kern_data_ROM	all data (read-only and read-write) defined in arch, kernel and lib
+prog_code_ROM	all instructions from files from: api, programs
+prog_data_ROM	all data (read-only and read-write) defined in api, programs
+All data is compactly placed in ROM, starting from boot_code_ROM=ROM_ADDR.
+I.e. kern_code_ROM and others addresses are calculated on linking.
+
+RAM layout (after copy_to_RAM() is executed):
+
+address		contains
+---------------------------
+KERN_CODE_RAM	all instructions from files from: arch, kernel and lib
+KERN_DATA_RAM	all data (read-only and read-write) defined in arch, kernel and lib
+PROG_CODE_RAM	all instructions from files from: api, programs
+PROG_DATA_RAM	all data (read-only and read-write) defined in api, programs
+STACK_ADDR	beginning of stack area
+
+All this addresses are defined and used in arch/i386/boot/ldscript.ld
+(and then in copy_to_RAM.c).
