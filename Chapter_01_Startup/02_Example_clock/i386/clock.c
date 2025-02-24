@@ -110,9 +110,9 @@ static void init_display()
 	}
 
 	video = CLOCK_POS;
-	video [ 2 * 2 ] = ':';
-	video [ 5 * 2 ] = ':';
-	video [ 8 * 2 ] = ':';
+	video[2 * 2] = ':';
+	video[5 * 2] = ':';
+	video[8 * 2] = ':';
 }
 
 /*! Set 2 digit number on console at requested position */
@@ -125,9 +125,9 @@ static inline void update_field(int pos, int num)
 	c0 = num % 10 + '0';
 
 	pos *= 2;
-	video [ pos++ ] = c1;
+	video[pos++] = c1;
 	pos++;
-	video [ pos++ ] = c0;
+	video[pos++] = c0;
 	pos++;
 }
 

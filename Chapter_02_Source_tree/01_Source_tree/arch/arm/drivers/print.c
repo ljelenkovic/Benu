@@ -18,7 +18,7 @@ static void arch_putchar(char c)
 	volatile unsigned int *uart_fr = (unsigned int *) UART0_FR;
 
 	/* Wait for UART to become ready to transmit */
-	while ((*uart_fr) &(1 << 5))
+	while ((*uart_fr) & (1 << 5))
 		;
 
 	/* Transmit char */

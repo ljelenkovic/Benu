@@ -70,9 +70,9 @@ ffs_mpool_t;
 #define ALIGN_VAL	((size_t) sizeof(size_t))
 #define ALIGN_MASK	(~(ALIGN_VAL - 1))
 #define ALIGN(P)	\
-	do {(P) = ALIGN_MASK &((size_t)(P)); } while (0)
+	do {(P) = ALIGN_MASK & ((size_t)(P)); } while (0)
 #define ALIGN_FW(P)	\
-	do {(P) = ALIGN_MASK &(((size_t)(P)) + (ALIGN_VAL - 1)) ; } while (0)
+	do {(P) = ALIGN_MASK & (((size_t)(P)) + (ALIGN_VAL - 1)) ; } while (0)
 
 void *ffs_init(void *mem_segm, size_t size);
 void *ffs_alloc(ffs_mpool_t *mpool, size_t size);

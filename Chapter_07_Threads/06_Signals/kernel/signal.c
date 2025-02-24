@@ -298,7 +298,8 @@ int ksignal_process_event(sigevent_t *evp, kthread_t *kthread, int code)
 		if (evp->sigev_notify_function)
 		{
 			if (!kthread_create(	evp->sigev_notify_function,
-						evp->sigev_value.sival_ptr, 0,
+						evp->sigev_value.sival_ptr,
+						PTHREAD_CREATE_DETACHED,
 						SCHED_FIFO, THREAD_DEF_PRIO,
 						NULL, 0))
 				retval = EINVAL;
@@ -344,8 +345,8 @@ int sys__sigqueue(pid_t pid, int signo, sigval_t sigval)
 	ASSERT_ERRNO_AND_EXIT(kthread_get_id(kthread) == thread.id, EINVAL);
 	ASSERT_ERRNO_AND_EXIT(kthread_check_kthread(kthread), EINVAL);
 
-	sender.id = kthread_get_id(NULL);
 	sender.ptr = kthread_get_active();
+	sender.id = kthread_get_id(sender.ptr);
 
 	sig.si_signo = signo;
 	sig.si_value = sigval;

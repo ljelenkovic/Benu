@@ -73,9 +73,9 @@ static void i8259_irq_disable(unsigned int irq)
 {
 	irq -= IRQ_OFFSET;
 	if (irq < 8)
-		outb(PIC1_DATA, inb(PIC1_DATA) |(1 << irq));
+		outb(PIC1_DATA, inb(PIC1_DATA) | (1 << irq));
 	else
-		outb(PIC2_DATA, inb(PIC2_DATA) |(1 << (irq - 8)));
+		outb(PIC2_DATA, inb(PIC2_DATA) | (1 << (irq - 8)));
 }
 
 /*!

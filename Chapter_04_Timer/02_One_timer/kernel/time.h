@@ -47,7 +47,7 @@ struct _ktimer_t_
 		      /* additional parameter (remainder for sleep)*/
 };
 
-#define TIMER_IS_ARMED(T)	TIME_IS_SET(&(T)->itimer.it_value)
-#define TIMER_DISARM(T)		TIME_RESET(&(T)->itimer.it_value)
+#define TIMER_IS_ARMED(T)	TIME_IS_SET(& (T)->itimer.it_value)
+#define TIMER_DISARM(T)		TIME_RESET(& (T)->itimer.it_value)
 
 #endif	/* _K_TIME_C_ */

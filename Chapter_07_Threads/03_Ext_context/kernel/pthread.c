@@ -104,12 +104,12 @@ int sys__pthread_join(pthread_t *thread, void **retval)
 
 	kthread = thread->ptr;
 
-	if (kthread_get_id(kthread) != thread->id)
+	if (kthread_get_id(kthread) != thread->id || !kthread_check_kthread(kthread))
 	{
 		/* at 'kthread' is now something else */
 		SYS_EXIT(ESRCH, EXIT_FAILURE);
 	}
-	else if (kthread_is_alive(kthread))
+	else if (!kthread_is_passive(kthread))
 	{
 		kthread_set_errno(NULL, EXIT_SUCCESS);
 		kthread_set_syscall_retval(NULL, EXIT_SUCCESS);
@@ -142,7 +142,7 @@ int sys__pthread_self(pthread_t *thread)
 	ASSERT_ERRNO_AND_EXIT(thread, ESRCH);
 
 	thread->ptr = kthread_get_active();
-	thread->id = kthread_get_id(NULL);
+	thread->id = kthread_get_id(thread->ptr);
 
 	SYS_EXIT(EXIT_SUCCESS, EXIT_SUCCESS);
 }

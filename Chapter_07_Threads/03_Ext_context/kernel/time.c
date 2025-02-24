@@ -410,7 +410,8 @@ static int ktimer_process_event(sigevent_t *evp, kthread_t *kthread)
 		if (evp->sigev_notify_function)
 		{
 			if (!kthread_create(	evp->sigev_notify_function,
-						evp->sigev_value.sival_ptr, 0,
+						evp->sigev_value.sival_ptr,
+						PTHREAD_CREATE_DETACHED,
 						SCHED_FIFO, THREAD_DEF_PRIO,
 						NULL, 0))
 				retval = EINVAL;

@@ -58,7 +58,6 @@ void k_startup()
 	/* start desired program(s) */
 	hello_world();
 	timer();
-	/* segm_fault(); */
 
 	kprintf("\nSystem halted!\n");
 	halt();

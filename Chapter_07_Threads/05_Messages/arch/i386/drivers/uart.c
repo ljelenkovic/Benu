@@ -17,7 +17,7 @@ static int identify_UART(arch_uart_t *up)
 {
 	int test;
 
-	if (up->uart_type)
+	if (up->uart_type != UT_UNDEFINED)
 		return up->uart_type;
 
 	outb(COM1_BASE + FCR, 0xE7);
@@ -57,9 +57,6 @@ static int uart_init(uint flags, void *params, device_t *dev)
 
 	/* check chip */
 	identify_UART(up);
-
-	if (up->uart_type)
-		return 0; /* already initialized */
 
 	return uart_config(dev, &up->params);
 }
@@ -161,7 +158,7 @@ static int uart_interrupt_handler(int irq_num, void *device)
 	{
 		iir = inb(up->port + IIR);
 
-		if (!(iir & IIR_INT_PENDING))
+		if ((iir & IIR_INT_PENDING) == 1)
 			return 0; /* no interrupt pending from this device */
 
 		if (iir & IIR_TIMEOUT)
@@ -178,7 +175,7 @@ static int uart_interrupt_handler(int irq_num, void *device)
 			/* else TODO: handle errors */
 		}
 
-		if (rcv || brk ||(iir & IIR_RECV_DATA))
+		if (rcv || brk || (iir & IIR_RECV_DATA))
 		{
 			/* read data from UART to software buffer */
 			uart_read(up);
@@ -213,6 +210,10 @@ static void uart_write(arch_uart_t *up)
 		INC_MOD(up->outf, up->outbufsz);
 		up->outsz--;
 	}
+	if (up->outsz == 0)
+		outb(up->port + IER, IER_DEFAULT);
+	else
+		outb(up->port + IER, IER_DEFAULT | IER_THR_EMPTY);
 }
 
 /*! Send data to UART device (through software buffer) */
@@ -220,6 +221,7 @@ static int uart_send(void *data, size_t size, uint flags, device_t *dev)
 {
 	arch_uart_t *up;
 	uint8 *d;
+	size_t sz = size;
 
 	ASSERT(dev);
 
@@ -234,25 +236,25 @@ static int uart_send(void *data, size_t size, uint flags, device_t *dev)
 
 	do {
 		/* first, copy to software buffer */
-		while (size > 0 && up->outsz < up->outbufsz)
+		while (sz > 0 && up->outsz < up->outbufsz)
 		{
 			if (*d == 0 && flags == CONSOLE_PRINT)
 			{
-				size = 0;
+				sz = 0;
 				break;
 			}
 			up->outbuff[up->outl] = *d++;
 			INC_MOD(up->outl, up->outbufsz);
 			up->outsz++;
-			size--;
+			sz--;
 		}
 
 		/* second, copy from software buffer to uart */
 		uart_write(up);
 	}
-	while (size > 0 && up->outsz < up->outbufsz);
+	while (sz > 0 && up->outsz < up->outbufsz);
 
-	return size; /* FIXME 0 if all sent, otherwise not send part length */
+	return size - sz;
 }
 
 /*! Read data from UART to software buffer */
@@ -339,7 +341,7 @@ static uint8 com1_outbuf[BUFFER_SIZE];
 /*! COM1 device & parameters */
 static arch_uart_t com1_params = (arch_uart_t)
 {
-	.uart_type = UNDEFINED,
+	.uart_type = UT_UNDEFINED,
 	.params = UART_DEFAULT_SETTING,
 	.port = COM1_BASE,
 	.inbuff = com1_inbuf,

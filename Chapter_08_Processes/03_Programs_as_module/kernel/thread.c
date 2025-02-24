@@ -269,6 +269,7 @@ int kthread_exit(kthread_t *kthread, void *exit_status, int force)
 	kthread_t *released;
 	kthread_q *q;
 	void **p;
+	int waited = 0;
 
 	ASSERT(kthread);
 
@@ -321,7 +322,8 @@ int kthread_exit(kthread_t *kthread, void *exit_status, int force)
 	}
 
 	kthread->state.state = THR_STATE_PASSIVE;
-	kthread->ref_cnt--;
+	if (waited > 0 || (kthread->state.flags & PTHREAD_CREATE_DETACHED))
+		kthread->ref_cnt--;
 	kthread->state.exit_status = exit_status;
 
 	arch_destroy_thread_context(&kthread->state.context);

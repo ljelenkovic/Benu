@@ -53,7 +53,7 @@ void k_startup()
 
 	/* start desired program(s) */
 	hello_world();
-	segm_fault();
+	interrupts();
 
 	kprintf("\nSystem halted!\n");
 	halt();

@@ -18,8 +18,8 @@
 
 #define ASCII_KEY(KEY)	((KEY) & 0x000000ff)	/* leave only ASCII */
 
-#define SHIFT_ON(S)	((((S) &(LSHIFT | RSHIFT)) && !((S) & CAPSL)) || \
-			 (!((S) &(LSHIFT | RSHIFT)) && ((S) & CAPSL))   )
+#define SHIFT_ON(S)	((((S) & (LSHIFT | RSHIFT)) && !((S) & CAPSL)) || \
+			 (!((S) & (LSHIFT | RSHIFT)) && ((S) & CAPSL))   )
 
 /* internal functions */
 static int i8042_init(uint flags, void *kernel_callback_function, device_t *d);

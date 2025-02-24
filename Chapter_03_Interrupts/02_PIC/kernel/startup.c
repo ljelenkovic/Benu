@@ -10,7 +10,7 @@
 #include <kernel/features.h>
 
 /*! kernel stack */
-uint8 system_stack [ STACK_SIZE ];
+uint8 system_stack[STACK_SIZE];
 
 char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "
 			"Version: " VERSION " (" ARCH ")";
@@ -54,7 +54,7 @@ void k_startup()
 
 	/* start desired program(s) */
 	hello_world();
-	segm_fault();
+	interrupts();
 
 	kprintf("\nSystem halted!\n");
 	halt();

@@ -44,8 +44,8 @@ static int color[3] = {
 
 #define PUT_CHAR(X,Y,CHAR)						\
 do {									\
-	video [(X + (Y) * COLS) * 2 ] = (CHAR) & 0x00FF;		\
-	video [(X + (Y) * COLS) * 2 + 1 ] = font_color;		\
+	video[(X + (Y) * COLS) * 2] = (CHAR) & 0x00FF;		\
+	video[(X + (Y) * COLS) * 2 + 1] = font_color;		\
 } while (0)
 
 
@@ -74,8 +74,8 @@ static int vga_text_clear()
 
 	for (i = 0; i < COLS * ROWS; i++)
 	{
-		video [2*i] = 0;
-		video [2*i+1] = color[2]; /* 'program' style */
+		video[2*i] = 0;
+		video[2*i+1] = color[2]; /* 'program' style */
 	}
 
 	return vga_text_gotoxy(0, 0);
@@ -219,7 +219,7 @@ static int vga_text_printf(char *text)
 			else {
 				/*scroll one line: move bottom ROWS-1 rows up*/
 				for (i = 0; i < COLS * 2 * (ROWS-1); i++)
-					video [i] = video [ i + COLS * 2 ];
+					video[i] = video[i + COLS * 2];
 
 				for (i = 0; i < COLS; i++)
 					PUT_CHAR(i, ROWS-1, ' ');

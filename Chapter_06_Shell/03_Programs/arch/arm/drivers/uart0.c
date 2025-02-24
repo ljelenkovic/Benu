@@ -30,7 +30,7 @@ static void uart0_putchar(char c)
 	volatile unsigned int *uart_fr = (unsigned int *) UART0_FR;
 
 	/* Wait for UART to become ready to transmit */
-	while ((*uart_fr) &(1 << 5))
+	while ((*uart_fr) & (1 << 5))
 		;
 
 	/* Transmit char */
@@ -46,7 +46,7 @@ static int uart0_getchar()
 	volatile unsigned int *uart_dr = (unsigned int *) UART0_DR;
 	volatile unsigned int *uart_fr = (unsigned int *) UART0_FR;
 
-	if ((*uart_fr) &(1 << 4)) /* empty */
+	if ((*uart_fr) & (1 << 4)) /* empty */
 		return -1;
 
 	return *uart_dr;
@@ -104,10 +104,10 @@ static int uart_status(uint flags, device_t *dev)
 	int rflags = 0;
 	volatile unsigned int *uart_fr = (unsigned int *) UART0_FR;
 
-	if (!((*uart_fr) &(1 << 4))) /* Have something to read? */
+	if (!((*uart_fr) & (1 << 4))) /* Have something to read? */
 		rflags |= DEV_IN_READY;
 
-	if (!((*uart_fr) &(1 << 5))) /* Is UART ready to transmit? */
+	if (!((*uart_fr) & (1 << 5))) /* Is UART ready to transmit? */
 		rflags |= DEV_OUT_READY;
 
 	return DEV_IN_READY;

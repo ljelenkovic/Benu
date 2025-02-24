@@ -766,8 +766,8 @@ int sys__mq_open(char *name, int oflag, mode_t mode, mq_attr_t *attr,
 		strcmp(name, kq_queue->name))
 		kq_queue = list_get_next(&kq_queue->list);
 
-	if (	(kq_queue && ((oflag & O_CREAT) ||(oflag & O_EXCL)))
-		||(!kq_queue && !(oflag & O_CREAT)))
+	if (	(kq_queue && ((oflag & O_CREAT) || (oflag & O_EXCL)))
+		|| (!kq_queue && !(oflag & O_CREAT)))
 	{
 		mqdes->ptr = (void *) -1;
 		mqdes->id = -1;

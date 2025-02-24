@@ -54,7 +54,10 @@ uart_t;
 #define MSR	6	/* Modem Status Register */
 #define SR	7	/* Scratch Register */
 
-#define IER_DEFAULT	7
+#define IER_RBR_DATA	(1<<0)
+#define IER_THR_EMPTY	(1<<1)
+#define IER_RCV_STATUS	(1<<2)
+#define IER_DEFAULT	(IER_RBR_DATA | IER_RCV_STATUS)
 #define IER_DISABLE	0
 
 #define FCR_ENABLE	0x01
@@ -106,7 +109,7 @@ arch_uart_t;
 
 /* UART chip type */
 enum {
-	UNDEFINED = 0,
+	UT_UNDEFINED = 0,
 	UT8250,
 	UT16450,
 	UT16550,

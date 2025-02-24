@@ -281,6 +281,7 @@ int kthread_exit2(kthread_t *kthread, void *exit_status, int force)
 	kthread_t *released;
 	kthread_q *q;
 	void **p;
+	int waited = 0;
 
 	ASSERT(kthread);
 
@@ -359,11 +360,15 @@ int kthread_exit2(kthread_t *kthread, void *exit_status, int force)
 
 		kthread_move_to_ready(released, LAST);
 		kthread->ref_cnt--;
+		waited++;
 	}
 
 	/* remove thread resources */
 	kthread_restore_state(kthread); /* cleanup functions */
-	kthread->ref_cnt--;
+
+	if (waited > 0 || (kthread->state.flags & PTHREAD_CREATE_DETACHED))
+		kthread->ref_cnt--;
+
 	if (!kthread->ref_cnt)
 		kthread_remove_descriptor(kthread);
 

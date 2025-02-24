@@ -248,7 +248,7 @@ static inline int sigtestset(sigset_t *set, int sig)
 	if (!set || sig < 1 || sig > SIGMAX)
 		return FALSE;
 
-	if (set->set[SIGSET_ELEM(sig)] &(1 << SIGSET_POS(sig)))
+	if (set->set[SIGSET_ELEM(sig)] & (1 << SIGSET_POS(sig)))
 		return TRUE;
 	else
 		return FALSE;

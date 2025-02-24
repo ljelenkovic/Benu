@@ -12,7 +12,7 @@ void print_uart0(const char *s)
 	while (*s != '\0') /* Loop until end of string */
 	{
 		/* Wait for UART to become ready to transmit */
-		while ((*uart_fr) &(1 << 5))
+		while ((*uart_fr) & (1 << 5))
 			;
 
 		/* Transmit char */

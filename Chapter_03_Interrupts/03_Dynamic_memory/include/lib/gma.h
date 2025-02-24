@@ -278,7 +278,7 @@ struct _mchunk_t_
 
 #define CHUNK_ALIGN(P)		(((size_t)(P)) & CHUNK_ALIGN_MASK)
 #define CHUNK_ALIGN_FW(P)	CHUNK_ALIGN(((size_t)(P))+ (CHUNK_ALIGN_VAL-1))
-#define CHUNK_IS_ALIGNED(P)	(!(((size_t)(P)) &(CHUNK_ALIGN_VAL-1)))
+#define CHUNK_IS_ALIGNED(P)	(!(((size_t)(P)) & (CHUNK_ALIGN_VAL-1)))
 
 /*! Get-ers and Set-ers */
 #define BINUSE		((size_t) 1)	/* Chunk "Before" IN USE */

@@ -14,7 +14,7 @@
 #define LDT	1
 
 #define GDT_DESCRIPTOR(ID, TABLE, PRIV_LEVEL)	\
-	(((ID) << 3) |((TABLE) << 2) |(PRIV_LEVEL))
+	(((ID) << 3) | ((TABLE) << 2) | (PRIV_LEVEL))
 
 #ifndef ASM_FILE
 

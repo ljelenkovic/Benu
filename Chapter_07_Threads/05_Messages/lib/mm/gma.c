@@ -198,14 +198,14 @@ static int get_indexes(gma_t *mpool, size_t size, size_t *fl, size_t *sl,
 	{
 		/* Is calculated list non-empty? Or do we need to search
 		   forward, in lists that have larger chunks? */
-		bits = mpool->SL_bitmap[*fl] &((~((size_t) 0)) << (*sl));
+		bits = mpool->SL_bitmap[*fl] & ((~((size_t) 0)) << (*sl));
 
 		if (bits != 0)
 		{
 			*sl = lsb_index(bits);
 		}
 		else {
-			bits = mpool->FL_bitmap &((~((size_t) 0))<< (*fl + 1));
+			bits = mpool->FL_bitmap & ((~((size_t) 0))<< (*fl + 1));
 			if (bits == 0)
 				return EXIT_FAILURE;
 

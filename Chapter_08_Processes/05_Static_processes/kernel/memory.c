@@ -53,7 +53,7 @@ void k_memory_init()
 		kprog = kmalloc(sizeof(kprog_t));
 
 		kprog->m = &mseg[i];
-		kprog->prog = &((module_program_t *) mseg[i].start)->prog;
+		kprog->prog = & ((module_program_t *) mseg[i].start)->prog;
 
 		kprog->started = FALSE;
 
@@ -172,7 +172,7 @@ id_t k_new_id()
 		last_id = 1; /* skip 0 */
 
 	elem = last_id / WBITS;
-	mask = idmask [elem] |((1 << (last_id % WBITS)) - 1);
+	mask = idmask[elem] | ((1 << (last_id % WBITS)) - 1);
 	/* do not look at lower bits (for now) */
 
 	if (~mask) /* current 'elem' has free ids from last_id forward */
@@ -196,7 +196,7 @@ id_t k_new_id()
 
 	ASSERT(id != -1);
 
-	idmask [ elem ] |= (1 << id);	/* reserve ID */
+	idmask[elem] |= (1 << id);	/* reserve ID */
 	id += elem * WBITS;
 	last_id = id;
 
@@ -207,9 +207,9 @@ id_t k_new_id()
 void k_free_id(id_t id)
 {
 	ASSERT(id > 0 && id < MAX_RES &&
-		(idmask [ id / WBITS ] &(1 << (id % WBITS))));
+		(idmask[id / WBITS] & (1 << (id % WBITS))));
 
-	idmask [ id / WBITS ] &= ~(1 << (id % WBITS));
+	idmask[id / WBITS] &= ~(1 << (id % WBITS));
 }
 
 /*! Check if "id" is used (if object is alive) */
@@ -217,7 +217,7 @@ int k_check_id(id_t id)
 {
 	if (
 		id < 1 || id >= MAX_RES ||
-		(idmask [ id / WBITS ] &(1 << (id % WBITS))) == 0
+		(idmask[id / WBITS] & (1 << (id % WBITS))) == 0
 	)
 		return 0;
 	else

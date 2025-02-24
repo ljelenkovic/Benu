@@ -164,7 +164,7 @@ kdevice_t *k_device_open(char *name, int flags)
 		if (!strcmp(name, kdev->dev.dev_name))
 		{
 			if (	(kdev->dev.flags & DEV_TYPE_NOTSHARED) &&
-				(kdev->dev.flags & DEV_OPEN))
+				(kdev->flags & DEV_OPEN))
 				return NULL;
 
 			/* FIXME: check read/write/exclusive open conflicts */
@@ -398,10 +398,10 @@ int kdevice_status(descriptor_t *desc, int flags, kprocess_t *proc)
 		return -1;
 
 	/* TODO only DEV_IN_READY and DEV_OUT_READY are set in device drivers */
-	if ((flags &(POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI)))
+	if ((flags & (POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI)))
 		if ((status & DEV_IN_READY))
 			rflags |= POLLIN | POLLRDNORM | POLLRDBAND | POLLPRI;
-	if ((flags &(POLLOUT | POLLWRNORM | POLLWRBAND | POLLPRI)))
+	if ((flags & (POLLOUT | POLLWRNORM | POLLWRBAND | POLLPRI)))
 		if ((status & DEV_OUT_READY))
 			rflags |= POLLOUT | POLLWRNORM | POLLWRBAND | POLLPRI;
 

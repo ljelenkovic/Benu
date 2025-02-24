@@ -222,6 +222,4 @@ enum {
 	THR_STATE_PASSIVE	/* when just descriptor is left of thread */
 };
 
-#define THR_FLAG_DELETE		1	/* release thread resources */
-
 #endif	/* _K_THREAD_C_ */

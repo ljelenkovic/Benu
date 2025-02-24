@@ -61,7 +61,6 @@ kthread_t *kthread_create(void *start_routine, void *arg, uint flags,
        int sched_policy, int sched_priority, void *stackaddr, size_t stacksize)
 {
 	kthread_t *kthread;
-	int stack_provided = FALSE;
 
 	/* thread descriptor */
 	kthread = kmalloc(sizeof(kthread_t));
@@ -79,17 +78,13 @@ kthread_t *kthread_create(void *start_routine, void *arg, uint flags,
 			stacksize = DEFAULT_THREAD_STACK_SIZE;
 
 		stackaddr = kmalloc(stacksize);
-	}
-	ASSERT(stackaddr && stacksize);
-
-	if (stack_provided)
-	{
-		kthread->stack = NULL;
-		kthread->stack_size = 0;
-	}
-	else {
+		ASSERT(stackaddr);
 		kthread->stack = stackaddr;
 		kthread->stack_size = stacksize;
+	}
+	else { /* stack is provided, don't free it upon thread exit */
+		kthread->stack = NULL;
+		kthread->stack_size = 0;
 	}
 
 	arch_create_thread_context(&kthread->context, start_routine, arg,
@@ -160,6 +155,7 @@ int kthread_exit2(kthread_t *kthread, void *exit_status)
 	kthread_t *released;
 	kthread_q *q;
 	void **p;
+	int waited = 0;
 
 	ASSERT(kthread);
 
@@ -209,6 +205,7 @@ int kthread_exit2(kthread_t *kthread, void *exit_status)
 
 		kthread_move_to_ready(released, LAST);
 		kthread->ref_cnt--;
+		waited++;
 	}
 
 	/* remove thread resources */
@@ -217,11 +214,13 @@ int kthread_exit2(kthread_t *kthread, void *exit_status)
 	if (kthread->stack)
 		kfree(kthread->stack);
 
-	kthread->ref_cnt--;
+	if (waited > 0 || (kthread->flags & PTHREAD_CREATE_DETACHED))
+		kthread->ref_cnt--;
+
 	if (!kthread->ref_cnt)
 		kthread_remove_descriptor(kthread);
 
-	if (kthread == active_thread)
+	if (waited || kthread == active_thread)
 		kthreads_schedule();
 
 	return EXIT_SUCCESS;
@@ -452,10 +451,12 @@ int kthread_is_ready(kthread_t *kthread)
 		kthread->state == THR_STATE_READY;
 }
 
+/* Test if kthread is valid "active" thread descriptor and if its
+   active/ready/suspended/waiting, but also test validity of*/
 int kthread_is_alive(kthread_t *kthread)
 {
-	return	kthread->state != THR_STATE_PASSIVE &&
-		kthread_check_kthread(kthread);
+	return	kthread_check_kthread(kthread) &&
+		kthread->state != THR_STATE_PASSIVE;
 }
 
 int kthread_is_passive(kthread_t *kthread)
@@ -494,7 +495,7 @@ int kthread_get_id(kthread_t *kthread)
 	if (kthread)
 		return kthread->id;
 	else
-		return active_thread->id;
+		return -1;
 }
 
 kthread_t *kthread_get_active()

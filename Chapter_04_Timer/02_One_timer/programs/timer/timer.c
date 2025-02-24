@@ -15,7 +15,7 @@ static void alarm_nt(sigval_t param)
 	clock_gettime(CLOCK_REALTIME, &t);
 	time_sub(&t, &t0);
 
-	printf("[%d:%d] Alarm %d(every %d seconds)\n",
+	printf("[%d:%d] Alarm %d (every %d seconds)\n",
 		t.tv_sec, t.tv_nsec/100000000, num, num);
 }
 

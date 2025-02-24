@@ -26,7 +26,6 @@ int timer(char *args[]);
 int keyboard(char *args[]);
 int shell(char *argv[]);
 int arguments(char *argv[]);
-int segm_fault(char *argv[]);
 int run_all(char *argv[]);
 
 #define	hello_world_PROG_HELP	"Print 'Hello world'."
@@ -36,7 +35,6 @@ int run_all(char *argv[]);
 				"Press '.' to end."
 #define	shell_PROG_HELP		"Simple command shell"
 #define	arguments_PROG_HELP	"Print given command line arguments."
-#define	segm_fault_PROG_HELP	"Generate segmentation fault."
 #define	run_all_PROG_HELP	"Start selected programs."
 
 
@@ -48,7 +46,6 @@ int run_all(char *argv[]);
 {keyboard,	"keyboard",	keyboard_PROG_HELP},		\
 {shell,		"shell",	shell_PROG_HELP},		\
 {arguments,	"args",		arguments_PROG_HELP},		\
-{segm_fault,	"segm_fault", 	segm_fault_PROG_HELP},		\
 {run_all,	"run_all", 	run_all_PROG_HELP},		\
 {NULL, 		NULL, 		NULL}				\
 }

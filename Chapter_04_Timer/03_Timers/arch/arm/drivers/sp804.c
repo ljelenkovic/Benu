@@ -43,7 +43,7 @@ static void sp804_init()
 
 	/* disable interrupt generation on timer1 */
 	ptr = (uint32 *)(TIMER1_BASE + TIMER_CONTROL);
-	*ptr = *ptr &(~TIMER_INT_ENABLE);
+	*ptr = *ptr & (~TIMER_INT_ENABLE);
 
 	/* set parameters for timer0 */
 	ptr = (uint32 *)(TIMER0_BASE + TIMER_CONTROL);
@@ -117,7 +117,7 @@ static void sp804_disable_interrupt()
 
 	/* disable interrupt generation on timer0 */
 	ptr = (uint32 *)(TIMER0_BASE + TIMER_CONTROL);
-	*ptr = *ptr &(~TIMER_INT_ENABLE);
+	*ptr = *ptr & (~TIMER_INT_ENABLE);
 }
 
 /* internal timer handler */

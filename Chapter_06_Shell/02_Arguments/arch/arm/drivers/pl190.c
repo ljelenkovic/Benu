@@ -66,7 +66,7 @@ static void pl190_irq_enable(unsigned int irq)
 	if (irq < 32)
 	{
 		vicreg = (void *)(VICBASE + VICINTENABLE);
-		*vicreg = (*vicreg) |(1 << irq);
+		*vicreg = (*vicreg) | (1 << irq);
 	}
 	else {
 		/* secondary irq controller; TODO */
@@ -88,7 +88,7 @@ static void pl190_irq_disable(unsigned int irq)
 	if (irq < 32)
 	{
 		vicreg = (void *)(VICBASE + VICINTENABLE);
-		*vicreg = (*vicreg) &(~(1 << irq));
+		*vicreg = (*vicreg) & (~(1 << irq));
 	}
 	else {
 		/* secondary irq controller; TODO */
