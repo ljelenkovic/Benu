@@ -5,7 +5,7 @@
 
 #include <arch/processor.h>
 #include <kernel/errno.h>
-#include <lib/list.h>
+#include "list.h"
 #include <kernel/memory.h>
 
 /*! Interrupt controller device */
@@ -13,13 +13,13 @@ extern arch_ic_t IC_DEV;
 static arch_ic_t *icdev = &IC_DEV;
 
 /*! interrupt handlers */
-static list_t ihandlers[INTERRUPTS];
+static struct list_head ihandlers[INTERRUPTS];
 
 struct ihndlr
 {
 	int (*ihandler)(unsigned int);
 
-	list_h list;
+	struct list_head list;
 };
 
 /*! Initialize interrupt susubsystem (in 'arch' layer) */
@@ -30,7 +30,7 @@ void arch_init_interrupts()
 	icdev->init();
 
 	for (i = 0; i < INTERRUPTS; i++)
-		list_init(&ihandlers[i]);
+		INIT_LIST_HEAD(&ihandlers[i]);
 }
 
 /*!
@@ -58,7 +58,7 @@ void arch_register_interrupt_handler(unsigned int inum, void *handler)
 
 		ih->ihandler = handler;
 
-		list_append(&ihandlers[inum], ih, &ih->list);
+		list_add_tail(&ih->list, &ihandlers[inum]);
 	}
 	else {
 		LOG(ERROR, "Interrupt %d can't be used!\n", inum);
@@ -69,20 +69,15 @@ void arch_register_interrupt_handler(unsigned int inum, void *handler)
 /*! Unregister handler function for particular interrupt number */
 void arch_unregister_interrupt_handler(unsigned int irq_num, void *handler)
 {
-	struct ihndlr *ih, *next;
+	struct list_head *pos, *n;
 
 	ASSERT(irq_num >= 0 && irq_num < INTERRUPTS);
 
-	ih = list_get(&ihandlers[irq_num], FIRST);
-
-	while (ih)
+	list_for_each_safe(pos, n, &ihandlers[irq_num])
 	{
-		next = list_get_next(&ih->list);
-
+		struct ihndlr *ih = list_entry(pos, struct ihndlr, list);
 		if (ih->ihandler == handler)
-			list_remove(&ihandlers[irq_num], FIRST, &ih->list);
-
-		ih = next;
+			list_del(&ih->list);
 	}
 }
 
@@ -92,9 +87,7 @@ void arch_unregister_interrupt_handler(unsigned int irq_num, void *handler)
  */
 void arch_interrupt_handler(int irq_num)
 {
-	struct ihndlr *ih;
-
-	if (irq_num < INTERRUPTS && (ih = list_get(&ihandlers[irq_num], FIRST)))
+	if (irq_num < INTERRUPTS &&  !list_empty(&ihandlers[irq_num]))
 	{
 		/* enable interrupts on PIC immediately since program may not
 		 * return here immediately */
@@ -102,12 +95,9 @@ void arch_interrupt_handler(int irq_num)
 			icdev->at_exit(irq_num);
 
 		/* Call registered handlers */
-		while (ih)
-		{
+		struct ihndlr *ih;
+		list_for_each_entry(ih, &ihandlers[irq_num], list)
 			ih->ihandler(irq_num);
-
-			ih = list_get_next(&ih->list);
-		}
 	}
 
 	else if (irq_num < INTERRUPTS)
