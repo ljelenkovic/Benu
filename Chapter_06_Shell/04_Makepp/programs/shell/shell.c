@@ -22,8 +22,8 @@ cmd_t;
 #define MAXARGS		10
 #define INFO_SIZE	1000
 
-static int help();
-static int clear();
+static int help(char *args[]);
+static int clear(char *args[]);
 static int sysinfo(char *args[]);
 
 static cmd_t sh_cmd[] =
@@ -49,7 +49,7 @@ int shell(char *args[])
 	//printf("\x1b[37m"); /* test escape sequence: white text */
 	printf("\n*** Simple shell interpreter ***\n\n");
 	//printf("\x1b[32m"); /* test escape sequence: green text */
-	help();
+	help(NULL);
 
 	t.tv_sec = 0;
 	t.tv_nsec = 100000000; /* 100 ms */
@@ -156,7 +156,7 @@ int shell(char *args[])
 	return 0;
 }
 
-static int help()
+static int help(char *args[])
 {
 	int i;
 
@@ -173,7 +173,7 @@ static int help()
 	return 0;
 }
 
-static int clear()
+static int clear(char *args[])
 {
 	printf("\x1b[2J");
 

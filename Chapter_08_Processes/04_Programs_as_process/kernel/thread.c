@@ -637,10 +637,12 @@ int kthread_is_ready(kthread_t *kthread)
 		kthread->state.state == THR_STATE_READY;
 }
 
+/* Test if kthread is valid "active" thread descriptor and if its
+   active/ready/suspended/waiting, but also test validity of*/
 int kthread_is_alive(kthread_t *kthread)
 {
-	return	kthread->state.state != THR_STATE_PASSIVE &&
-		kthread_check_kthread(kthread);
+	return	kthread_check_kthread(kthread) &&
+		kthread->state.state != THR_STATE_PASSIVE;
 }
 
 int kthread_is_passive(kthread_t *kthread)

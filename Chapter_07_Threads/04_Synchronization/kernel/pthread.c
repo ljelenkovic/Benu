@@ -700,7 +700,7 @@ int sys__sem_post(sem_t *sem)
 {
 	ksem_t *ksem;
 	kobject_t *kobj;
-	kthread_t *kthread, *released;
+	kthread_t *kthread, *for_release;
 
 	SYS_ENTRY();
 
@@ -718,16 +718,17 @@ int sys__sem_post(sem_t *sem)
 	kthread_set_errno(kthread, EXIT_SUCCESS);
 	kthread_set_syscall_retval(kthread, EXIT_SUCCESS);
 
-	released = kthreadq_get(&ksem->queue); /* first to release */
+	for_release = kthreadq_get(&ksem->queue); /* first to release */
 
-	if (!released || ksem->sem_value < 0)
+	if (!for_release || ksem->sem_value < 0)
 	{
 		/* if initial semaphore value (set by sem_init) was negative,
 		 * semaphore will not release threads until its value
 		 * reaches zero (small extension of POSIX semaphore) */
 		ksem->sem_value++;
 	}
-	else {
+
+	if (for_release && ksem->sem_value >= 0) {
 		kthreadq_release(&ksem->queue);
 		kthreads_schedule();
 	}

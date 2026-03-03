@@ -217,7 +217,11 @@ static int k_device_status(int flags, kdevice_t *kdev)
 }
 
 /* /dev/null emulation */
-static int do_nothing()
+static int dev_null_rw(void *data, size_t size, uint flags, device_t *dev)
+{
+	return 0;
+}
+static int dev_null_status(uint flags, device_t *dev)
 {
 	return 0;
 }
@@ -231,9 +235,9 @@ device_t dev_null = (device_t)
 
 	.init =		NULL,
 	.destroy =	NULL,
-	.send =		do_nothing,
-	.recv =		do_nothing,
-	.status =	do_nothing,
+	.send =		dev_null_rw,
+	.recv =		dev_null_rw,
+	.status =	dev_null_status,
 
 	.flags = 	DEV_TYPE_SHARED,
 	.params = 	NULL,

@@ -66,7 +66,7 @@ static int rr_thread_add(ksched_t *ksched, kthread_t *kthread,
 /*! Remove thread from RR scheduler (disarm timer) */
 static int rr_thread_del(ksched_t *ksched, kthread_t *kthread)
 {
-	if (kthread == kthread_get_active(kthread))
+	if (kthread == kthread_get_active())
 	{
 		/* disarm timer */
 		TIME_RESET(&ksched->params.rr.alarm.it_value);

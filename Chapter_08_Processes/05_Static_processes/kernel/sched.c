@@ -135,7 +135,7 @@ void kthreads_schedule()
 	if (!curr || !kthread_is_active(curr) ||
 		kthread_get_prio(curr) < kthread_get_prio(next))
 	{
-		if (curr)	/* deactivate curr */
+		if (curr && !kthread_is_passive(curr)) /* deactivate curr */
 		{
 			/* move last active to ready queue, if still ready */
 			if (kthread_is_active(curr))

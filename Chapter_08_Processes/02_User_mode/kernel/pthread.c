@@ -119,13 +119,13 @@ int sys__pthread_join(void *p)
 
 	kthread = thread->ptr;
 
-	if (kthread_get_id(kthread) != thread->id)
+	if (kthread_get_id(kthread) != thread->id || !kthread_check_kthread(kthread))
 	{
 		/* at 'kthread' is now something else */
 		ret_value = EXIT_FAILURE;
 		SET_ERRNO(ESRCH);
 	}
-	else if (kthread_is_alive(kthread))
+	else if (!kthread_is_passive(kthread))
 	{
 		ret_value = EXIT_SUCCESS;
 		SET_ERRNO(EXIT_SUCCESS);
@@ -159,7 +159,7 @@ int sys__pthread_self(void *p)
 	ASSERT_ERRNO_AND_EXIT(thread, ESRCH);
 
 	thread->ptr = kthread_get_active();
-	thread->id = kthread_get_id(NULL);
+	thread->id = kthread_get_id(thread->ptr);
 
 	EXIT(EXIT_SUCCESS);
 }
@@ -752,7 +752,7 @@ int sys__sem_post(void *p)
 	if (!released || ksem->sem_value < 0)
 	{
 		/* if initial semaphore value (set by sem_init) was negative,
-		 * semaphore will not release threads until until its value
+		 * semaphore will not release threads until its value
 		 * reaches zero (small extension of POSIX semaphore) */
 		ksem->sem_value++;
 	}

@@ -115,25 +115,19 @@ void kthread_create_new_state(kthread_t *kthread,
 		list_prepend(&kthread->states, state, &state->list);
 	}
 
-	int stack_provided = FALSE;
-
 	if (!stack || !stack_size)
 	{
 		if (!stack_size)
 			stack_size = DEFAULT_THREAD_STACK_SIZE;
 
 		stack = kmalloc(stack_size);
-	}
-	ASSERT(stack && stack_size);
-
-	if (stack_provided)
-	{
-		kthread->state.stack = NULL;
-		kthread->state.stack_size = 0;
-	}
-	else {
+		ASSERT(stack && stack_size);
 		kthread->state.stack = stack;
 		kthread->state.stack_size = stack_size;
+	}
+	else {
+		kthread->state.stack = NULL;
+		kthread->state.stack_size = 0;
 	}
 
 	/* reserve space for errno in user space */
@@ -582,10 +576,12 @@ int kthread_is_ready(kthread_t *kthread)
 		kthread->state.state == THR_STATE_READY;
 }
 
+/* Test if kthread is valid "active" thread descriptor and if its
+   active/ready/suspended/waiting, but also test validity of*/
 int kthread_is_alive(kthread_t *kthread)
 {
-	return	kthread->state.state != THR_STATE_PASSIVE &&
-		kthread_check_kthread(kthread);
+	return	kthread_check_kthread(kthread) &&
+		kthread->state.state != THR_STATE_PASSIVE;
 }
 
 int kthread_is_passive(kthread_t *kthread)
@@ -624,7 +620,7 @@ int kthread_get_id(kthread_t *kthread)
 	if (kthread)
 		return kthread->id;
 	else
-		return active_thread->id;
+		return -1;
 }
 
 kthread_t *kthread_get_active()

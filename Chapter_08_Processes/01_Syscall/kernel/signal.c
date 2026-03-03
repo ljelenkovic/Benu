@@ -367,8 +367,8 @@ int sys__sigqueue(void *p)
 	ASSERT_ERRNO_AND_EXIT(kthread_get_id(kthread) == thread.id, EINVAL);
 	ASSERT_ERRNO_AND_EXIT(kthread_check_kthread(kthread), EINVAL);
 
-	sender.id = kthread_get_id(NULL);
 	sender.ptr = kthread_get_active();
+	sender.id = kthread_get_id(sender.ptr);
 
 	sig.si_signo = signo;
 	sig.si_value = sigval;

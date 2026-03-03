@@ -119,13 +119,13 @@ int sys__pthread_join(void *p)
 
 	kthread = thread->ptr;
 
-	if (kthread_get_id(kthread) != thread->id)
+	if (kthread_get_id(kthread) != thread->id || !kthread_check_kthread(kthread))
 	{
 		/* at 'kthread' is now something else */
 		ret_value = EXIT_FAILURE;
 		SET_ERRNO(ESRCH);
 	}
-	else if (kthread_is_alive(kthread))
+	else if (!kthread_is_passive(kthread))
 	{
 		ret_value = EXIT_SUCCESS;
 		SET_ERRNO(EXIT_SUCCESS);

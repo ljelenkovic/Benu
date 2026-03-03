@@ -58,7 +58,7 @@ void k_startup()
 	stdio_init(); /* initialize standard input & output devices */
 
 	/* starting program routine */
-	PROG_START_FUNC(NULL);
+	PROG_START_FUNC();
 
 	kprintf("\nSystem halted!\n");
 	halt();
